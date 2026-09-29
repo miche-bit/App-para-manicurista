@@ -1,0 +1,554 @@
+<title>Estudio Nácar</title>
+<meta name="description" content="Trabajos, precios y turnos disponibles de la semana. Reserva en un minuto.">
+<meta property="og:title" content="Reserva tu turno de uñas">
+<meta property="og:description" content="Mira mis trabajos, precios y turnos libres de esta semana.">
+<meta name="theme-color" content="#A3123F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Unbounded:wght@500;600&display=swap">
+<link rel="stylesheet" href="design.css">
+<style>
+  /* Estilos de la vista pública. Todo color/medida sale de design.css */
+  .wrap { max-width: var(--w-page); margin: 0 auto; padding-inline: var(--sp-4); }
+  main.wrap { padding-block: var(--sp-5) calc(96px + env(safe-area-inset-bottom, 0px)); }
+
+  .hero { padding-block: var(--sp-6) var(--sp-4); display: grid; gap: var(--sp-3); }
+  .hero .brand { font-size: var(--fs-2xl); }
+  .hero .brand em { font-style: normal; color: var(--c-accent); }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-sm); color: var(--c-muted); }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); padding-top: var(--sp-2); }
+  .next-free { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-ok); flex: none; }
+
+  .demo-note { background: var(--c-warn-soft); color: var(--c-warn); font-size: var(--fs-xs); font-weight: 600; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-sm); }
+
+  .panel { display: grid; gap: var(--sp-4); }
+  .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; }
+  .panel-head h2 { font-size: var(--fs-xl); }
+
+  /* Filtros de galería: pocas opciones (Ley de Hick) */
+  .chips { display: flex; gap: var(--sp-2); overflow-x: auto; padding-bottom: var(--sp-1); scrollbar-width: none; }
+  .chip {
+    min-height: 38px; padding: 0 var(--sp-4); border-radius: var(--r-pill); border: 1.5px solid var(--c-line);
+    background: var(--c-surface); color: var(--c-ink); font: 600 var(--fs-sm) var(--f-body); cursor: pointer; white-space: nowrap;
+  }
+  .chip[aria-pressed="true"] { background: var(--c-ink); border-color: var(--c-ink); color: var(--c-bg); }
+
+  .gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); }
+  @media (min-width: 560px) { .gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .work { display: grid; gap: var(--sp-2); text-align: left; background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; }
+  .work-img { aspect-ratio: 1; max-width: 100%; width: 100%; border-radius: var(--r-md); overflow: hidden; background: var(--c-skel); }
+  .work-img img, .work-img svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .work-title { font-weight: 600; font-size: var(--fs-sm); line-height: 1.3; }
+  .work-cat { font-size: var(--fs-xs); color: var(--c-muted); }
+  .work:hover .work-img { outline: 2px solid var(--c-line); outline-offset: 2px; }
+
+  /* Precios */
+  .price-group { display: grid; gap: var(--sp-1); }
+  .price-group h3 { font-size: var(--fs-md); font-family: var(--f-body); font-weight: 700; padding-bottom: var(--sp-1); }
+  .price-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-1) var(--sp-3); padding-block: var(--sp-3); border-top: 1px solid var(--c-line); align-items: start; }
+  .price-row .name { font-weight: 600; display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
+  .price-row .desc { font-size: var(--fs-sm); color: var(--c-muted); grid-column: 1; }
+  .price-row .amount { font-weight: 700; font-size: var(--fs-lg); text-align: right; }
+  .price-row .dur { font-size: var(--fs-xs); color: var(--c-muted); }
+  .price-row .btn { grid-column: 2; justify-self: end; min-height: 40px; padding: 0 var(--sp-4); }
+  .policy { background: var(--c-surface); border: 1px solid var(--c-line); border-radius: var(--r-md); padding: var(--sp-4); display: grid; gap: var(--sp-2); font-size: var(--fs-sm); }
+  .policy h3 { font-family: var(--f-body); font-size: var(--fs-md); font-weight: 700; }
+
+  /* Turnos */
+  fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+  legend { font-weight: 700; padding: 0; margin-bottom: var(--sp-2); }
+  .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--sp-1); }
+  .choice input { position: absolute; opacity: 0; pointer-events: none; }
+  .day {
+    display: grid; justify-items: center; gap: 2px; padding: var(--sp-2) 2px; min-height: 72px;
+    border: 1.5px solid var(--c-line); border-radius: var(--r-md); background: var(--c-surface); cursor: pointer; text-align: center;
+  }
+  .day .dow { font-size: var(--fs-xs); color: var(--c-muted); text-transform: capitalize; }
+  .day .dnum { font-family: var(--f-display); font-size: var(--fs-lg); font-weight: 600; }
+  .day .free { font-size: 11px; font-weight: 600; color: var(--c-ok); }
+  .choice input:checked + .day, .choice input:checked + .slot { background: var(--c-ink); border-color: var(--c-ink); color: var(--c-bg); }
+  .choice input:checked + .day .dow, .choice input:checked + .day .free { color: var(--c-bg); }
+  .choice input:focus-visible + .day, .choice input:focus-visible + .slot { outline: 3px solid var(--c-focus); outline-offset: 2px; }
+  .choice input:disabled + .day { opacity: .45; cursor: not-allowed; }
+  .choice input:disabled + .day .free { color: var(--c-muted); }
+  .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: var(--sp-2); }
+  .slot { display: grid; place-items: center; min-height: var(--tap); border: 1.5px solid var(--c-line); border-radius: var(--r-sm); background: var(--c-surface); font-weight: 600; cursor: pointer; }
+  .empty { padding: var(--sp-5); border: 1.5px dashed var(--c-line); border-radius: var(--r-md); text-align: center; color: var(--c-muted); display: grid; gap: var(--sp-3); justify-items: center; }
+  .cta-bar { position: sticky; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); padding-top: var(--sp-2); }
+
+  /* Barra inferior: 3 destinos, nada más */
+  .tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    background: var(--c-surface); border-top: 1px solid var(--c-line);
+    padding: var(--sp-2) var(--sp-4) calc(var(--sp-2) + env(safe-area-inset-bottom, 0px));
+  }
+  .tabbar-inner { max-width: var(--w-page); margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-2); }
+  .tab {
+    display: grid; justify-items: center; gap: 2px; min-height: 52px; padding: var(--sp-1); border: 0; border-radius: var(--r-md);
+    background: transparent; color: var(--c-muted); font: 600 var(--fs-xs) var(--f-body); cursor: pointer;
+  }
+  .tab svg { width: 22px; height: 22px; }
+  .tab[aria-selected="true"] { color: var(--c-accent); background: var(--c-accent-soft); }
+
+  /* Diálogos */
+  .summary { display: grid; gap: var(--sp-1); padding: var(--sp-3) var(--sp-4); background: var(--c-accent-soft); border-radius: var(--r-md); }
+  .summary strong { font-family: var(--f-display); font-weight: 600; }
+  .work-big { aspect-ratio: 1; max-width: 100%; border-radius: var(--r-md); overflow: hidden; background: var(--c-skel); }
+  .work-big img, .work-big svg { width: 100%; height: 100%; object-fit: cover; }
+  .success { display: grid; gap: var(--sp-3); text-align: center; justify-items: center; }
+  .success .check { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--c-ok-soft); color: var(--c-ok); font-size: 1.6rem; font-weight: 700; }
+  .copy-row { display: flex; gap: var(--sp-2); align-items: center; justify-content: center; flex-wrap: wrap; font-size: var(--fs-sm); }
+  .footer { font-size: var(--fs-xs); color: var(--c-muted); text-align: center; padding-top: var(--sp-6); }
+</style>
+
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<header class="wrap hero" aria-busy="true" id="hero">
+  <div class="skel skel-line w60" style="height:2rem"></div>
+  <div class="skel skel-line w80"></div>
+  <div class="skel skel-line w40"></div>
+</header>
+
+<main class="wrap" id="contenido" tabindex="-1">
+  <p class="demo-note" id="demoNote" hidden>Vista de demostración con datos de ejemplo. En el servidor real muestra los trabajos, precios y turnos que carga la manicurista.</p>
+
+  <!-- TRABAJOS -->
+  <section class="panel" id="p-trabajos" role="tabpanel" aria-labelledby="t-trabajos" aria-busy="true">
+    <div class="panel-head">
+      <h2>Trabajos</h2>
+      <span class="muted num" id="worksCount"></span>
+    </div>
+    <div class="chips" id="filters" role="group" aria-label="Filtrar trabajos por tipo"></div>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <!-- PRECIOS -->
+  <section class="panel" id="p-precios" role="tabpanel" aria-labelledby="t-precios" aria-busy="true" hidden>
+    <div class="panel-head">
+      <h2>Precios</h2>
+      <span class="muted" id="currencyNote"></span>
+    </div>
+    <div id="prices" class="panel"></div>
+    <aside class="policy" id="policy" aria-labelledby="policyTitle"></aside>
+  </section>
+
+  <!-- TURNOS -->
+  <section class="panel" id="p-turnos" role="tabpanel" aria-labelledby="t-turnos" aria-busy="true" hidden>
+    <div class="panel-head">
+      <h2>Turnos de la semana</h2>
+      <span class="muted num" id="weekRange"></span>
+    </div>
+    <div id="booking" class="panel"></div>
+  </section>
+
+  <p class="footer" id="footer"></p>
+</main>
+
+<nav class="tabbar" aria-label="Secciones">
+  <div class="tabbar-inner" role="tablist" id="tablist">
+    <button class="tab" role="tab" id="t-trabajos" aria-controls="p-trabajos" aria-selected="true" data-tab="trabajos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
+      Trabajos
+    </button>
+    <button class="tab" role="tab" id="t-precios" aria-controls="p-precios" aria-selected="false" tabindex="-1" data-tab="precios">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+      Precios
+    </button>
+    <button class="tab" role="tab" id="t-turnos" aria-controls="p-turnos" aria-selected="false" tabindex="-1" data-tab="turnos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      Turnos
+    </button>
+  </div>
+</nav>
+
+<!-- Diálogo: detalle de trabajo -->
+<dialog class="sheet" id="workDialog" aria-labelledby="workDialogTitle">
+  <div class="sheet-head">
+    <h2 id="workDialogTitle" style="font-size:var(--fs-lg)"></h2>
+    <button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button>
+  </div>
+  <div class="sheet-body">
+    <div class="work-big" id="workDialogImg"></div>
+    <p class="muted" id="workDialogCat"></p>
+    <button class="btn btn-primary btn-block" type="button" id="wantThis">Quiero este diseño</button>
+  </div>
+</dialog>
+
+<!-- Diálogo: reservar -->
+<dialog class="sheet" id="bookDialog" aria-labelledby="bookDialogTitle">
+  <div class="sheet-head">
+    <h2 id="bookDialogTitle" style="font-size:var(--fs-lg)">Tus datos</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button>
+  </div>
+  <div class="sheet-body" id="bookBody"></div>
+</dialog>
+
+<div class="sr-only" aria-live="polite" id="live"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+  document.documentElement.lang = 'es';
+  const $ = (s, el = document) => el.querySelector(s);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const state = { data: null, demo: false, tab: 'trabajos', filtro: 'Todos', dia: null, turno: null, servicioId: null, nota: '' };
+
+  // ---------- Datos de ejemplo (solo si no hay servidor) ----------
+  function demoData() {
+    const hoy = new Date(); const iso = d => d.toISOString().slice(0, 10);
+    const horas = ['09:00', '10:30', '12:00', '14:00', '15:30', '17:00'];
+    const dias = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(hoy); d.setDate(hoy.getDate() + i);
+      const cerrado = d.getDay() === 0;
+      dias.push({ fecha: iso(d), turnos: cerrado ? [] : horas.filter((_, k) => (k + i) % 3 !== 0).map((h, k) => ({ id: i * 10 + k + 1, hora: h })) });
+    }
+    return {
+      ajustes: { nombre: 'Estudio Nácar', eslogan: 'Uñas a mano, sin apuro', whatsapp: '5350000000', instagram: 'estudionacar', direccion: 'Calle 37 e/ 54 y 56, Cienfuegos', moneda: 'CUP',
+        sena: 'Para apartar el turno se pide una seña del 30 % por Transfermóvil o EnZona.',
+        politica: 'Si no puedes venir, avisa con 24 horas. Con más de 15 minutos de retraso el turno puede perderse.' },
+      categorias: ['Manos', 'Pies', 'Extensiones', 'Diseños'],
+      servicios: [
+        { id: 1, nombre: 'Manicura sencilla', categoria: 'Manos', precio: 1200, duracion: 45, descripcion: 'Limado, cutícula y esmalte tradicional.', popular: 0 },
+        { id: 2, nombre: 'Esmalte en gel', categoria: 'Manos', precio: 2500, duracion: 60, descripcion: 'Dura de 2 a 3 semanas sin descascararse.', popular: 1 },
+        { id: 3, nombre: 'Retiro de gel', categoria: 'Manos', precio: 600, duracion: 20, descripcion: 'Sin limar la uña natural.', popular: 0 },
+        { id: 4, nombre: 'Pedicura completa', categoria: 'Pies', precio: 1800, duracion: 60, descripcion: 'Baño, exfoliación, cutícula y esmalte.', popular: 0 },
+        { id: 5, nombre: 'Acrílico (juego completo)', categoria: 'Extensiones', precio: 4500, duracion: 120, descripcion: 'Forma almendra, cuadrada o coffin.', popular: 1 },
+        { id: 6, nombre: 'Relleno de acrílico', categoria: 'Extensiones', precio: 3000, duracion: 90, descripcion: 'Hasta 3 semanas de crecimiento.', popular: 0 },
+        { id: 7, nombre: 'Diseño por uña', categoria: 'Diseños', precio: 150, duracion: 10, descripcion: 'French, flores, líneas, pedrería.', popular: 0 },
+      ],
+      trabajos: [
+        { id: 1, titulo: 'French rosado', categoria: 'Manos', forma: 'almendra', color: '#E8A0B4', deco: 'french' },
+        { id: 2, titulo: 'Cereza brillante', categoria: 'Manos', forma: 'redonda', color: '#A3123F' },
+        { id: 3, titulo: 'Coffin nude con puntos', categoria: 'Extensiones', forma: 'coffin', color: '#D6B39C', deco: 'puntos' },
+        { id: 4, titulo: 'Azul noche', categoria: 'Diseños', forma: 'almendra', color: '#23305E', deco: 'puntos' },
+        { id: 5, titulo: 'Coral de verano', categoria: 'Pies', forma: 'cuadrada', color: '#F0735A' },
+        { id: 6, titulo: 'Menta con french', categoria: 'Diseños', forma: 'cuadrada', color: '#9ED9C0', deco: 'french' },
+      ],
+      dias,
+    };
+  }
+
+  // ---------- Formato ----------
+  const fmtPrecio = n => new Intl.NumberFormat('es-CU').format(n) + ' ' + (state.data?.ajustes.moneda || 'CUP');
+  const fecha = iso => new Date(iso + 'T12:00:00');
+  const fmtDia = (iso, opts) => fecha(iso).toLocaleDateString('es', opts);
+  const fmtDur = m => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ' ' + (m % 60) + ' min' : ''}` : `${m} min`;
+  const hora12 = h => { const [H, M] = h.split(':').map(Number); return `${((H + 11) % 12) + 1}:${String(M).padStart(2, '0')} ${H < 12 ? 'a. m.' : 'p. m.'}`; };
+
+  // Ilustración de uñas cuando el trabajo no tiene foto
+  function nailArt(w, big) {
+    const forms = {
+      almendra: x => `M${x} 96V46C${x} 20 ${x + 12} 4 ${x + 18} 0C${x + 24} 4 ${x + 36} 20 ${x + 36} 46V96Z`,
+      coffin: x => `M${x} 96V28L${x + 8} 0H${x + 28}L${x + 36} 28V96Z`,
+      redonda: x => `M${x} 96V18A18 18 0 0 1 ${x + 36} 18V96Z`,
+      cuadrada: x => `M${x} 96V6Q${x} 0 ${x + 6} 0H${x + 30}Q${x + 36} 0 ${x + 36} 6V96Z`,
+    };
+    const f = forms[w.forma] || forms.almendra; const id = 'g' + w.id + (big ? 'b' : '');
+    const nails = [16, 60, 104, 148].map((x, i) => {
+      const y = [34, 18, 14, 30][i];
+      let deco = '';
+      if (w.deco === 'puntos') deco = `<circle cx="${x + 18}" cy="${y + 58}" r="3" fill="#fff" opacity=".9"/><circle cx="${x + 12}" cy="${y + 72}" r="2" fill="#fff" opacity=".8"/><circle cx="${x + 24}" cy="${y + 70}" r="2.2" fill="#fff" opacity=".8"/>`;
+      return `<g transform="translate(0 ${y})"><path d="${f(x)}" fill="url(#${id})"/><path d="${f(x)}" fill="none" stroke="rgb(0 0 0 / .08)"/></g>${deco}<rect x="${x + 6}" y="${y + 14}" width="5" height="34" rx="2.5" fill="#fff" opacity=".35"/>`;
+    }).join('');
+    const tip = w.deco === 'french'
+      ? `<stop offset="0" stop-color="#FFFFFF"/><stop offset=".26" stop-color="#FFFFFF"/><stop offset=".27" stop-color="${w.color}"/>`
+      : `<stop offset="0" stop-color="${w.color}"/>`;
+    return `<svg viewBox="0 0 200 200" role="img" aria-label="${esc(w.titulo)}"><rect width="200" height="200" fill="var(--c-skel)"/>
+      <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">${tip}<stop offset="1" stop-color="${w.color}"/></linearGradient></defs>${nails}
+      <path d="M0 200V150Q100 120 200 150V200Z" fill="rgb(0 0 0 / .05)"/></svg>`;
+  }
+  const workMedia = (w, big) => w.imagen
+    ? `<img src="${esc(w.imagen)}" alt="${esc(w.titulo)}" loading="lazy" decoding="async">`
+    : nailArt(w, big);
+
+  // ---------- Skeletons (misma forma que el contenido final) ----------
+  function skeletons() {
+    $('#gallery').innerHTML = Array.from({ length: 6 }, () => `<div class="work" aria-hidden="true"><div class="work-img skel"></div><div class="skel skel-line w80"></div><div class="skel skel-line w40"></div></div>`).join('');
+    $('#filters').innerHTML = Array.from({ length: 4 }, () => `<span class="skel" style="width:84px;height:38px;border-radius:999px;flex:none" aria-hidden="true"></span>`).join('');
+    $('#prices').innerHTML = Array.from({ length: 5 }, () => `<div class="price-row" aria-hidden="true"><div style="display:grid;gap:8px"><div class="skel skel-line w60"></div><div class="skel skel-line w80"></div></div><div class="skel" style="width:72px;height:1.2em"></div></div>`).join('');
+    $('#booking').innerHTML = `<div class="days" aria-hidden="true">${Array.from({ length: 7 }, () => `<div class="skel" style="height:72px;border-radius:var(--r-md)"></div>`).join('')}</div>
+      <div class="slots" aria-hidden="true">${Array.from({ length: 6 }, () => `<div class="skel" style="height:44px"></div>`).join('')}</div>`;
+  }
+
+  // ---------- Carga ----------
+  async function load() {
+    skeletons();
+    try {
+      const r = await fetch('/api/publico', { headers: { Accept: 'application/json' } });
+      if (!r.ok) throw new Error(r.status);
+      state.data = await r.json();
+    } catch {
+      await new Promise(r => setTimeout(r, 700)); // deja ver el skeleton en la demo
+      state.data = demoData(); state.demo = true;
+    }
+    render();
+    document.querySelectorAll('[aria-busy]').forEach(el => el.setAttribute('aria-busy', 'false'));
+  }
+
+  function render() {
+    const { ajustes: a } = state.data;
+    document.title = a.nombre;
+    $('#demoNote').hidden = !state.demo;
+    renderHero(); renderGallery(); renderPrices(); renderBooking();
+    $('#footer').textContent = `${a.nombre} · ${a.direccion}`;
+  }
+
+  function primerLibre() {
+    for (const d of state.data.dias) if (d.turnos.length) return { dia: d.fecha, turno: d.turnos[0] };
+    return null;
+  }
+  const waLink = msg => `https://wa.me/${(state.data.ajustes.whatsapp || '').replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+
+  function renderHero() {
+    const a = state.data.ajustes; const p = primerLibre();
+    const [n1, ...resto] = a.nombre.split(' ');
+    $('#hero').innerHTML = `
+      <h1 class="brand">${esc(n1)} <em>${esc(resto.join(' '))}</em></h1>
+      <p>${esc(a.eslogan)}</p>
+      <div class="hero-meta">
+        <span>${esc(a.direccion)}</span>
+        ${a.instagram ? `<a href="https://instagram.com/${esc(a.instagram)}" rel="noopener">@${esc(a.instagram)}</a>` : ''}
+      </div>
+      ${p ? `<p class="next-free"><span class="dot" aria-hidden="true"></span>Próximo turno libre: <strong>${fmtDia(p.dia, { weekday: 'long', day: 'numeric' })}, ${hora12(p.turno.hora)}</strong></p>`
+          : `<p class="next-free muted">Esta semana está completa.</p>`}
+      <div class="hero-actions">
+        <button class="btn btn-primary" type="button" data-goto="turnos">Reservar turno</button>
+        <a class="btn btn-ghost" href="${waLink('Hola, quiero consultar por un turno.')}" rel="noopener">WhatsApp</a>
+      </div>`;
+  }
+
+  // ---------- Trabajos ----------
+  function renderGallery() {
+    const { trabajos, categorias } = state.data;
+    const usadas = categorias.filter(c => trabajos.some(t => t.categoria === c));
+    const opciones = ['Todos', ...usadas];
+    $('#filters').innerHTML = opciones.map(c => `<button type="button" class="chip" aria-pressed="${c === state.filtro}" data-filtro="${esc(c)}">${esc(c)}</button>`).join('');
+    const lista = trabajos.filter(t => state.filtro === 'Todos' || t.categoria === state.filtro);
+    $('#worksCount').textContent = `${lista.length} ${lista.length === 1 ? 'trabajo' : 'trabajos'}`;
+    $('#gallery').innerHTML = lista.length
+      ? lista.map(t => `<button type="button" class="work" data-work="${t.id}" aria-label="Ver ${esc(t.titulo)}">
+          <span class="work-img">${workMedia(t)}</span>
+          <span class="work-title">${esc(t.titulo)}</span><span class="work-cat">${esc(t.categoria)}</span></button>`).join('')
+      : `<div class="empty" style="grid-column:1/-1">Todavía no hay trabajos en esta categoría.</div>`;
+  }
+
+  // ---------- Precios ----------
+  function renderPrices() {
+    const { servicios, categorias, ajustes: a } = state.data;
+    $('#currencyNote').textContent = `Precios en ${a.moneda}`;
+    $('#prices').innerHTML = categorias.map(cat => {
+      const items = servicios.filter(s => s.categoria === cat);
+      if (!items.length) return '';
+      return `<section class="price-group" aria-labelledby="cat-${esc(cat)}"><h3 id="cat-${esc(cat)}">${esc(cat)}</h3>
+        ${items.map(s => `<div class="price-row">
+          <div><div class="name">${esc(s.nombre)} ${s.popular ? '<span class="pill pill-accent">Más pedido</span>' : ''}</div>
+            <div class="dur">${fmtDur(s.duracion)}</div></div>
+          <div class="amount num">${fmtPrecio(s.precio)}</div>
+          ${s.descripcion ? `<p class="desc">${esc(s.descripcion)}</p>` : '<span></span>'}
+          <button type="button" class="btn btn-soft" data-reservar="${s.id}" aria-label="Reservar ${esc(s.nombre)}">Reservar</button>
+        </div>`).join('')}</section>`;
+    }).join('');
+    $('#policy').innerHTML = `<h3 id="policyTitle">Antes de reservar</h3><p>${esc(a.sena)}</p><p>${esc(a.politica)}</p>`;
+  }
+
+  // ---------- Turnos: un paso a la vez (día → hora → datos) ----------
+  function renderBooking() {
+    const { dias } = state.data;
+    $('#weekRange').textContent = `${fmtDia(dias[0].fecha, { day: 'numeric', month: 'short' })} – ${fmtDia(dias[6].fecha, { day: 'numeric', month: 'short' })}`;
+    if (!state.dia || !dias.find(d => d.fecha === state.dia)?.turnos.length) state.dia = primerLibre()?.dia || null;
+    const dia = dias.find(d => d.fecha === state.dia);
+    if (state.turno && !dia?.turnos.some(t => t.id === state.turno.id)) state.turno = null;
+
+    if (!state.dia) {
+      $('#booking').innerHTML = `<div class="empty"><p>No quedan turnos libres esta semana.</p>
+        <a class="btn btn-primary" href="${waLink('Hola, no vi turnos libres. ¿Me avisas si se libera alguno?')}" rel="noopener">Pedir aviso por WhatsApp</a></div>`;
+      return;
+    }
+    $('#booking').innerHTML = `
+      <fieldset><legend>1. Elige el día</legend>
+        <div class="days">${dias.map(d => {
+          const n = d.turnos.length;
+          return `<label class="choice"><input type="radio" name="dia" value="${d.fecha}" ${d.fecha === state.dia ? 'checked' : ''} ${n ? '' : 'disabled'}
+              aria-label="${fmtDia(d.fecha, { weekday: 'long', day: 'numeric', month: 'long' })}, ${n ? n + (n === 1 ? ' turno libre' : ' turnos libres') : 'sin turnos'}">
+            <span class="day" aria-hidden="true"><span class="dow">${fmtDia(d.fecha, { weekday: 'short' }).replace('.', '')}</span>
+            <span class="dnum num">${fecha(d.fecha).getDate()}</span><span class="free">${n ? n + ' libres' : 'lleno'}</span></span></label>`;
+        }).join('')}</div>
+      </fieldset>
+      <fieldset><legend>2. Elige la hora <span class="muted" style="font-weight:400">· ${fmtDia(state.dia, { weekday: 'long', day: 'numeric' })}</span></legend>
+        <div class="slots">${dia.turnos.map(t => `<label class="choice"><input type="radio" name="turno" value="${t.id}" ${state.turno?.id === t.id ? 'checked' : ''} aria-label="${hora12(t.hora)}">
+          <span class="slot num" aria-hidden="true">${hora12(t.hora)}</span></label>`).join('')}</div>
+      </fieldset>
+      <div class="cta-bar"><button type="button" class="btn btn-primary btn-block" id="continuar" ${state.turno ? '' : 'aria-disabled="true"'}>
+        ${state.turno ? `Continuar · ${fmtDia(state.dia, { weekday: 'short', day: 'numeric' })}, ${hora12(state.turno.hora)}` : 'Elige una hora para continuar'}</button></div>`;
+  }
+
+  function openBook() {
+    const { servicios, ajustes: a } = state.data;
+    if (!state.servicioId) state.servicioId = (servicios.find(s => s.popular) || servicios[0])?.id;
+    $('#bookDialogTitle').textContent = 'Tus datos';
+    $('#bookBody').innerHTML = `
+      <div class="summary"><span class="eyebrow">Tu turno</span>
+        <strong>${fmtDia(state.dia, { weekday: 'long', day: 'numeric', month: 'long' })}</strong>
+        <span class="num">${hora12(state.turno.hora)}</span></div>
+      <form id="bookForm" novalidate class="sheet-body" style="padding:0">
+        <div class="field"><label for="f-servicio">Servicio</label>
+          <select class="input" id="f-servicio" name="servicio" aria-describedby="e-servicio">
+            ${state.data.categorias.map(c => {
+              const it = servicios.filter(s => s.categoria === c);
+              return it.length ? `<optgroup label="${esc(c)}">${it.map(s => `<option value="${s.id}" ${s.id === state.servicioId ? 'selected' : ''}>${esc(s.nombre)} · ${fmtPrecio(s.precio)}</option>`).join('')}</optgroup>` : '';
+            }).join('')}
+          </select><span class="error-text" id="e-servicio"></span></div>
+        <div class="field"><label for="f-nombre">Nombre</label>
+          <input class="input" id="f-nombre" name="nombre" autocomplete="name" required aria-describedby="e-nombre">
+          <span class="error-text" id="e-nombre"></span></div>
+        <div class="field"><label for="f-telefono">Teléfono / WhatsApp</label>
+          <input class="input" id="f-telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="h-telefono e-telefono">
+          <span class="hint" id="h-telefono">Te escribimos aquí para confirmar.</span><span class="error-text" id="e-telefono"></span></div>
+        <div class="field"><label for="f-notas">Notas <span class="muted" style="font-weight:400">(opcional)</span></label>
+          <textarea class="input" id="f-notas" name="notas" maxlength="400" aria-describedby="h-notas">${esc(state.nota)}</textarea>
+          <span class="hint" id="h-notas">Diseño que quieres, forma, largo o alergias.</span></div>
+        <p class="hint">${esc(a.sena)} ${esc(a.politica)}</p>
+        <p class="error-text" id="e-general" role="alert"></p>
+        <button class="btn btn-primary btn-block" type="submit" id="enviar">Solicitar turno</button>
+      </form>`;
+    $('#bookDialog').showModal();
+    $('#f-nombre').focus();
+  }
+
+  async function submitBook(e) {
+    e.preventDefault();
+    const f = e.target; const body = {
+      turno_id: state.turno.id, servicio_id: Number(f.servicio.value),
+      nombre: f.nombre.value.trim(), telefono: f.telefono.value.trim(), notas: f.notas.value.trim(),
+    };
+    // Validación en cliente con mensajes junto al campo
+    const errores = {};
+    if (body.nombre.length < 2) errores.nombre = 'Escribe tu nombre.';
+    if (body.telefono.replace(/\D/g, '').length < 8) errores.telefono = 'Escribe un teléfono de al menos 8 dígitos.';
+    ['nombre', 'telefono', 'servicio'].forEach(k => { $('#e-' + k).textContent = errores[k] || ''; f[k].setAttribute('aria-invalid', errores[k] ? 'true' : 'false'); });
+    $('#e-general').textContent = '';
+    if (Object.keys(errores).length) { f[Object.keys(errores)[0]].focus(); return; }
+
+    const btn = $('#enviar'); btn.disabled = true; btn.textContent = 'Enviando…';
+    let res;
+    try {
+      if (state.demo) { await new Promise(r => setTimeout(r, 600)); const s = state.data.servicios.find(x => x.id === body.servicio_id); res = { fecha: state.dia, hora: state.turno.hora, servicio: s.nombre, precio: s.precio }; }
+      else {
+        const r = await fetch('/api/reservas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const j = await r.json();
+        if (!r.ok) {
+          if (j.campo && $('#e-' + j.campo)) { $('#e-' + j.campo).textContent = j.error; f[j.campo].setAttribute('aria-invalid', 'true'); f[j.campo].focus(); }
+          else $('#e-general').textContent = j.error;
+          if (r.status === 409) { state.turno = null; reloadSilently(); }
+          btn.disabled = false; btn.textContent = 'Solicitar turno'; return;
+        }
+        res = j;
+      }
+    } catch {
+      $('#e-general').textContent = 'No hay conexión. Revisa tus datos móviles y vuelve a intentar.';
+      btn.disabled = false; btn.textContent = 'Solicitar turno'; return;
+    }
+    // Quitar el turno de la lista local
+    const d = state.data.dias.find(x => x.fecha === res.fecha); if (d) d.turnos = d.turnos.filter(t => t.id !== body.turno_id);
+    state.turno = null; state.nota = '';
+    showSuccess(res, body);
+    renderBooking(); renderHero();
+  }
+
+  function showSuccess(res, body) {
+    const a = state.data.ajustes;
+    const cuando = `${fmtDia(res.fecha, { weekday: 'long', day: 'numeric', month: 'long' })} a las ${hora12(res.hora)}`;
+    const msg = `Hola ${a.nombre}, soy ${body.nombre}. Solicité turno para ${res.servicio} el ${cuando}.${body.notas ? ' Nota: ' + body.notas : ''}`;
+    const numero = (a.whatsapp || '').replace(/\D/g, '');
+    $('#bookDialogTitle').textContent = 'Turno solicitado';
+    $('#bookBody').innerHTML = `<div class="success">
+      <div class="check" aria-hidden="true">✓</div>
+      <p><strong>${esc(res.servicio)}</strong><br>${cuando}</p>
+      <p class="muted">Queda <strong>pendiente</strong> hasta que ${esc(a.nombre)} lo confirme. ${esc(a.sena)}</p>
+      <a class="btn btn-primary btn-block" href="${waLink(msg)}" rel="noopener">Avisar por WhatsApp</a>
+      <div class="copy-row"><span>WhatsApp: <strong class="num" id="waNum">+${esc(numero)}</strong></span>
+        <button type="button" class="btn btn-ghost" id="copyNum" style="min-height:36px">Copiar número</button></div>
+      <button type="button" class="btn btn-ghost btn-block" data-close>Listo</button></div>`;
+    live('Turno solicitado para ' + cuando);
+    $('#bookBody .btn-primary').focus();
+  }
+
+  async function reloadSilently() {
+    if (state.demo) return;
+    try { const r = await fetch('/api/publico'); if (r.ok) { state.data = await r.json(); renderBooking(); renderHero(); } } catch {}
+  }
+
+  // ---------- Pestañas ----------
+  function setTab(tab, focus) {
+    state.tab = tab;
+    document.querySelectorAll('[role="tab"]').forEach(b => {
+      const on = b.dataset.tab === tab;
+      b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1;
+      $('#' + b.getAttribute('aria-controls')).hidden = !on;
+      if (on && focus) b.focus();
+    });
+    try { history.replaceState(null, '', '#' + tab); } catch {}
+    window.scrollTo({ top: 0 });
+  }
+
+  const live = t => { $('#live').textContent = ''; setTimeout(() => { $('#live').textContent = t; }, 50); };
+  function toast(t) { const el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 2600); }
+
+  // ---------- Eventos ----------
+  document.addEventListener('click', async e => {
+    const t = e.target.closest('button, a'); if (!t) return;
+    if (t.dataset.tab) setTab(t.dataset.tab);
+    else if (t.dataset.goto) setTab(t.dataset.goto);
+    else if (t.dataset.filtro) { state.filtro = t.dataset.filtro; renderGallery(); live(`${$('#worksCount').textContent} en ${state.filtro}`); $(`[data-filtro="${CSS.escape(state.filtro)}"]`)?.focus(); }
+    else if (t.dataset.work) {
+      const w = state.data.trabajos.find(x => String(x.id) === t.dataset.work); state.work = w;
+      $('#workDialogTitle').textContent = w.titulo; $('#workDialogImg').innerHTML = workMedia(w, true); $('#workDialogCat').textContent = w.categoria;
+      $('#workDialog').showModal();
+    }
+    else if (t.id === 'wantThis') {
+      state.nota = `Quiero el diseño "${state.work.titulo}".`; $('#workDialog').close(); setTab('turnos');
+      toast('Elige día y hora. Tu diseño quedó anotado.');
+    }
+    else if (t.dataset.reservar) { state.servicioId = Number(t.dataset.reservar); setTab('turnos'); toast('Servicio elegido. Ahora el día y la hora.'); }
+    else if (t.id === 'continuar') {
+      if (!state.turno) { live('Primero elige una hora.'); $('input[name="turno"]')?.focus(); return; }
+      openBook();
+    }
+    else if (t.id === 'copyNum') {
+      const txt = $('#waNum').textContent;
+      try { await navigator.clipboard.writeText(txt); toast('Número copiado'); }
+      catch { const r = document.createRange(); r.selectNodeContents($('#waNum')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Número seleccionado. Cópialo.'); }
+    }
+    if (t.hasAttribute('data-close')) t.closest('dialog').close();
+  });
+
+  document.addEventListener('change', e => {
+    if (e.target.name === 'dia') { state.dia = e.target.value; state.turno = null; renderBooking(); $(`input[name="dia"][value="${state.dia}"]`).focus(); }
+    if (e.target.name === 'turno') {
+      const dia = state.data.dias.find(d => d.fecha === state.dia);
+      state.turno = dia.turnos.find(x => String(x.id) === e.target.value);
+      const btn = $('#continuar'); btn.removeAttribute('aria-disabled');
+      btn.textContent = `Continuar · ${fmtDia(state.dia, { weekday: 'short', day: 'numeric' })}, ${hora12(state.turno.hora)}`;
+    }
+    if (e.target.id === 'f-servicio') state.servicioId = Number(e.target.value);
+  });
+  document.addEventListener('submit', e => { if (e.target.id === 'bookForm') submitBook(e); });
+
+  // Flechas entre pestañas (patrón ARIA tabs)
+  $('#tablist').addEventListener('keydown', e => {
+    const tabs = [...document.querySelectorAll('[role="tab"]')]; const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    let n = null;
+    if (e.key === 'ArrowRight') n = (i + 1) % tabs.length; else if (e.key === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') n = 0; else if (e.key === 'End') n = tabs.length - 1;
+    if (n !== null) { e.preventDefault(); setTab(tabs[n].dataset.tab, true); }
+  });
+
+  const inicial = (location.hash || '').slice(1);
+  if (['trabajos', 'precios', 'turnos'].includes(inicial)) setTab(inicial);
+  load();
+})();
+</script>

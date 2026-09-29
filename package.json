@@ -1,0 +1,12 @@
+{
+  "name": "estudio-unas",
+  "version": "1.0.0",
+  "description": "Web de manicurista: trabajos, precios y turnos semanales con panel de administración",
+  "main": "server.js",
+  "private": true,
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node server.js",
+    "semilla": "node semilla.js"
+  }
+}
