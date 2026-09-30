@@ -4,31 +4,6 @@ Web app para una manicurista. La clienta ve la galería, los precios, los turnos
 
 Sin dependencias: Node 22.13+ con `node:sqlite`, servidor `node:http`, HTML/CSS/JS sin framework.
 
-## Arrancar
-
-```bash
-ADMIN_PASSWORD=unaClaveLarga npm start      # http://localhost:3000  y  /admin
-```
-
-**Servicios de la clienta:** están en `servicios-iniciales.json` (pedicuras, acrílico en tips y rellenos con sus precios por largo). Se cargan solos la primera vez que arranca el servidor con la base vacía. Si la base ya tiene servicios de prueba: `npm run semilla -- --reemplazar` (o edítalos desde el panel).
-
-**Opciones de precio (variantes):** un servicio puede tener opciones como Cortas / Medianas / … / XXXL o "Solo en el pulgar / En todas las uñas". En la web se muestra "desde" el más barato, cada opción es un botón que lleva directo a reservar con ese largo, y al reservar la clienta elige una. En el panel se escriben una por línea: `Cortas = 1800`.
-
-## Variables de entorno
-
-Todas están explicadas en `.env.example`. En Railway van en **Variables**; en tu PC, copia `.env.example` como `.env` (el servidor lo lee solo y está en `.gitignore`).
-
-| Variable | Para qué | En Railway |
-|---|---|---|
-| `ADMIN_PASSWORD` | Contraseña del panel. **Sin ella el servidor no arranca en producción.** Si la cambias, se cierran todas las sesiones abiertas. | Obligatoria, 12+ caracteres |
-| `DATA_DIR` | Base de datos, fotos y comprobantes | `/data` (el volumen) |
-| `TZ_NEGOCIO` | Zona horaria del negocio | `America/Havana` |
-| `CORS_ORIGINS` | Dominios extra que pueden llamar a la API (coma). Vacío = solo el propio | Vacío, salvo que uses dominio propio además del de Railway |
-| `TRUST_PROXY` | Usar la IP real que agrega el proxy | Se activa sola |
-| `SESSION_HOURS` | Duración de la sesión del panel | 72 |
-| `DIAS_COMPROBANTES` | Días que se guardan los comprobantes antes de borrarse | 120 |
-
-**Railway:** volumen en `/data`, Healthcheck Path `/salud`, start `npm start`. Cierre ordenado con `SIGTERM`. Las bases de versiones anteriores se migran solas.
 
 ## Ubicación y mapa
 
@@ -65,12 +40,6 @@ Los comprobantes son **privados**: se guardan fuera de la carpeta pública, solo
 
 **Otras defensas.** Límite por IP en reservas (5/h), reseñas (3/h), sellos (20/h) y login (10/h, con demora); la IP no se puede falsificar con `X-Forwarded-For`. Campo trampa contra robots. Solo JSON y con tamaño máximo. Las fotos se validan por su firma real (un archivo disfrazado de PNG se rechaza; SVG no se acepta). Rutas de archivos protegidas contra `../`. Una URL malformada no tumba el servidor. Precios y seña se calculan en el servidor. Los estados de reserva solo cambian por transiciones válidas. Doble reserva del mismo turno imposible (transacción).
 
-## Auditoría automática
-
-```bash
-npm test
-```
-Levanta un servidor temporal con una base vacía (no toca tus datos) y corre 39 pruebas de flujos y seguridad: variables de entorno, cabeceras, CORS, acceso, fuerza bruta, validaciones, seña, comprobantes privados, doble reserva simultánea, transiciones, reseñas, sellos, galería y sesiones.
 
 ## Qué configura la manicurista en el panel
 
