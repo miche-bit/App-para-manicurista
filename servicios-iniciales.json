@@ -1,0 +1,55 @@
+[
+  {
+    "nombre": "Pedicura básica",
+    "categoria": "Pies",
+    "precio": 500,
+    "descripcion": "Limpieza de cutículas y esmaltado semipermanente."
+  },
+  {
+    "nombre": "Pedicura con acrílico",
+    "categoria": "Pies",
+    "descripcion": "Limpieza de cutículas y aplicación de acrílico.",
+    "variantes": [
+      { "nombre": "Solo en el pulgar", "precio": 1000 },
+      { "nombre": "En todas las uñas", "precio": 1200 }
+    ]
+  },
+  {
+    "nombre": "Pedicura con base rubber",
+    "categoria": "Pies",
+    "precio": 1000,
+    "descripcion": "Limpieza de cutículas e hidratación, más aplicación de base rubber."
+  },
+  {
+    "nombre": "Pedicura Spa",
+    "categoria": "Pies",
+    "precio": 2500,
+    "descripcion": "Baño con sales de hidratación, limpieza y exfoliación de calcañales, masajes, retiro de cutículas y aplicación de acrílico o base rubber (a tu preferencia)."
+  },
+  {
+    "nombre": "Acrílico en tips",
+    "categoria": "Extensiones",
+    "descripcion": "Aplicación de acrílico en tips. La decoración tiene un costo adicional.",
+    "variantes": [
+      { "nombre": "Cortas", "precio": 1800 },
+      { "nombre": "Medianas", "precio": 2400 },
+      { "nombre": "Largas", "precio": 3000 },
+      { "nombre": "XL", "precio": 3500 },
+      { "nombre": "XXL", "precio": 4000 },
+      { "nombre": "XXXL", "precio": 4500 }
+    ]
+  },
+  {
+    "nombre": "Relleno de acrílico",
+    "categoria": "Extensiones",
+    "descripcion": "Relleno del crecimiento. La decoración tiene un costo adicional.",
+    "variantes": [
+      { "nombre": "Cortas", "precio": 1600 },
+      { "nombre": "Medianas", "precio": 2200 },
+      { "nombre": "Largas", "precio": 2700 },
+      { "nombre": "XL", "precio": 3000 },
+      { "nombre": "XXL", "precio": 3500 },
+      { "nombre": "XXXL", "precio": 4000 }
+    ]
+  }
+]

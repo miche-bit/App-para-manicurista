@@ -1,4 +1,4 @@
-<title>Estudio Nácar</title>
+<title>Uñas Leyanis</title>
 <meta name="description" content="Trabajos, precios, turnos libres de la semana, ubicación y horario. Reserva en un minuto.">
 <meta property="og:title" content="Reserva tu turno de uñas">
 <meta property="og:description" content="Mira mis trabajos, precios y turnos libres de esta semana.">
@@ -92,6 +92,22 @@
   .price-row .amount { font-weight: 700; font-size: var(--fs-lg); text-align: right; white-space: nowrap; }
   .price-row .dur { font-size: var(--fs-xs); color: var(--c-muted); }
   .price-row .btn { grid-column: 2; justify-self: end; }
+  .desde { font-size: var(--fs-xs); font-weight: 600; color: var(--c-muted); }
+  .variants { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: var(--sp-1) 0 0; padding: 0; }
+  .vchip {
+    display: inline-flex; gap: 6px; align-items: baseline; min-height: 36px; padding: 0 var(--sp-3); border-radius: var(--r-pill);
+    border: 1.5px solid var(--c-line); background: var(--c-surface); color: var(--c-ink); font: 600 var(--fs-xs) var(--f-body); cursor: pointer;
+    transition: border-color var(--dur) var(--ease-out), transform var(--dur) var(--ease-spring), background var(--dur);
+  }
+  .vchip strong { color: var(--c-accent); }
+  .vchip:hover, .vchip:focus-visible { border-color: var(--c-accent); background: var(--c-accent-soft); transform: translateY(-2px); }
+  .vopts { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--sp-2); }
+  .vopt { display: grid; place-items: center; gap: 0; min-height: 56px; padding: var(--sp-1); border: 1.5px solid var(--c-line); border-radius: var(--r-sm); background: var(--c-surface); font-weight: 700; cursor: pointer; text-align: center; transition: background var(--dur) var(--ease-out), color var(--dur), border-color var(--dur); }
+  .vopt small { font-weight: 600; color: var(--c-muted); font-size: var(--fs-xs); }
+  .vopt:hover { border-color: var(--c-muted); }
+  .choice input:checked + .vopt { background: var(--c-ink); border-color: var(--c-ink); color: var(--c-bg); animation: pop 420ms var(--ease-spring); }
+  .choice input:checked + .vopt small { color: var(--c-bg); }
+  .choice input:focus-visible + .vopt { outline: 3px solid var(--c-focus); outline-offset: 2px; }
   .leader { display: none; }
   .policy { background: var(--c-gloss-soft); border-radius: var(--r-md); padding: var(--sp-4); display: grid; gap: var(--sp-2); font-size: var(--fs-sm); }
   .policy h3 { font-size: var(--fs-lg); font-style: italic; font-weight: 500; }
@@ -229,6 +245,28 @@
   .tab svg { width: 22px; height: 22px; transition: transform var(--dur) var(--ease-spring); }
   .tab[aria-selected="true"] { color: var(--c-accent); }
   .tab[aria-selected="true"] svg { transform: translateY(-2px) scale(1.08); }
+  /* ---------- Pago de la seña ---------- */
+  .trampa { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .sena-box { display: grid; gap: 2px; padding: var(--sp-4); border-radius: var(--r-md); background: var(--c-accent-soft); text-align: center; }
+  .sena-box strong { font-family: var(--f-display); font-size: 2.2rem; line-height: 1.1; color: var(--c-accent); animation: pop 600ms var(--ease-spring); }
+  .sena-box:focus { outline: none; }
+  .pay-steps { margin: 0; padding-left: 1.3em; display: grid; gap: var(--sp-1); font-size: var(--fs-sm); }
+  .cards { display: grid; gap: var(--sp-3); }
+  .card-pay {
+    position: relative; overflow: hidden; display: grid; gap: var(--sp-2); padding: var(--sp-4); border-radius: var(--r-lg); color: #FFF7FA;
+    background: linear-gradient(135deg, #2A1A2C 0%, #5A1530 55%, #A3123F 100%); box-shadow: var(--shadow-lift);
+    animation: fade-up var(--dur-slow) var(--ease-out) backwards; animation-delay: calc(var(--i) * 90ms + 150ms);
+  }
+  .card-pay::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / .22) 48%, transparent 62%); transform: translateX(-120%); animation: card-sheen 4.5s var(--ease-in-out) 1s infinite; pointer-events: none; }
+  @keyframes card-sheen { 0% { transform: translateX(-120%); } 35%, 100% { transform: translateX(120%); } }
+  .card-pay .btn-ghost { color: #FFF7FA; border-color: rgb(255 255 255 / .35); }
+  .card-pay .btn-ghost:hover { background: rgb(255 255 255 / .12); }
+  .card-pay .pill-gloss { background: rgb(255 255 255 / .16); color: #FFF7FA; }
+  .card-pay .muted { color: rgb(255 247 250 / .78); }
+  .card-num { font-size: 1.35rem; letter-spacing: .08em; font-weight: 700; }
+  .confirm-line { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; font-size: var(--fs-sm); padding-top: var(--sp-2); border-top: 1px solid rgb(255 255 255 / .2); }
+  .comp-prev { max-width: 160px; max-height: 220px; border-radius: var(--r-sm); border: 1px solid var(--c-line); object-fit: contain; animation: pop 420ms var(--ease-spring); }
+  #paso2.enter-r { animation: panel-r 480ms var(--ease-out); }
   .footer { font-size: var(--fs-xs); color: var(--c-muted); text-align: center; padding-top: var(--sp-6); display: grid; gap: var(--sp-1); }
 </style>
 
@@ -319,7 +357,7 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const TABS = ['trabajos', 'precios', 'turnos', 'estudio'];
-  const state = { data: null, demo: false, tab: 'trabajos', filtro: 'Todos', dia: null, turno: null, servicioId: null, extras: new Set(), nota: '', workIdx: 0, lista: [] };
+  const state = { data: null, demo: false, tab: 'trabajos', filtro: 'Todos', dia: null, turno: null, servicioId: null, variante: null, extras: new Set(), nota: '', workIdx: 0, lista: [] };
   const store = {
     get(k) { try { return JSON.parse(localStorage.getItem('estudio_' + k)); } catch { return null; } },
     set(k, v) { try { localStorage.setItem('estudio_' + k, JSON.stringify(v)); } catch {} },
@@ -339,12 +377,13 @@
     return {
       ahora: { fecha: iso(hoy), hora: hh, dow: hoy.getDay() },
       ajustes: {
-        nombre: 'Estudio Nácar', eslogan: 'Uñas pintadas a mano, sin apuro y con buen café.', whatsapp: '5350000000', instagram: 'estudionacar', facebook: '',
+        nombre: 'Uñas Leyanis', eslogan: 'Manicura y pedicura con amor al detalle.', whatsapp: '5359092880', instagram: '', facebook: '',
         direccion: 'Calle 37 #5402, entre 54 y 56', referencia: 'Portal azul, frente al parque', ciudad: 'Cienfuegos, Cuba', lat: '22.145600', lng: '-80.436400',
         horario: [{ abierto: false, abre: '09:00', cierra: '13:00' }, ...Array.from({ length: 5 }, () => ({ abierto: true, abre: '09:00', cierra: '18:00' })), { abierto: true, abre: '09:00', cierra: '14:00' }],
-        moneda: 'CUP', promo_activa: '1', promo_texto: 'Octubre: 15 % menos en pedicura completa',
-        fidelidad_activa: '1', fidelidad_visitas: '6', fidelidad_premio: 'La 7.ª manicura en gel es gratis',
-        sena: 'Para apartar el turno se pide una seña del 30 % por Transfermóvil o EnZona.',
+        moneda: 'CUP', promo_activa: '1', promo_texto: 'Ejemplo de promoción: 10 % menos en Pedicura Spa este mes',
+        fidelidad_activa: '1', fidelidad_visitas: '6', fidelidad_premio: 'La 7.ª pedicura básica es gratis',
+        sena_activa: '1', sena_porcentaje: '30',
+        sena: 'La seña se descuenta del total el día de tu turno.',
         politica: 'Si no puedes venir, avisa con 24 horas. Con más de 15 minutos de retraso el turno puede perderse.',
         faq: [
           { p: '¿Cuánto dura el esmalte en gel?', r: 'Entre 2 y 3 semanas si usas guantes al fregar y no usas las uñas como herramienta.' },
@@ -354,23 +393,24 @@
       },
       categorias: ['Manos', 'Pies', 'Extensiones', 'Diseños'],
       servicios: [
-        { id: 1, nombre: 'Manicura sencilla', categoria: 'Manos', precio: 1200, duracion: 45, descripcion: 'Limado, cutícula y esmalte tradicional.', popular: 0, extra: 0 },
-        { id: 2, nombre: 'Esmalte en gel', categoria: 'Manos', precio: 2500, duracion: 60, descripcion: 'Dura de 2 a 3 semanas sin descascararse.', popular: 1, extra: 0 },
-        { id: 3, nombre: 'Retiro de gel', categoria: 'Manos', precio: 600, duracion: 20, descripcion: 'Sin limar la uña natural.', popular: 0, extra: 1 },
-        { id: 4, nombre: 'Pedicura completa', categoria: 'Pies', precio: 1800, duracion: 60, descripcion: 'Baño, exfoliación, cutícula y esmalte.', popular: 0, extra: 0 },
-        { id: 5, nombre: 'Acrílico (juego completo)', categoria: 'Extensiones', precio: 4500, duracion: 120, descripcion: 'Forma almendra, cuadrada o coffin.', popular: 1, extra: 0 },
-        { id: 6, nombre: 'Relleno de acrílico', categoria: 'Extensiones', precio: 3000, duracion: 90, descripcion: 'Hasta 3 semanas de crecimiento.', popular: 0, extra: 0 },
-        { id: 7, nombre: 'Diseño a mano (por uña)', categoria: 'Diseños', precio: 150, duracion: 10, descripcion: 'French, flores, líneas finas.', popular: 0, extra: 1 },
-        { id: 8, nombre: 'Efecto cromado', categoria: 'Diseños', precio: 500, duracion: 15, descripcion: 'Acabado espejo en todas las uñas.', popular: 0, extra: 1 },
+        { id: 1, nombre: 'Pedicura básica', categoria: 'Pies', precio: 500, duracion: 0, descripcion: 'Limpieza de cutículas y esmaltado semipermanente.', popular: 0, extra: 0, variantes: [] },
+        { id: 2, nombre: 'Pedicura con acrílico', categoria: 'Pies', precio: 1000, duracion: 0, descripcion: 'Limpieza de cutículas y aplicación de acrílico.', popular: 0, extra: 0,
+          variantes: [{ nombre: 'Solo en el pulgar', precio: 1000 }, { nombre: 'En todas las uñas', precio: 1200 }] },
+        { id: 3, nombre: 'Pedicura con base rubber', categoria: 'Pies', precio: 1000, duracion: 0, descripcion: 'Limpieza de cutículas e hidratación, más aplicación de base rubber.', popular: 0, extra: 0, variantes: [] },
+        { id: 4, nombre: 'Pedicura Spa', categoria: 'Pies', precio: 2500, duracion: 0, descripcion: 'Baño con sales de hidratación, limpieza y exfoliación de calcañales, masajes, retiro de cutículas y aplicación de acrílico o base rubber (a tu preferencia).', popular: 0, extra: 0, variantes: [] },
+        { id: 5, nombre: 'Acrílico en tips', categoria: 'Extensiones', precio: 1800, duracion: 0, descripcion: 'Aplicación de acrílico en tips. La decoración tiene un costo adicional.', popular: 0, extra: 0,
+          variantes: [['Cortas', 1800], ['Medianas', 2400], ['Largas', 3000], ['XL', 3500], ['XXL', 4000], ['XXXL', 4500]].map(([nombre, precio]) => ({ nombre, precio })) },
+        { id: 6, nombre: 'Relleno de acrílico', categoria: 'Extensiones', precio: 1600, duracion: 0, descripcion: 'Relleno del crecimiento. La decoración tiene un costo adicional.', popular: 0, extra: 0,
+          variantes: [['Cortas', 1600], ['Medianas', 2200], ['Largas', 2700], ['XL', 3000], ['XXL', 3500], ['XXXL', 4000]].map(([nombre, precio]) => ({ nombre, precio })) },
       ],
       trabajos: [
-        { id: 1, titulo: 'French rosado', categoria: 'Manos', forma: 'almendra', color: '#E8A0B4', deco: 'french', nuevo: 1 },
-        { id: 2, titulo: 'Cereza brillante', categoria: 'Manos', forma: 'redonda', color: '#A3123F' },
+        { id: 1, titulo: 'French rosado', categoria: 'Extensiones', forma: 'almendra', color: '#E8A0B4', deco: 'french', nuevo: 1 },
+        { id: 2, titulo: 'Rojo cereza', categoria: 'Pies', forma: 'cuadrada', color: '#A3123F' },
         { id: 3, titulo: 'Coffin nude con puntos', categoria: 'Extensiones', forma: 'coffin', color: '#D6B39C', deco: 'puntos', nuevo: 1 },
-        { id: 4, titulo: 'Azul noche', categoria: 'Diseños', forma: 'almendra', color: '#23305E', deco: 'puntos' },
+        { id: 4, titulo: 'Negro con destellos', categoria: 'Diseños', forma: 'almendra', color: '#1E1A1D', deco: 'puntos' },
         { id: 5, titulo: 'Coral de verano', categoria: 'Pies', forma: 'cuadrada', color: '#F0735A' },
-        { id: 6, titulo: 'Menta con french', categoria: 'Diseños', forma: 'cuadrada', color: '#9ED9C0', deco: 'french' },
-        { id: 7, titulo: 'Borgoña de otoño', categoria: 'Manos', forma: 'almendra', color: '#5C1A2B' },
+        { id: 6, titulo: 'Fucsia con french', categoria: 'Diseños', forma: 'coffin', color: '#D6246E', deco: 'french' },
+        { id: 7, titulo: 'Rosa pastel XL', categoria: 'Extensiones', forma: 'almendra', color: '#F4B6C8' },
       ],
       resenas: [
         { id: 1, nombre: 'Clienta de ejemplo', estrellas: 5, texto: 'Aquí se verán las opiniones reales que apruebe la manicurista desde su panel.' },
@@ -378,6 +418,7 @@
         { id: 3, nombre: 'Ejemplo', estrellas: 4, texto: 'El promedio de estrellas se calcula solo con las opiniones aprobadas.' },
       ],
       resumenResenas: { total: 3, promedio: 4.7 },
+      tarjetas: [{ id: 1, banco: 'BANDEC (tarjeta de ejemplo)', numero: '9225000000000000', moneda: 'CUP', titular: 'Leyanis', confirmar: '59092880' }],
       dias,
     };
   }
@@ -539,15 +580,16 @@
       const items = servicios.filter(s => s.categoria === cat).sort((x, y) => x.extra - y.extra);
       if (!items.length) return '';
       return `<section class="price-group reveal" aria-labelledby="cat-${esc(cat)}"><h3 id="cat-${esc(cat)}">${esc(cat)}</h3>
-        ${items.map(s => `<div class="price-row">
+        ${items.map(s => { const vars = s.variantes || []; return `<div class="price-row">
           <div><div class="name">${esc(s.nombre)} ${s.popular ? '<span class="pill pill-accent">Más pedido</span>' : ''}${s.extra ? '<span class="pill pill-gloss">Complemento</span>' : ''}</div>
-            <div class="dur">${s.extra ? '+' : ''}${fmtDur(s.duracion)}</div></div>
-          <div class="amount num">${s.extra ? '+' : ''}${fmtPrecio(s.precio)}</div>
+            ${s.duracion ? `<div class="dur">${s.extra ? '+' : ''}${fmtDur(s.duracion)}</div>` : ''}</div>
+          <div class="amount num">${vars.length ? '<span class="desde">desde</span> ' : ''}${s.extra ? '+' : ''}${fmtPrecio(s.precio)}</div>
           ${s.descripcion ? `<p class="desc">${esc(s.descripcion)}</p>` : '<span></span>'}
+          ${vars.length ? `<ul class="variants" aria-label="Precios de ${esc(s.nombre)}">${vars.map((v, i) => `<li><button type="button" class="vchip" data-reservar="${s.id}" data-variante="${i}" aria-label="Reservar ${esc(s.nombre)}, ${esc(v.nombre)}, ${fmtPrecio(v.precio)}"><span>${esc(v.nombre)}</span><strong class="num">${fmtPrecio(v.precio)}</strong></button></li>`).join('')}</ul><span></span>` : ''}
           ${s.extra ? '<span></span>' : `<button type="button" class="btn btn-soft btn-sm" data-reservar="${s.id}" aria-label="Reservar ${esc(s.nombre)}">Reservar</button>`}
-        </div>`).join('')}</section>`;
+        </div>`; }).join('')}</section>`;
     }).join('') || '<div class="empty">La lista de precios estará aquí muy pronto.</div>';
-    $('#policy').innerHTML = `<h3 id="policyTitle">Antes de reservar</h3><p>${esc(a.sena)}</p><p>${esc(a.politica)}</p>`;
+    $('#policy').innerHTML = `<h3 id="policyTitle">Antes de reservar</h3>${pagoRequerido() ? `<p>Para apartar tu turno se transfiere una <strong>seña del ${pctSena()} %</strong> por Transfermóvil o EnZona y se sube la foto del comprobante al reservar.</p>` : ''}<p>${esc(a.sena)}</p><p>${esc(a.politica)}</p>`;
   }
 
   // ---------- Turnos: día → hora → datos ----------
@@ -584,8 +626,9 @@
   // ---------- Formulario de reserva ----------
   function totalActual() {
     const s = state.data.servicios; const base = s.find(x => x.id === state.servicioId);
+    const vars = base?.variantes || []; const v = vars[state.variante];
     const ex = s.filter(x => state.extras.has(x.id));
-    return { precio: (base?.precio || 0) + ex.reduce((t, e) => t + e.precio, 0), dur: (base?.duracion || 0) + ex.reduce((t, e) => t + e.duracion, 0) };
+    return { precio: (v ? v.precio : base?.precio || 0) + ex.reduce((t, e) => t + e.precio, 0), dur: (base?.duracion || 0) + ex.reduce((t, e) => t + e.duracion, 0), falta: vars.length > 0 && !v };
   }
   function animarNumero(el, hasta) {
     const desde = Number(el.dataset.v || 0); el.dataset.v = hasta;
@@ -595,7 +638,44 @@
     requestAnimationFrame(tick);
   }
   function actualizarTotal() {
-    const t = totalActual(); animarNumero($('#totalPrecio'), t.precio); $('#totalDur').textContent = `Duración aprox. ${fmtDur(t.dur)}`;
+    const t = totalActual(); animarNumero($('#totalPrecio'), t.precio);
+    $('#totalDur').textContent = t.falta ? 'Desde · elige una opción' : t.dur ? `Duración aprox. ${fmtDur(t.dur)}` : 'Total';
+  }
+  // Opciones del servicio (largo de uña, pulgar o todas): solo aparecen si el servicio las tiene
+  function variantesHtml() {
+    const s = state.data.servicios.find(x => x.id === state.servicioId); const vars = s?.variantes || [];
+    if (!vars.length) { state.variante = null; return ''; }
+    if (!(state.variante >= 0 && state.variante < vars.length)) state.variante = null;
+    const esLargo = vars.every(v => /^(cortas|medianas|largas|x+l)$/i.test(v.nombre));
+    return `<fieldset><legend class="label" style="font-size:var(--fs-sm)">${esLargo ? 'Elige el largo' : 'Elige una opción'}</legend>
+      <div class="vopts stagger">${vars.map((v, i) => `<label class="choice" style="--i:${i}"><input type="radio" name="variante" value="${i}" ${state.variante === i ? 'checked' : ''} aria-label="${esc(v.nombre)}, ${fmtPrecio(v.precio)}">
+        <span class="vopt" aria-hidden="true"><span>${esc(v.nombre)}</span><small class="num">${fmtPrecio(v.precio)}</small></span></label>`).join('')}</div>
+      <span class="error-text" id="e-variante" role="alert"></span></fieldset>`;
+  }
+  const marcar = (el, on) => { if (el && el.setAttribute) el.setAttribute('aria-invalid', on ? 'true' : 'false'); };
+
+  // ---------- Pago de la seña ----------
+  const pagoRequerido = () => state.data.ajustes.sena_activa === '1' && (state.data.tarjetas || []).length > 0;
+  const pctSena = () => Math.min(Math.max(parseInt(state.data.ajustes.sena_porcentaje, 10) || 0, 0), 100);
+  const senaDe = total => Math.ceil(total * pctSena() / 100);
+  const fmtTarjeta = n => String(n).replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
+  const fmtTel = n => { const d = String(n).replace(/\D/g, ''); return d.length === 8 ? d.replace(/(\d{2})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4') : '+' + d; };
+
+  function comprimirFoto(file, max = 1400) {
+    return new Promise((resolve, reject) => {
+      if (!/^image\//.test(file.type)) return reject(new Error('Elige una foto (JPG, PNG o WEBP).'));
+      const img = new Image(); const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+        let out = c.toDataURL('image/webp', .82);
+        if (!out.startsWith('data:image/webp')) out = c.toDataURL('image/jpeg', .85);
+        resolve(out);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('No se pudo leer la foto. Prueba con otra.')); };
+      img.src = url;
+    });
   }
 
   function openBook() {
@@ -603,89 +683,148 @@
     const principales = servicios.filter(s => !s.extra); const extras = servicios.filter(s => s.extra);
     if (!principales.some(s => s.id === state.servicioId)) state.servicioId = (principales.find(s => s.popular) || principales[0])?.id;
     const recordado = store.get('clienta') || {};
-    $('#bookDialogTitle').textContent = 'Tus datos';
+    const pago = pagoRequerido(); state.comp = null;
+    $('#bookDialogTitle').textContent = pago ? 'Paso 1 de 2 · Tus datos' : 'Tus datos';
     $('#bookBody').innerHTML = `
       <div class="summary"><span class="eyebrow">Tu turno</span>
         <strong>${fmtDia(state.dia, { weekday: 'long', day: 'numeric', month: 'long' })}</strong>
         <span class="num">${hora12(state.turno.hora)}</span></div>
       <form id="bookForm" novalidate class="sheet-body" style="padding:0">
-        <div class="field"><label for="f-servicio">Servicio</label>
-          <select class="input" id="f-servicio" name="servicio" aria-describedby="e-servicio">
-            ${state.data.categorias.map(c => { const it = principales.filter(s => s.categoria === c);
-              return it.length ? `<optgroup label="${esc(c)}">${it.map(s => `<option value="${s.id}" ${s.id === state.servicioId ? 'selected' : ''}>${esc(s.nombre)} · ${fmtPrecio(s.precio)}</option>`).join('')}</optgroup>` : ''; }).join('')}
-          </select><span class="error-text" id="e-servicio"></span></div>
-        ${extras.length ? `<fieldset><legend class="label" style="font-size:var(--fs-sm)">Complementos <span class="muted" style="font-weight:400">(opcional)</span></legend>
-          <div class="extras">${extras.map(e => `<label class="extra"><input type="checkbox" name="extra" value="${e.id}" ${state.extras.has(e.id) ? 'checked' : ''}>
-            <span>${esc(e.nombre)}</span><span class="num muted">+${fmtPrecio(e.precio)}</span></label>`).join('')}</div></fieldset>` : ''}
-        <div class="total" aria-live="polite"><span class="muted" id="totalDur"></span><strong class="num" id="totalPrecio"></strong></div>
-        <div class="field"><label for="f-nombre">Nombre</label>
-          <input class="input" id="f-nombre" name="nombre" autocomplete="name" required aria-describedby="e-nombre" value="${esc(recordado.nombre || '')}">
-          <span class="error-text" id="e-nombre"></span></div>
-        <div class="field"><label for="f-telefono">Teléfono / WhatsApp</label>
-          <input class="input" id="f-telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="h-telefono e-telefono" value="${esc(recordado.telefono || '')}">
-          <span class="hint" id="h-telefono">Te escribimos aquí para confirmar.</span><span class="error-text" id="e-telefono"></span></div>
-        <div class="field"><label for="f-notas">Notas <span class="muted" style="font-weight:400">(opcional)</span></label>
-          <textarea class="input" id="f-notas" name="notas" maxlength="400" aria-describedby="h-notas">${esc(state.nota)}</textarea>
-          <span class="hint" id="h-notas">Diseño que quieres, forma, largo o alergias.</span></div>
-        <label class="check-line"><input type="checkbox" id="f-recordar" ${recordado.nombre ? 'checked' : ''}> Recordar mi nombre y teléfono en este equipo</label>
-        <p class="hint">${esc(a.sena)} ${esc(a.politica)}</p>
-        <p class="error-text" id="e-general" role="alert"></p>
-        <button class="btn btn-primary btn-block" type="submit" id="enviar">Solicitar turno</button>
+        <input type="text" name="web" tabindex="-1" autocomplete="off" aria-hidden="true" class="trampa">
+        <div id="paso1" class="sheet-body" style="padding:0">
+          <div class="field"><label for="f-servicio">Servicio</label>
+            <select class="input" id="f-servicio" name="servicio" aria-describedby="e-servicio">
+              ${state.data.categorias.map(c => { const it = principales.filter(s => s.categoria === c);
+                return it.length ? `<optgroup label="${esc(c)}">${it.map(s => `<option value="${s.id}" ${s.id === state.servicioId ? 'selected' : ''}>${esc(s.nombre)} · ${(s.variantes || []).length ? 'desde ' : ''}${fmtPrecio(s.precio)}</option>`).join('')}</optgroup>` : ''; }).join('')}
+            </select><span class="error-text" id="e-servicio"></span></div>
+          <div id="varBox">${variantesHtml()}</div>
+          ${extras.length ? `<fieldset><legend class="label" style="font-size:var(--fs-sm)">Complementos <span class="muted" style="font-weight:400">(opcional)</span></legend>
+            <div class="extras">${extras.map(e => `<label class="extra"><input type="checkbox" name="extra" value="${e.id}" ${state.extras.has(e.id) ? 'checked' : ''}>
+              <span>${esc(e.nombre)}</span><span class="num muted">+${fmtPrecio(e.precio)}</span></label>`).join('')}</div></fieldset>` : ''}
+          <div class="total" aria-live="polite"><span class="muted" id="totalDur"></span><strong class="num" id="totalPrecio"></strong></div>
+          <div class="field"><label for="f-nombre">Nombre</label>
+            <input class="input" id="f-nombre" name="nombre" autocomplete="name" required aria-describedby="e-nombre" value="${esc(recordado.nombre || '')}">
+            <span class="error-text" id="e-nombre"></span></div>
+          <div class="field"><label for="f-telefono">Teléfono / WhatsApp</label>
+            <input class="input" id="f-telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="h-telefono e-telefono" value="${esc(recordado.telefono || '')}">
+            <span class="hint" id="h-telefono">Te escribimos aquí para confirmar.</span><span class="error-text" id="e-telefono"></span></div>
+          <div class="field"><label for="f-notas">Notas <span class="muted" style="font-weight:400">(opcional)</span></label>
+            <textarea class="input" id="f-notas" name="notas" maxlength="400" aria-describedby="h-notas">${esc(state.nota)}</textarea>
+            <span class="hint" id="h-notas">Diseño que quieres, forma, largo o alergias.</span></div>
+          <label class="check-line"><input type="checkbox" id="f-recordar" ${recordado.nombre ? 'checked' : ''}> Recordar mi nombre y teléfono en este equipo</label>
+          <p class="hint">${esc(a.politica)}</p>
+          <p class="error-text" id="e-general1" role="alert"></p>
+          ${pago ? '<button class="btn btn-primary btn-block" type="button" id="irPago">Continuar al pago de la seña</button>'
+                 : '<button class="btn btn-primary btn-block" type="submit" id="enviar">Solicitar turno</button>'}
+        </div>
+        ${pago ? `<div id="paso2" class="sheet-body pay" style="padding:0" hidden>
+          <div class="sena-box" aria-live="polite"><span class="eyebrow">Seña para apartar el turno (${pctSena()} %)</span>
+            <strong class="num" id="senaMonto"></strong><span class="muted" id="senaDe"></span></div>
+          <ol class="pay-steps">
+            <li>Transfiere la seña por <strong>Transfermóvil</strong> o <strong>EnZona</strong> a una de estas tarjetas.</li>
+            <li>Toma una captura del comprobante.</li>
+            <li>Súbela aquí y envía tu reserva.</li>
+          </ol>
+          <div class="cards">${state.data.tarjetas.map((t, i) => `<div class="card-pay" style="--i:${i}">
+            <div class="row" style="justify-content:space-between"><strong>${esc(t.banco)}</strong><span class="pill pill-gloss">${esc(t.moneda)}</span></div>
+            <div class="card-num num" id="tn${t.id}">${fmtTarjeta(t.numero)}</div>
+            ${t.titular ? `<span class="muted" style="font-size:var(--fs-xs)">A nombre de ${esc(t.titular)}</span>` : ''}
+            <div class="row"><button type="button" class="btn btn-ghost btn-sm" data-copy="#tn${t.id}" data-copy-raw="${esc(t.numero)}">Copiar tarjeta</button></div>
+            <div class="confirm-line">Número a confirmar: <strong class="num" id="tc${t.id}">${fmtTel(t.confirmar)}</strong>
+              <button type="button" class="btn btn-ghost btn-sm" data-copy="#tc${t.id}" data-copy-raw="${esc(t.confirmar)}">Copiar</button></div>
+          </div>`).join('')}</div>
+          <div class="field"><label for="f-comp">Foto del comprobante</label>
+            <input class="input" id="f-comp" type="file" accept="image/*" aria-describedby="h-comp e-comprobante">
+            <span class="hint" id="h-comp">Se reduce antes de enviarla para gastar menos datos. Solo la ve ${esc(a.nombre)}.</span>
+            <span class="error-text" id="e-comprobante" role="alert"></span>
+            <img id="compPrev" class="comp-prev" alt="Vista previa del comprobante" hidden></div>
+          <div class="field"><label for="f-trans">Número de transacción <span class="muted" style="font-weight:400">(opcional)</span></label>
+            <input class="input num" id="f-trans" name="transaccion" maxlength="60" autocomplete="off" aria-describedby="h-trans">
+            <span class="hint" id="h-trans">Aparece en el SMS o en el comprobante. Ayuda a verificar más rápido.</span></div>
+          <p class="hint">${esc(a.sena)}</p>
+          <p class="error-text" id="e-general" role="alert"></p>
+          <div class="row" style="flex-wrap:nowrap"><button class="btn btn-ghost" type="button" id="volverPaso1">← Volver</button>
+            <button class="btn btn-primary" type="submit" id="enviar" style="flex:1">Enviar reserva</button></div>
+        </div>` : '<p class="error-text" id="e-general" role="alert"></p>'}
       </form>`;
     $('#bookDialog').showModal();
     actualizarTotal();
-    (recordado.nombre ? $('#enviar') : $('#f-nombre')).focus();
+    (recordado.nombre ? ($('#irPago') || $('#enviar')) : $('#f-nombre')).focus();
+  }
+
+  // Valida el paso 1 (datos). Devuelve true si está bien.
+  function validarPaso1() {
+    const f = $('#bookForm').elements; const errores = {};
+    if (totalActual().falta) errores.variante = 'Elige una opción del servicio.';
+    if (f.nombre.value.trim().length < 2) errores.nombre = 'Escribe tu nombre.';
+    if (f.telefono.value.replace(/\D/g, '').length < 8) errores.telefono = 'Escribe un teléfono de al menos 8 dígitos.';
+    ['nombre', 'telefono', 'servicio', 'variante'].forEach(k => { const m = $('#e-' + k); if (m) m.textContent = errores[k] || ''; marcar(f[k], errores[k]); });
+    if (Object.keys(errores).length) { const k = Object.keys(errores)[0]; (k === 'variante' ? $('input[name="variante"]') : f[k]).focus(); return false; }
+    return true;
+  }
+  function irAlPago() {
+    if (!validarPaso1()) return;
+    const t = totalActual();
+    $('#senaMonto').textContent = fmtPrecio(senaDe(t.precio));
+    $('#senaDe').textContent = `del total de ${fmtPrecio(t.precio)}`;
+    $('#paso1').hidden = true; $('#paso2').hidden = false; $('#paso2').classList.add('enter-r');
+    $('#bookDialogTitle').textContent = 'Paso 2 de 2 · Seña';
+    $('#bookDialog').scrollTop = 0; $('#paso2 .sena-box').setAttribute('tabindex', '-1'); $('#paso2 .sena-box').focus();
   }
 
   async function submitBook(e) {
     e.preventDefault();
-    const f = e.target.elements; const body = {
-      turno_id: state.turno.id, servicio_id: Number(f.servicio.value), extras: [...state.extras],
-      nombre: f.nombre.value.trim(), telefono: f.telefono.value.trim(), notas: f.notas.value.trim(),
+    const pago = pagoRequerido();
+    if (pago && $('#paso2').hidden) return irAlPago();    // Enter en el paso 1 lleva al pago
+    if (!validarPaso1()) { if (pago) { $('#paso2').hidden = true; $('#paso1').hidden = false; } return; }
+    const f = e.target.elements;
+    const body = {
+      turno_id: state.turno.id, servicio_id: Number(f.servicio.value), variante: state.variante, extras: [...state.extras],
+      nombre: f.nombre.value.trim(), telefono: f.telefono.value.trim(), notas: f.notas.value.trim(), web: f.web.value,
     };
-    const errores = {};
-    if (body.nombre.length < 2) errores.nombre = 'Escribe tu nombre.';
-    if (body.telefono.replace(/\D/g, '').length < 8) errores.telefono = 'Escribe un teléfono de al menos 8 dígitos.';
-    ['nombre', 'telefono', 'servicio'].forEach(k => { $('#e-' + k).textContent = errores[k] || ''; f[k].setAttribute('aria-invalid', errores[k] ? 'true' : 'false'); });
-    $('#e-general').textContent = '';
-    if (Object.keys(errores).length) { f[Object.keys(errores)[0]].focus(); return; }
+    if (pago) {
+      if (!state.comp) { $('#e-comprobante').textContent = 'Sube la foto del comprobante de la transferencia.'; marcar($('#f-comp'), true); $('#f-comp').focus(); return; }
+      body.comprobante = state.comp; body.transaccion = f.transaccion.value.trim();
+    }
     if ($('#f-recordar').checked) store.set('clienta', { nombre: body.nombre, telefono: body.telefono }); else store.del('clienta');
-
-    const btn = $('#enviar'); btn.disabled = true; btn.textContent = 'Enviando…';
+    $('#e-general').textContent = '';
+    const btn = $('#enviar'); const txt = btn.textContent; btn.disabled = true; btn.textContent = 'Enviando…';
+    const fallo = msg => { $('#e-general').textContent = msg; btn.disabled = false; btn.textContent = txt; };
     let res;
     try {
       if (state.demo) {
-        await new Promise(r => setTimeout(r, 700));
-        const s = state.data.servicios.find(x => x.id === body.servicio_id); const t = totalActual();
-        res = { fecha: state.dia, hora: state.turno.hora, servicio: s.nombre, extras: state.data.servicios.filter(x => state.extras.has(x.id)).map(x => x.nombre), precio: t.precio, duracion: t.dur };
+        await new Promise(r => setTimeout(r, 800));
+        const s = state.data.servicios.find(x => x.id === body.servicio_id); const t = totalActual(); const v = (s.variantes || [])[state.variante];
+        res = { fecha: state.dia, hora: state.turno.hora, servicio: s.nombre + (v ? ' · ' + v.nombre : ''), extras: state.data.servicios.filter(x => state.extras.has(x.id)).map(x => x.nombre),
+          precio: t.precio, sena: pago ? senaDe(t.precio) : 0, pago: pago ? 'por_verificar' : 'sin_pago', duracion: t.dur };
       } else {
         const r = await fetch('/api/reservas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-        const j = await r.json();
+        const j = await r.json().catch(() => ({ error: 'Respuesta inesperada del servidor. Intenta de nuevo.' }));
         if (!r.ok) {
-          if (j.campo && $('#e-' + j.campo)) { $('#e-' + j.campo).textContent = j.error; f[j.campo].setAttribute('aria-invalid', 'true'); f[j.campo].focus(); }
-          else $('#e-general').textContent = j.error;
-          if (r.status === 409) { state.turno = null; reloadSilently(); }
-          btn.disabled = false; btn.textContent = 'Solicitar turno'; return;
+          const enPaso1 = ['nombre', 'telefono', 'servicio', 'variante'].includes(j.campo);
+          if (enPaso1 && pago) { $('#paso2').hidden = true; $('#paso1').hidden = false; }
+          if (j.campo && $('#e-' + j.campo)) { $('#e-' + j.campo).textContent = j.error; marcar(j.campo === 'comprobante' ? $('#f-comp') : f[j.campo], true); btn.disabled = false; btn.textContent = txt; }
+          else fallo(j.error || 'No se pudo enviar. Intenta de nuevo.');
+          if (r.status === 409) { state.turno = null; reloadSilently(); $('#e-general').textContent += ' Cierra esta ventana y elige otra hora.'; }
+          return;
         }
         res = j;
       }
-    } catch {
-      $('#e-general').textContent = 'No hay conexión. Revisa tus datos móviles y vuelve a intentar.';
-      btn.disabled = false; btn.textContent = 'Solicitar turno'; return;
-    }
+    } catch { return fallo('No hay conexión. Revisa tus datos móviles y vuelve a intentar.'); }
     const d = state.data.dias.find(x => x.fecha === res.fecha); if (d) d.turnos = d.turnos.filter(t => t.id !== body.turno_id);
-    state.turno = null; state.nota = ''; state.extras.clear();
+    state.turno = null; state.nota = ''; state.extras.clear(); state.variante = null; state.comp = null;
     showSuccess(res, body);
     renderBooking(); renderHero();
   }
 
   function calendarLink(res) {
     const a = state.data.ajustes;
-    const ini = res.fecha.replace(/-/g, '') + 'T' + res.hora.replace(':', '') + '00';
-    const finD = new Date(`${res.fecha}T${res.hora}:00`); finD.setMinutes(finD.getMinutes() + (res.duracion || 60));
     const p = n => String(n).padStart(2, '0');
-    const fin = `${finD.getFullYear()}${p(finD.getMonth() + 1)}${p(finD.getDate())}T${p(finD.getHours())}${p(finD.getMinutes())}00`;
-    const q = new URLSearchParams({ action: 'TEMPLATE', text: `${res.servicio} · ${a.nombre}`, dates: `${ini}/${fin}`, ctz: 'America/Havana', location: `${a.direccion}, ${a.ciudad}`, details: 'Turno pendiente de confirmación.' });
+    const [Y, M, D] = res.fecha.split('-').map(Number); const [h, m] = res.hora.split(':').map(Number);
+    const fin = new Date(Date.UTC(Y, M - 1, D, h, m + (res.duracion || 60)));
+    const ini = `${res.fecha.replace(/-/g, '')}T${p(h)}${p(m)}00`;
+    const finS = `${fin.getUTCFullYear()}${p(fin.getUTCMonth() + 1)}${p(fin.getUTCDate())}T${p(fin.getUTCHours())}${p(fin.getUTCMinutes())}00`;
+    const q = new URLSearchParams({ action: 'TEMPLATE', text: `${res.servicio} · ${a.nombre}`, dates: `${ini}/${finS}`, ctz: 'America/Havana', location: `${a.direccion}, ${a.ciudad}`, details: 'Turno pendiente de confirmación.' });
     return 'https://calendar.google.com/calendar/render?' + q;
   }
 
@@ -693,18 +832,19 @@
     const a = state.data.ajustes;
     const cuando = `${fmtDia(res.fecha, { weekday: 'long', day: 'numeric', month: 'long' })} a las ${hora12(res.hora)}`;
     const extras = res.extras?.length ? ` + ${res.extras.join(', ')}` : '';
-    const msg = `Hola ${a.nombre}, soy ${body.nombre}. Solicité turno para ${res.servicio}${extras} el ${cuando} (total ${fmtPrecio(res.precio)}).${body.notas ? ' Nota: ' + body.notas : ''}`;
-    $('#bookDialogTitle').textContent = 'Turno solicitado';
+    const conPago = res.pago === 'por_verificar';
+    const msg = `Hola ${a.nombre}, soy ${body.nombre}. Reservé ${res.servicio}${extras} el ${cuando} (total ${fmtPrecio(res.precio)}).${conPago ? ` Ya transferí la seña de ${fmtPrecio(res.sena)} y subí el comprobante.` : ''}${body.notas ? ' Nota: ' + body.notas : ''}`;
+    $('#bookDialogTitle').textContent = conPago ? 'Reserva enviada' : 'Turno solicitado';
     $('#bookBody').innerHTML = `<div class="success">
       <svg class="tick" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" fill="none" stroke="var(--c-ok)" stroke-width="4"/><path d="M23 37l9 9 18-19" fill="none" stroke="var(--c-ok)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <p><strong>${esc(res.servicio)}${esc(extras)}</strong><br>${cuando}<br><span class="num">${fmtPrecio(res.precio)}</span></p>
-      <p class="muted">Queda <strong>pendiente</strong> hasta que ${esc(a.nombre)} lo confirme. ${esc(a.sena)}</p>
+      <p><strong>${esc(res.servicio)}${esc(extras)}</strong><br>${cuando}<br><span class="num">Total ${fmtPrecio(res.precio)}</span>${conPago ? `<br><span class="num">Seña enviada: ${fmtPrecio(res.sena)}</span>` : ''}</p>
+      <p class="muted">${conPago ? `${esc(a.nombre)} va a verificar tu transferencia y te confirma el turno por WhatsApp.` : `Queda <strong>pendiente</strong> hasta que ${esc(a.nombre)} lo confirme.`}</p>
       <a class="btn btn-primary btn-block" href="${waLink(msg)}" rel="noopener">Avisar por WhatsApp</a>
       <a class="btn btn-ghost btn-block" href="${calendarLink(res)}" rel="noopener" target="_blank">Agregar a mi calendario</a>
       <div class="copy-row"><span>WhatsApp: <strong class="num" id="waNum">+${esc(numeroWA())}</strong></span>
         <button type="button" class="btn btn-ghost btn-sm" data-copy="#waNum">Copiar número</button></div>
       <button type="button" class="btn btn-ghost btn-block" data-close>Listo</button></div>`;
-    live('Turno solicitado para ' + cuando);
+    live((conPago ? 'Reserva enviada con comprobante para ' : 'Turno solicitado para ') + cuando);
     $('#bookBody .btn-primary').focus();
     confetti();
   }
@@ -892,15 +1032,22 @@
     else if (t.id === 'prevWork') showWork(state.workIdx - 1, 'l');
     else if (t.id === 'nextWork') showWork(state.workIdx + 1, 'r');
     else if (t.id === 'wantThis') { state.nota = `Quiero el diseño "${state.lista[state.workIdx].titulo}".`; $('#workDialog').close(); setTab('turnos'); toast('Elige día y hora. Tu diseño quedó anotado.'); }
-    else if (t.dataset.reservar) { state.servicioId = Number(t.dataset.reservar); setTab('turnos'); toast('Servicio elegido. Ahora el día y la hora.'); }
+    else if (t.dataset.reservar) {
+      state.servicioId = Number(t.dataset.reservar); state.variante = t.dataset.variante !== undefined ? Number(t.dataset.variante) : null;
+      setTab('turnos');
+      const s = state.data.servicios.find(x => x.id === state.servicioId); const v = (s?.variantes || [])[state.variante];
+      toast(`${s.nombre}${v ? ' · ' + v.nombre : ''} elegido. Ahora el día y la hora.`);
+    }
     else if (t.id === 'continuar') { if (!state.turno) { live('Primero elige una hora.'); $('input[name="turno"]')?.focus(); return; } openBook(); }
     else if (t.id === 'openReview') openReview();
+    else if (t.id === 'irPago') irAlPago();
+    else if (t.id === 'volverPaso1') { $('#paso2').hidden = true; $('#paso1').hidden = false; $('#bookDialogTitle').textContent = 'Paso 1 de 2 · Tus datos'; $('#irPago').focus(); }
     else if (t.id === 'loadMap') {
       const a = state.data.ajustes; const la = Number(a.lat), lo = Number(a.lng), d = .004;
       $('#map').innerHTML = `<iframe title="Mapa interactivo de ${esc(a.nombre)}" loading="lazy" referrerpolicy="no-referrer" src="https://www.openstreetmap.org/export/embed.html?bbox=${lo - d},${la - d * .6},${lo + d},${la + d * .6}&layer=mapnik&marker=${la},${lo}"></iframe>`;
     }
     else if (t.dataset.copy) {
-      const el = $(t.dataset.copy); const txt = el.textContent + (t.dataset.copyExtra || '');
+      const el = $(t.dataset.copy); const txt = t.dataset.copyRaw || (el.textContent + (t.dataset.copyExtra || ''));
       try { await navigator.clipboard.writeText(txt); toast('Copiado'); }
       catch { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Texto seleccionado. Cópialo.'); }
     }
@@ -919,7 +1066,15 @@
       state.turno = state.data.dias.find(d => d.fecha === state.dia).turnos.find(x => String(x.id) === e.target.value);
       const b = $('#continuar'); b.removeAttribute('aria-disabled'); b.textContent = ctaText(); b.classList.remove('ready'); void b.offsetWidth; b.classList.add('ready');
     }
-    if (e.target.id === 'f-servicio') { state.servicioId = Number(e.target.value); actualizarTotal(); }
+    if (e.target.id === 'f-servicio') { state.servicioId = Number(e.target.value); state.variante = null; $('#varBox').innerHTML = variantesHtml(); actualizarTotal(); }
+    if (n === 'variante') { state.variante = Number(e.target.value); $('#e-variante').textContent = ''; actualizarTotal(); }
+    if (e.target.id === 'f-comp' && e.target.files[0]) {
+      const prev = $('#compPrev'); $('#e-comprobante').textContent = ''; marcar(e.target, false);
+      comprimirFoto(e.target.files[0]).then(d => {
+        if (d.length > 4_000_000) throw new Error('La foto sigue siendo muy pesada. Usa una captura de pantalla.');
+        state.comp = d; prev.src = d; prev.hidden = false; live('Comprobante listo para enviar');
+      }).catch(er => { state.comp = null; prev.hidden = true; $('#e-comprobante').textContent = er.message; marcar(e.target, true); });
+    }
     if (n === 'extra') { const id = Number(e.target.value); e.target.checked ? state.extras.add(id) : state.extras.delete(id); actualizarTotal(); }
   });
   document.addEventListener('submit', e => {

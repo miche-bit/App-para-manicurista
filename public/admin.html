@@ -67,6 +67,16 @@
 <div class="sr-only" aria-live="polite" id="live"></div>
 <div class="toast" id="toast" role="status" hidden></div>
 
+<dialog class="sheet" id="compDialog" aria-labelledby="compTitle">
+  <div class="sheet-head"><h2 id="compTitle" style="font-size:var(--fs-lg)">Comprobante</h2><button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button></div>
+  <div class="sheet-body" id="compBody"></div>
+</dialog>
+
+<dialog class="sheet" id="cardDialog" aria-labelledby="cardTitle">
+  <div class="sheet-head"><h2 id="cardTitle" style="font-size:var(--fs-lg)">Tarjeta</h2><button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button></div>
+  <form class="sheet-body" id="cardForm" novalidate></form>
+</dialog>
+
 <dialog class="sheet" id="svcDialog" aria-labelledby="svcTitle">
   <div class="sheet-head"><h2 id="svcTitle" style="font-size:var(--fs-lg)">Servicio</h2><button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button></div>
   <form class="sheet-body" id="svcForm" novalidate></form>
@@ -84,6 +94,8 @@
   try { S.token = localStorage.getItem('estudio_token'); } catch {}
 
   const ESTADO = { pendiente: ['Pendiente', 'pill-warn'], confirmada: ['Confirmada', 'pill-ok'], cancelada: ['Cancelada', 'pill-muted'], completada: ['Completada', 'pill-accent'], no_asistio: ['No vino', 'pill-danger'] };
+  const PAGO = { sin_pago: ['Sin seña', 'pill-muted'], por_verificar: ['Pago por verificar', 'pill-warn'], verificado: ['Pago verificado', 'pill-ok'], rechazado: ['Pago rechazado', 'pill-danger'] };
+  const fmtTarjeta = n => String(n).replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
   const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   const fecha = iso => new Date(iso + 'T12:00:00');
   const sumarDias = (iso, n) => { const d = fecha(iso); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
@@ -167,7 +179,8 @@
     const wa = (r, tipo) => {
       const a = S.data.ajustes; const cuando = `${fmtDia(r.fecha)} a las ${hora12(r.hora)}`;
       const t = {
-        confirmar: `Hola ${r.nombre}, tu turno de ${r.servicio} para el ${cuando} está confirmado. ${a.sena}`,
+        confirmar: `Hola ${r.nombre}, tu turno de ${r.servicio} para el ${cuando} está confirmado.${r.sena ? ` Recibí tu seña de ${precio(r.sena)}; el resto se paga el día del turno.` : ''} ${a.direccion}.`,
+        rechazo: `Hola ${r.nombre}, no pude verificar la transferencia de la seña (${precio(r.sena)}) de tu turno del ${cuando}. ¿Me reenvías el comprobante o el número de transacción? Por ahora el turno quedó libre.`,
         recordar: `Hola ${r.nombre}, te recuerdo tu turno de ${r.servicio} el ${cuando}. ¡Te espero! ${a.direccion}.`,
         volver: `Hola ${r.nombre}, ya van casi 3 semanas desde tu ${r.servicio}. ¿Te reservo para el relleno? Mira los turnos libres: ${sitio()}/#turnos`,
         opinion: `Hola ${r.nombre}, gracias por venir. Si te gustó, me ayudarías mucho dejando tu opinión aquí: ${sitio()}/#estudio`,
@@ -177,6 +190,7 @@
     $('#contenido').innerHTML = `
       <div class="kpis">
         <div class="kpi hl"><span class="muted">Por confirmar</span><strong class="num" data-n="${grupos.pendiente.length}">0</strong></div>
+        <div class="kpi"><span class="muted">Pagos por verificar</span><strong class="num" data-n="${todas.filter(r => r.pago === 'por_verificar' && r.estado === 'pendiente').length}">0</strong></div>
         <div class="kpi"><span class="muted">Ingresos confirmados (7 días)</span><strong class="num" data-n="${ingresos}" data-fmt="precio">0</strong></div>
         <div class="kpi"><span class="muted">Ocupación de la semana</span><strong class="num" data-n="${ocup}" data-fmt="pct">0</strong><div class="meter"><i style="--v:${ocup}%"></i></div></div>
         <div class="kpi"><span class="muted">Ausencias (60 días)</span><strong class="num" data-n="${ausencias}" data-fmt="pct">0</strong><div class="meter"><i style="--v:${ausencias}%;background:var(--c-danger)"></i></div></div>
@@ -191,12 +205,15 @@
         <div class="row between"><span class="booking-when" id="res-${r.id}">${fmtDia(r.fecha)} · ${hora12(r.hora)}</span><span class="pill ${ESTADO[r.estado][1]}">${ESTADO[r.estado][0]}</span></div>
         <div><strong>${esc(r.nombre)}</strong> · <span class="num">${esc(r.telefono)}</span></div>
         <div class="muted">${esc(r.servicio)}${r.extras ? ' + ' + esc(r.extras) : ''} · <span class="num">${precio(r.precio)}</span></div>
+        ${r.pago !== 'sin_pago' ? `<div class="row"><span class="pill ${PAGO[r.pago][1]}">${PAGO[r.pago][0]}</span><span class="num">Seña ${precio(r.sena)}</span>${r.transaccion ? `<span class="muted num" style="font-size:var(--fs-xs)">Transacción ${esc(r.transaccion)}</span>` : ''}</div>` : ''}
         ${r.notas ? `<p class="note">${esc(r.notas)}</p>` : ''}
         <div class="row">
-          ${r.estado === 'pendiente' ? `<button class="btn btn-primary btn-sm" data-res="${r.id}" data-estado="confirmada">Confirmar</button><a class="btn btn-soft btn-sm" href="${wa(r, 'confirmar')}" target="_blank" rel="noopener">Escribirle</a>` : ''}
+          ${r.tieneComprobante ? `<button class="btn btn-soft btn-sm" data-comp="${r.id}">Ver comprobante</button>` : ''}
+          ${r.estado === 'pendiente' ? `<button class="btn btn-primary btn-sm" data-res="${r.id}" data-estado="confirmada">${r.pago === 'por_verificar' ? 'Pago correcto: confirmar' : 'Confirmar'}</button><a class="btn btn-soft btn-sm" href="${wa(r, 'confirmar')}" target="_blank" rel="noopener">Escribirle</a>${r.pago === 'por_verificar' ? `<button class="btn btn-danger btn-sm" data-rechazar="${r.id}">Rechazar pago</button>` : ''}` : ''}
+          ${r.estado === 'cancelada' && r.pago === 'rechazado' ? `<a class="btn btn-soft btn-sm" href="${wa(r, 'rechazo')}" target="_blank" rel="noopener">Avisarle por WhatsApp</a>` : ''}
           ${r.estado === 'confirmada' ? `<a class="btn btn-soft btn-sm" href="${wa(r, 'recordar')}" target="_blank" rel="noopener">Recordatorio</a><button class="btn btn-ghost btn-sm" data-res="${r.id}" data-estado="completada">Completada</button><button class="btn btn-ghost btn-sm" data-res="${r.id}" data-estado="no_asistio">No vino</button>` : ''}
           ${r.estado === 'completada' ? `<a class="btn btn-soft btn-sm" href="${wa(r, 'opinion')}" target="_blank" rel="noopener">Pedir opinión</a><a class="btn btn-ghost btn-sm" href="${wa(r, 'volver')}" target="_blank" rel="noopener">Invitar a volver</a>` : ''}
-          ${['pendiente', 'confirmada'].includes(r.estado) ? `<button class="btn btn-danger btn-sm" data-res="${r.id}" data-estado="cancelada">Cancelar</button>` : ''}
+          ${['pendiente', 'confirmada'].includes(r.estado) ? `<button class="btn btn-danger btn-sm" data-cancelar="${r.id}">Cancelar turno</button>` : ''}
           ${r.estado === 'cancelada' && r.fecha >= hoy ? `<button class="btn btn-ghost btn-sm" data-res="${r.id}" data-estado="pendiente">Reactivar</button>` : ''}
         </div></article>`).join('')
         : `<div class="card muted">${S.filtroRes === 'pendiente' ? 'No hay reservas por confirmar.' : 'Nada por aquí todavía.'}</div>`}</div>`;
@@ -243,7 +260,7 @@
         ${categorias.map(c => { const it = servicios.filter(s => s.categoria === c); return it.length ? `<section class="card" aria-labelledby="c-${c}"><h3 id="c-${c}" class="h">${c}</h3>
           ${it.map(s => `<div class="row between" style="border-top:1px solid var(--c-line);padding-top:var(--sp-3)">
             <div><strong>${esc(s.nombre)}</strong> ${s.popular ? '<span class="pill pill-accent">Más pedido</span>' : ''} ${s.extra ? '<span class="pill pill-gloss">Complemento</span>' : ''} ${s.activo ? '' : '<span class="pill pill-muted">Oculto</span>'}
-              <div class="muted num" style="font-size:var(--fs-sm)">${precio(s.precio)} · ${s.duracion} min</div></div>
+              <div class="muted num" style="font-size:var(--fs-sm)">${(s.variantes || []).length ? `desde ${precio(s.precio)} · ${s.variantes.length} opciones: ${s.variantes.map(v => esc(v.nombre)).join(', ')}` : precio(s.precio)}${s.duracion ? ` · ${s.duracion} min` : ''}</div></div>
             <div class="row"><button class="btn btn-ghost btn-sm" data-editsvc="${s.id}">Editar</button><button class="btn btn-danger btn-sm" data-delsvc="${s.id}" aria-label="Borrar ${esc(s.nombre)}">Borrar</button></div></div>`).join('')}</section>` : ''; }).join('')
         || '<div class="card muted">Agrega tu primer servicio para que aparezca la lista de precios.</div>'}`;
     } else {
@@ -274,11 +291,14 @@
       <div class="field"><label for="s-nombre">Nombre</label><input class="input" id="s-nombre" value="${esc(s?.nombre || '')}" required></div>
       <div class="grid2">
         <div class="field"><label for="s-categoria">Categoría</label><select class="input" id="s-categoria">${S.data.categorias.map(c => `<option ${s?.categoria === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
-        <div class="field"><label for="s-precio">Precio (${esc(S.data.ajustes.moneda)})</label><input class="input num" id="s-precio" type="number" min="0" inputmode="numeric" value="${s?.precio ?? ''}" required></div>
-        <div class="field"><label for="s-duracion">Duración (min)</label><input class="input num" id="s-duracion" type="number" min="5" step="5" value="${s?.duracion ?? 60}"></div>
+        <div class="field"><label for="s-precio">Precio (${esc(S.data.ajustes.moneda)})</label><input class="input num" id="s-precio" type="number" min="0" inputmode="numeric" value="${s?.precio ?? ''}" aria-describedby="h-precio"><span class="hint" id="h-precio">Si pones opciones abajo, se usa la más barata como "desde".</span></div>
+        <div class="field"><label for="s-duracion">Duración (min)</label><input class="input num" id="s-duracion" type="number" min="0" step="5" value="${s?.duracion ?? 0}" aria-describedby="h-dur"><span class="hint" id="h-dur">0 = no mostrar duración.</span></div>
         <div class="field"><label for="s-orden">Orden</label><input class="input num" id="s-orden" type="number" value="${s?.orden ?? 0}"></div>
       </div>
-      <div class="field"><label for="s-desc">Descripción corta</label><textarea class="input" id="s-desc" maxlength="240">${esc(s?.descripcion || '')}</textarea></div>
+      <div class="field"><label for="s-desc">Descripción corta</label><textarea class="input" id="s-desc" maxlength="400">${esc(s?.descripcion || '')}</textarea></div>
+      <div class="field"><label for="s-vars">Opciones de precio <span class="muted" style="font-weight:400">(opcional)</span></label>
+        <textarea class="input num" id="s-vars" rows="4" aria-describedby="h-vars" placeholder="Cortas = 1800&#10;Medianas = 2400&#10;Largas = 3000">${esc((s?.variantes || []).map(v => `${v.nombre} = ${v.precio}`).join('\n'))}</textarea>
+        <span class="hint" id="h-vars">Una por línea: nombre = precio. Sirve para largos (Cortas, XL…) u opciones (Solo pulgar, Todas las uñas). La clienta elige una al reservar.</span></div>
       <label class="check"><input type="checkbox" id="s-popular" ${s?.popular ? 'checked' : ''}> Marcar como "Más pedido"</label>
       <label class="check"><input type="checkbox" id="s-extra" ${s?.extra ? 'checked' : ''}> Es un complemento (se suma a otro servicio)</label>
       <label class="check"><input type="checkbox" id="s-activo" ${s?.activo === 0 ? '' : 'checked'}> Visible en la web</label>
@@ -354,8 +374,22 @@
         <span class="hint">Cuenta las reservas que marcas como "Completada" con el mismo teléfono.</span>
         <button class="btn btn-primary" type="submit">Guardar tarjeta</button></form>
 
-      <form class="card" data-grupo="politicas" novalidate><h2 class="h">Seña y políticas</h2>
-        <div class="field"><label for="a-sena">Seña y forma de pago</label><textarea class="input" id="a-sena">${esc(a.sena)}</textarea></div>
+      <form class="card" data-grupo="pago" novalidate><h2 class="h">Pago de la seña</h2>
+        <label class="check"><input type="checkbox" id="a-sena_activa" ${a.sena_activa === '1' ? 'checked' : ''}> Pedir seña y comprobante al reservar</label>
+        <div class="grid2">${inp('sena_porcentaje', 'Porcentaje de la seña (%)', 'type="number" min="0" max="100" inputmode="numeric"')}</div>
+        <div class="field"><label for="a-sena">Nota para la clienta</label><textarea class="input" id="a-sena" placeholder="La seña se descuenta del total el día de tu turno.">${esc(a.sena)}</textarea></div>
+        <span class="hint">La seña solo se pide si además hay al menos una tarjeta activa abajo. La web calcula el monto sola.</span>
+        <button class="btn btn-primary" type="submit">Guardar seña</button></form>
+
+      <section class="card" aria-labelledby="tarT"><div class="row between"><h2 class="h" id="tarT">Tarjetas para recibir la seña</h2><button type="button" class="btn btn-primary btn-sm" data-newcard>Agregar tarjeta</button></div>
+        ${S.data.tarjetas.length ? S.data.tarjetas.map(t => `<div class="row between" style="border-top:1px solid var(--c-line);padding-top:var(--sp-3)">
+          <div><strong>${esc(t.banco)}</strong> <span class="pill pill-gloss">${esc(t.moneda)}</span> ${t.activa ? '<span class="pill pill-ok">Visible</span>' : '<span class="pill pill-muted">Oculta</span>'}
+            <div class="num">${fmtTarjeta(t.numero)}</div><div class="muted num" style="font-size:var(--fs-sm)">Número a confirmar: ${esc(t.confirmar)}${t.titular ? ' · ' + esc(t.titular) : ''}</div></div>
+          <div class="row"><button class="btn btn-ghost btn-sm" data-editcard="${t.id}">Editar</button><button class="btn btn-danger btn-sm" data-delcard="${t.id}" aria-label="Borrar tarjeta ${esc(t.banco)}">Borrar</button></div></div>`).join('')
+          : '<p class="muted">Aún no agregaste tarjetas. Sin tarjeta, la web no pide seña.</p>'}
+      </section>
+
+      <form class="card" data-grupo="politicas" novalidate><h2 class="h">Política de cancelación</h2>
         <div class="field"><label for="a-politica">Política de cancelación</label><textarea class="input" id="a-politica">${esc(a.politica)}</textarea></div>
         <button class="btn btn-primary" type="submit">Guardar políticas</button></form>
 
@@ -364,6 +398,37 @@
         <div class="row"><button type="button" class="btn btn-ghost btn-sm" id="addFaq">Agregar pregunta</button></div>
         <button class="btn btn-primary" type="submit">Guardar preguntas</button></form>`;
     pintarMapa();
+  }
+  async function verComprobante(id) {
+    const r = S.data.reservas.find(x => x.id === id);
+    $('#compTitle').textContent = `Comprobante de ${r.nombre}`;
+    $('#compBody').innerHTML = '<div class="skel" style="aspect-ratio:3/4;border-radius:var(--r-md)" aria-hidden="true"></div>';
+    $('#compDialog').showModal();
+    try {
+      const resp = await fetch(`/api/admin/reservas/${id}/comprobante`, { headers: { Authorization: 'Bearer ' + S.token } });
+      if (!resp.ok) throw new Error((await resp.json().catch(() => ({}))).error || 'No se pudo abrir el comprobante.');
+      if (S.compURL) URL.revokeObjectURL(S.compURL);
+      S.compURL = URL.createObjectURL(await resp.blob());
+      $('#compBody').innerHTML = `<img src="${S.compURL}" alt="Comprobante de transferencia de ${esc(r.nombre)}" style="width:100%;border-radius:var(--r-md);border:1px solid var(--c-line)">
+        <div class="note"><strong>Debe decir:</strong> ${precio(r.sena)} · ${esc(r.nombre)} · ${fmtDia(r.fecha)} ${hora12(r.hora)}${r.transaccion ? `<br>Transacción indicada: <span class="num">${esc(r.transaccion)}</span>` : ''}</div>
+        ${r.estado === 'pendiente' ? `<div class="row"><button class="btn btn-primary" data-res="${r.id}" data-estado="confirmada" data-cerrar-comp>Pago correcto: confirmar</button><button class="btn btn-danger" data-rechazar="${r.id}" data-cerrar-comp>Rechazar pago</button></div>` : `<span class="pill ${PAGO[r.pago][1]}">${PAGO[r.pago][0]}</span>`}`;
+    } catch (e) { $('#compBody').innerHTML = `<p class="error-text">${esc(e.message)}</p>`; }
+  }
+  function openCard(t) {
+    S.editCard = t || null;
+    $('#cardTitle').textContent = t ? 'Editar tarjeta' : 'Nueva tarjeta';
+    $('#cardForm').innerHTML = `
+      <div class="grid2">
+        <div class="field"><label for="c-banco">Banco</label><input class="input" id="c-banco" list="bancos" value="${esc(t?.banco || '')}" placeholder="BANDEC"><datalist id="bancos"><option>BANDEC</option><option>BPA</option><option>Metropolitano</option></datalist><span class="error-text" id="ce-banco"></span></div>
+        <div class="field"><label for="c-moneda">Moneda</label><select class="input" id="c-moneda">${['CUP', 'MLC', 'USD'].map(m => `<option ${t?.moneda === m ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
+      </div>
+      <div class="field"><label for="c-numero">Número de tarjeta (16 dígitos)</label><input class="input num" id="c-numero" inputmode="numeric" autocomplete="off" value="${esc(fmtTarjeta(t?.numero || ''))}" placeholder="9225 0000 0000 0000"><span class="error-text" id="ce-numero"></span></div>
+      <div class="field"><label for="c-confirmar">Número a confirmar (tu móvil)</label><input class="input num" id="c-confirmar" inputmode="tel" value="${esc(t?.confirmar || '')}" placeholder="5xxxxxxx" aria-describedby="ch-conf"><span class="hint" id="ch-conf">El teléfono al que llega el SMS de la transferencia.</span><span class="error-text" id="ce-confirmar"></span></div>
+      <div class="field"><label for="c-titular">Titular <span class="muted" style="font-weight:400">(opcional)</span></label><input class="input" id="c-titular" value="${esc(t?.titular || '')}"></div>
+      <label class="check"><input type="checkbox" id="c-activa" ${t?.activa === 0 ? '' : 'checked'}> Mostrar en la web</label>
+      <p class="error-text" id="ce-general" role="alert"></p>
+      <button class="btn btn-primary btn-block" type="submit">Guardar tarjeta</button>`;
+    $('#cardDialog').showModal(); $('#c-banco').focus();
   }
   let faqN = 0;
   const faqItem = (q = { p: '', r: '' }) => { const n = faqN++; return `<div class="faq-item"><div class="field"><label for="fq-p${n}">Pregunta</label><input class="input" id="fq-p${n}" data-fq="p" value="${esc(q.p)}"></div>
@@ -389,7 +454,8 @@
     if (g === 'horario') return { horario: Array.from({ length: 7 }, (_, i) => ({ abierto: $(`[data-h-ab="${i}"]`).checked, abre: $('#h-abre-' + i).value, cierra: $('#h-cierra-' + i).value })) };
     if (g === 'promo') return { promo_activa: $('#a-promo_activa').checked, promo_texto: v('promo_texto') };
     if (g === 'fidelidad') return { fidelidad_activa: $('#a-fidelidad_activa').checked, fidelidad_visitas: v('fidelidad_visitas'), fidelidad_premio: v('fidelidad_premio') };
-    if (g === 'politicas') return { sena: v('sena'), politica: v('politica') };
+    if (g === 'politicas') return { politica: v('politica') };
+    if (g === 'pago') return { sena_activa: $('#a-sena_activa').checked, sena_porcentaje: v('sena_porcentaje'), sena: v('sena') };
     if (g === 'faq') return { faq: $$('.faq-item').map(el => ({ p: $('[data-fq="p"]', el).value, r: $('[data-fq="r"]', el).value })) };
   }
 
@@ -404,12 +470,16 @@
     if (t.dataset.fres) { S.filtroRes = t.dataset.fres; agenda(); return; }
     if (t.dataset.cat) { S.cat = t.dataset.cat; catalogo(); return; }
     if (t.dataset.fresena) { S.filtroResena = t.dataset.fresena; resenas(); return; }
+    if (t.hasAttribute('data-cerrar-comp') && !t.dataset.rechazar) $('#compDialog').close();
     if (t.dataset.res) return run(() => api('PUT', '/api/admin/reservas/' + t.dataset.res, { estado: t.dataset.estado }), 'Reserva actualizada');
     if (t.dataset.slot) return run(() => api('PUT', '/api/admin/turnos/' + t.dataset.slot, { estado: t.dataset.to }), t.dataset.to === 'libre' ? 'Turno liberado' : 'Turno bloqueado');
     if (t.dataset.delslot) return run(() => api('DELETE', '/api/admin/turnos/' + t.dataset.delslot), 'Turno quitado');
     if (t.dataset.resena) return run(() => api('PUT', '/api/admin/resenas/' + t.dataset.resena, { estado: t.dataset.to }), t.dataset.to === 'aprobada' ? 'Opinión publicada' : 'Opinión oculta');
     if (t.hasAttribute('data-newsvc')) return openSvc();
     if (t.dataset.editsvc) return openSvc(S.data.servicios.find(s => s.id === Number(t.dataset.editsvc)));
+    if (t.dataset.comp) return verComprobante(Number(t.dataset.comp));
+    if (t.hasAttribute('data-newcard')) return openCard();
+    if (t.dataset.editcard) return openCard(S.data.tarjetas.find(x => x.id === Number(t.dataset.editcard)));
     if (t.id === 'addFaq') { $('#faqList').insertAdjacentHTML('beforeend', faqItem()); $$('#faqList [data-fq="p"]').pop().focus(); return; }
     if (t.hasAttribute('data-delfaq')) { t.closest('.faq-item').remove(); return; }
     if (t.id === 'geo') {
@@ -420,9 +490,12 @@
       return;
     }
     // Borrados con confirmación en dos toques (sin confirm() nativo)
-    if (t.dataset.delsvc || t.dataset.delwork || t.dataset.delresena) {
+    if (t.dataset.delsvc || t.dataset.delwork || t.dataset.delresena || t.dataset.delcard || t.dataset.rechazar || t.dataset.cancelar) {
       if (t.dataset.armed !== '1') { t.dataset.armed = '1'; t.dataset.orig = t.textContent; t.textContent = '¿Seguro? Toca otra vez'; setTimeout(() => { if (t.isConnected) { t.dataset.armed = ''; t.textContent = t.dataset.orig; } }, 3000); return; }
       if (t.dataset.delsvc) return run(() => api('DELETE', '/api/admin/servicios/' + t.dataset.delsvc), 'Servicio borrado');
+      if (t.dataset.delcard) return run(() => api('DELETE', '/api/admin/tarjetas/' + t.dataset.delcard), 'Tarjeta borrada');
+      if (t.dataset.rechazar) { if (t.hasAttribute('data-cerrar-comp')) $('#compDialog').close(); return run(() => api('PUT', '/api/admin/reservas/' + t.dataset.rechazar, { estado: 'cancelada', pago: 'rechazado' }), 'Pago rechazado. El turno quedó libre; avísale por WhatsApp.'); }
+      if (t.dataset.cancelar) return run(() => api('PUT', '/api/admin/reservas/' + t.dataset.cancelar, { estado: 'cancelada' }), 'Turno cancelado y liberado');
       if (t.dataset.delwork) return run(() => api('DELETE', '/api/admin/trabajos/' + t.dataset.delwork), 'Trabajo borrado');
       return run(() => api('DELETE', '/api/admin/resenas/' + t.dataset.delresena), 'Opinión borrada');
     }
@@ -461,9 +534,22 @@
       const diasSemana = $$('input[name="dow"]:checked').map(i => Number(i.value));
       return run(async () => { const r = await api('POST', '/api/admin/turnos/generar', { desde: $('#g-desde').value, dias: Number($('#g-dias').value), diasSemana, horas }); toast(`${r.creados} turnos creados`); });
     }
+    if (id === 'cardForm') {
+      const body = { banco: $('#c-banco').value, numero: $('#c-numero').value, moneda: $('#c-moneda').value, titular: $('#c-titular').value, confirmar: $('#c-confirmar').value, activa: $('#c-activa').checked };
+      ['banco', 'numero', 'confirmar', 'general'].forEach(k => { $('#ce-' + k).textContent = ''; });
+      if (body.numero.replace(/\D/g, '').length !== 16) { $('#ce-numero').textContent = 'El número de tarjeta debe tener 16 dígitos.'; return $('#c-numero').focus(); }
+      try { S.editCard ? await api('PUT', '/api/admin/tarjetas/' + S.editCard.id, body) : await api('POST', '/api/admin/tarjetas', body); $('#cardDialog').close(); toast('Tarjeta guardada'); load(); }
+      catch (err) { $('#ce-general').textContent = err.message; }
+      return;
+    }
     if (id === 'svcForm') {
-      const body = { nombre: $('#s-nombre').value, categoria: $('#s-categoria').value, precio: $('#s-precio').value, duracion: $('#s-duracion').value,
-        orden: $('#s-orden').value, descripcion: $('#s-desc').value, popular: $('#s-popular').checked, extra: $('#s-extra').checked, activo: $('#s-activo').checked };
+      const lineas = $('#s-vars').value.split('\n').map(l => l.trim()).filter(Boolean);
+      const malas = lineas.filter(l => !/^.+?[=:]\s*[\d\s.,]+$/.test(l));
+      if (malas.length) { $('#s-error').textContent = `Revisa esta línea de opciones: "${malas[0]}". Usa el formato nombre = precio.`; return $('#s-vars').focus(); }
+      const variantes = lineas.map(l => { const m = /^(.+?)\s*[=:]\s*([\d\s.,]+)$/.exec(l); return { nombre: m[1].trim(), precio: Number(m[2].replace(/[\s.,]/g, '')) }; });
+      if (!variantes.length && $('#s-precio').value === '') { $('#s-error').textContent = 'Pon un precio o al menos una opción de precio.'; return $('#s-precio').focus(); }
+      const body = { nombre: $('#s-nombre').value, categoria: $('#s-categoria').value, precio: $('#s-precio').value || 0, duracion: $('#s-duracion').value,
+        orden: $('#s-orden').value, descripcion: $('#s-desc').value, popular: $('#s-popular').checked, extra: $('#s-extra').checked, activo: $('#s-activo').checked, variantes };
       try { S.editSvc ? await api('PUT', '/api/admin/servicios/' + S.editSvc.id, body) : await api('POST', '/api/admin/servicios', body); $('#svcDialog').close(); toast('Servicio guardado'); load(); }
       catch (err) { $('#s-error').textContent = err.message; }
       return;
@@ -477,6 +563,8 @@
     }
   });
 
+  $('#compDialog').addEventListener('close', () => { if (S.compURL) { URL.revokeObjectURL(S.compURL); S.compURL = null; } });
+  document.addEventListener('input', e => { if (e.target.id === 'c-numero') { const p = e.target.selectionStart === e.target.value.length; e.target.value = fmtTarjeta(e.target.value).slice(0, 19); if (!p) return; } });
   document.addEventListener('keydown', e => {
     if (!e.target.matches('[role="tab"]')) return;
     const tabs = $$('[role="tab"]'); const i = tabs.indexOf(e.target);
