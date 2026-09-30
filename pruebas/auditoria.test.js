@@ -212,11 +212,13 @@ test('reserva: turno pasado rechazado', async () => {
   assert.equal(r.status, 409);
   assert.ok(!(await publico()).dias[0].turnos.some(x => x.id === pasado.id), 'no se muestra en la web');
 });
-let reservaId;
+let reservaId; let codigo;
 test('reserva correcta: precio de la variante + seña del 30 % calculada en el servidor', async () => {
   const r = await pedir('POST', '/api/reservas', { body: { ...reservaBase(), turno_id: turnos[0].id, extras: [7, 7] } });
   assert.equal(r.status, 200, JSON.stringify(r.datos));
-  assert.equal(r.datos.servicio, 'Acrílico en tips · XL');
+  assert.equal(r.datos.servicio, 'Acrílico en tips · XL + Decoración');
+  assert.match(r.datos.codigo, /^[A-Z2-9]{5}-[A-Z2-9]{5}$/, 'devuelve código de seguimiento');
+  codigo = r.datos.codigo;
   assert.equal(r.datos.precio, 3500 + 200, 'XL + decoración (duplicado ignorado)');
   assert.equal(r.datos.sena, Math.ceil(3700 * 0.3));
   assert.equal(r.datos.pago, 'por_verificar');
@@ -311,4 +313,82 @@ test('cambiar ADMIN_PASSWORD invalida las sesiones anteriores', async () => {
   const puerto = Number(new URL(B).port);
   srv = await arrancar({ ADMIN_PASSWORD: 'otra-clave-distinta-456', DATA_DIR: dataDir, PORT: String(puerto), TRUST_PROXY: '1', NODE_ENV: 'test', RAILWAY_ENVIRONMENT: '' });
   assert.equal((await pedir('GET', '/api/admin/datos', { tok: token })).status, 401);
+});
+
+// ---------------- Carrito, pago total y estado de la reserva ----------------
+test('nueva sesión con la contraseña nueva', async () => {
+  const r = await pedir('POST', '/api/admin/login', { body: { clave: 'otra-clave-distinta-456' } });
+  assert.equal(r.status, 200); token = r.datos.token;
+});
+test('carrito: varios servicios, total y seña calculados en el servidor', async () => {
+  const items = [{ servicio_id: 1 }, { servicio_id: 6, variante: 0 }, { servicio_id: 7 }, { servicio_id: 7 }];
+  const r = await pedir('POST', '/api/reservas', { body: { ...reservaBase(), items, precio: 1, sena: 1, turno_id: turnos[7].id } });
+  assert.equal(r.status, 200, JSON.stringify(r.datos));
+  assert.equal(r.datos.precio, 500 + 1600 + 200, 'precios del servidor; complemento repetido ignorado');
+  assert.equal(r.datos.sena, Math.ceil(2300 * 0.3));
+  assert.equal(r.datos.items.length, 3);
+  assert.equal((await pedir('POST', '/api/reservas', { body: { ...reservaBase(), items: [{ servicio_id: 7 }], turno_id: turnos[8].id } })).status, 400, 'solo complementos no');
+  assert.equal((await pedir('POST', '/api/reservas', { body: { ...reservaBase(), items: Array.from({ length: 9 }, () => ({ servicio_id: 1 })), turno_id: turnos[8].id } })).status, 400, 'máximo 8');
+});
+test('pago completo: se cobra el total; desactivado vuelve a seña', async () => {
+  const r = await pedir('POST', '/api/reservas', { body: { ...reservaBase(), items: [{ servicio_id: 4 }], modo_pago: 'total', turno_id: turnos[8].id } });
+  assert.equal(r.status, 200); assert.equal(r.datos.sena, 2500); assert.equal(r.datos.modo_pago, 'total');
+  await pedir('PUT', '/api/admin/ajustes', { tok: token, body: { pago_total_activo: false } });
+  const r2 = await pedir('POST', '/api/reservas', { body: { ...reservaBase(), items: [{ servicio_id: 4 }], modo_pago: 'total', turno_id: turnos[9].id } });
+  assert.equal(r2.datos.modo_pago, 'sena'); assert.equal(r2.datos.sena, 750);
+  await pedir('PUT', '/api/admin/ajustes', { tok: token, body: { pago_total_activo: true } });
+});
+test('estado por código: solo datos mínimos; código inventado 404', async () => {
+  const r = await pedir('GET', '/api/reservas/estado/' + codigo);
+  assert.equal(r.status, 200);
+  for (const k of ['telefono', 'notas', 'comprobante', 'transaccion', 'id', 'turno_id']) assert.ok(!(k in r.datos), 'expone ' + k);
+  assert.equal(r.datos.nombre, 'Ana', 'solo el primer nombre');
+  assert.equal((await pedir('GET', '/api/reservas/estado/AAAAA-BBBBB')).status, 404);
+  assert.equal((await pedir('GET', '/api/reservas/estado/' + encodeURIComponent("' OR 1=1 --"))).status, 404);
+});
+test('rechazar pago sin cancelar → la clienta ve el motivo y reenvía el comprobante', async () => {
+  const r = await pedir('POST', '/api/reservas', { body: { ...reservaBase(), turno_id: turnos[10].id } });
+  const { id, codigo: c } = r.datos;
+  assert.equal((await pedir('POST', `/api/reservas/estado/${c}/comprobante`, { body: { comprobante: PNG } })).status, 409, 'no se puede reenviar si no fue rechazado');
+  assert.equal((await pedir('PUT', `/api/admin/reservas/${id}/pago`, { body: { pago: 'rechazado', motivo: 'El monto no coincide' } })).status, 401);
+  assert.equal((await pedir('PUT', `/api/admin/reservas/${id}/pago`, { tok: token, body: { pago: 'rechazado', motivo: 'El monto no coincide' } })).status, 200);
+  let e = (await pedir('GET', '/api/reservas/estado/' + c)).datos;
+  assert.equal(e.estado, 'pendiente'); assert.equal(e.pago, 'rechazado'); assert.equal(e.nota, 'El monto no coincide');
+  assert.ok(!(await publico()).dias.flatMap(d => d.turnos).some(t => t.id === turnos[10].id), 'el turno sigue apartado');
+  assert.equal((await pedir('POST', `/api/reservas/estado/${c}/comprobante`, { body: { comprobante: FALSO_PNG } })).status, 400);
+  const re = await pedir('POST', `/api/reservas/estado/${c}/comprobante`, { body: { comprobante: PNG, transaccion: 'TMW999' } });
+  assert.equal(re.status, 200); assert.equal(re.datos.pago, 'por_verificar'); assert.equal(re.datos.nota, '');
+  assert.equal((await pedir('PUT', `/api/admin/reservas/${id}`, { tok: token, body: { estado: 'confirmada' } })).status, 200);
+  e = (await pedir('GET', '/api/reservas/estado/' + c)).datos;
+  assert.equal(e.estado, 'confirmada'); assert.equal(e.pago, 'verificado');
+});
+
+// ---------------- Métodos de pago (tarjeta CUP/MLC y saldo móvil) ----------------
+test('métodos: saldo móvil y MLC con tasa; monto en la moneda del método', async () => {
+  assert.equal((await pedir('POST', '/api/admin/tarjetas', { tok: token, body: { tipo: 'saldo', numero: '12' } })).status, 400, 'móvil inválido');
+  const saldo = await pedir('POST', '/api/admin/tarjetas', { tok: token, body: { tipo: 'saldo', numero: '59092880' } });
+  assert.equal(saldo.status, 200);
+  const mlc = await pedir('POST', '/api/admin/tarjetas', { tok: token, body: { banco: 'BANDEC', moneda: 'MLC', numero: '9225 1111 2222 4444', confirmar: '59092880' } });
+  assert.equal(mlc.status, 200);
+  let d = await publico();
+  assert.ok(d.tarjetas.some(t => t.id === saldo.datos.id && t.tipo === 'saldo' && t.moneda === 'CUP'));
+  assert.ok(!d.tarjetas.some(t => t.id === mlc.datos.id), 'MLC sin tasa no se muestra');
+  assert.equal((await pedir('PUT', '/api/admin/ajustes', { tok: token, body: { tasa_mlc: '-3' } })).status, 400);
+  assert.equal((await pedir('PUT', '/api/admin/ajustes', { tok: token, body: { tasa_mlc: '300' } })).status, 200);
+  d = await publico();
+  assert.ok(d.tarjetas.some(t => t.id === mlc.datos.id), 'con tasa aparece');
+  // Con varios métodos hay que elegir uno
+  const libres = d.dias.flatMap(x => x.turnos);
+  const sinMetodo = await pedir('POST', '/api/reservas', { body: { ...reservaBase(), items: [{ servicio_id: 4 }], turno_id: libres[0].id } });
+  assert.equal(sinMetodo.status, 400); assert.equal(sinMetodo.datos.campo, 'metodo');
+  const oculto = (await admin()).tarjetas.find(t => t.banco === 'Oculta');
+  assert.equal((await pedir('POST', '/api/reservas', { body: { ...reservaBase(), items: [{ servicio_id: 4 }], metodo_id: oculto.id, turno_id: libres[0].id } })).datos.campo, 'metodo', 'método oculto no vale');
+  const r = await pedir('POST', '/api/reservas', { body: { ...reservaBase(), items: [{ servicio_id: 4 }], metodo_id: mlc.datos.id, turno_id: libres[0].id } });
+  assert.equal(r.status, 200, JSON.stringify(r.datos));
+  assert.equal(r.datos.sena, 750); assert.equal(r.datos.moneda_pago, 'MLC'); assert.equal(r.datos.monto_pago, 2.5);
+  assert.match(r.datos.metodo, /BANDEC MLC ···· 4444/);
+  const e = (await pedir('GET', '/api/reservas/estado/' + r.datos.codigo)).datos;
+  assert.equal(e.monto_pago, 2.5); assert.equal(e.moneda_pago, 'MLC');
+  const s2 = await pedir('POST', '/api/reservas', { body: { ...reservaBase(), items: [{ servicio_id: 1 }], metodo_id: saldo.datos.id, turno_id: libres[1].id } });
+  assert.equal(s2.status, 200); assert.equal(s2.datos.moneda_pago, 'CUP'); assert.equal(s2.datos.monto_pago, 150); assert.match(s2.datos.metodo, /Saldo móvil/);
 });

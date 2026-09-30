@@ -95,7 +95,7 @@
   .desde { font-size: var(--fs-xs); font-weight: 600; color: var(--c-muted); }
   .variants { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: var(--sp-1) 0 0; padding: 0; }
   .vchip {
-    display: inline-flex; gap: 6px; align-items: baseline; min-height: 36px; padding: 0 var(--sp-3); border-radius: var(--r-pill);
+    display: inline-flex; gap: 6px; align-items: center; min-height: 36px; padding: 0 var(--sp-3); border-radius: var(--r-pill);
     border: 1.5px solid var(--c-line); background: var(--c-surface); color: var(--c-ink); font: 600 var(--fs-xs) var(--f-body); cursor: pointer;
     transition: border-color var(--dur) var(--ease-out), transform var(--dur) var(--ease-spring), background var(--dur);
   }
@@ -108,13 +108,10 @@
   .choice input:checked + .vopt { background: var(--c-ink); border-color: var(--c-ink); color: var(--c-bg); animation: pop 420ms var(--ease-spring); }
   .choice input:checked + .vopt small { color: var(--c-bg); }
   .choice input:focus-visible + .vopt { outline: 3px solid var(--c-focus); outline-offset: 2px; }
-  .leader { display: none; }
   .policy { background: var(--c-gloss-soft); border-radius: var(--r-md); padding: var(--sp-4); display: grid; gap: var(--sp-2); font-size: var(--fs-sm); }
   .policy h3 { font-size: var(--fs-lg); font-style: italic; font-weight: 500; }
 
   /* ---------- Turnos ---------- */
-  fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
-  legend { font-weight: 700; padding: 0; margin-bottom: var(--sp-2); }
   .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--sp-1); }
   .choice { position: relative; }
   .choice input { position: absolute; opacity: 0; pointer-events: none; }
@@ -125,7 +122,7 @@
   }
   .day .dow { font-size: var(--fs-xs); color: var(--c-muted); text-transform: capitalize; }
   .day .dnum { font-family: var(--f-display); font-size: var(--fs-xl); font-weight: 600; line-height: 1; }
-  .day .free { font-size: 11px; font-weight: 600; color: var(--c-ok); }
+  .day .free { font-size: var(--fs-xs); font-weight: 600; color: var(--c-ok); }
   .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--sp-2); }
   .slot { display: grid; place-items: center; min-height: var(--tap); border: 1.5px solid var(--c-line); border-radius: var(--r-sm); background: var(--c-surface); font-weight: 600; cursor: pointer; transition: background var(--dur) var(--ease-out), color var(--dur), border-color var(--dur); }
   .day:hover, .slot:hover { border-color: var(--c-muted); }
@@ -141,7 +138,8 @@
 
   /* ---------- Formulario de reserva ---------- */
   .summary { display: grid; gap: 2px; padding: var(--sp-3) var(--sp-4); background: var(--c-accent-soft); border-radius: var(--r-md); }
-  .summary strong { font-family: var(--f-display); font-size: var(--fs-lg); font-weight: 600; text-transform: capitalize; }
+  .summary strong { font-family: var(--f-display); font-size: var(--fs-lg); font-weight: 600; }
+  .summary strong::first-letter, .espera-t::first-letter, .hours div > span:first-child::first-letter { text-transform: uppercase; }
   .extras { display: grid; gap: var(--sp-2); }
   .extra { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); padding: var(--sp-2) var(--sp-3); border: 1.5px solid var(--c-line); border-radius: var(--r-sm); cursor: pointer; transition: border-color var(--dur), background var(--dur); }
   .extra input { width: 20px; height: 20px; accent-color: var(--c-accent); flex: none; }
@@ -150,7 +148,7 @@
   .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: var(--sp-2); border-top: 1px dashed var(--c-line); }
   .total strong { font-family: var(--f-display); font-size: var(--fs-xl); }
   .check-line { display: flex; gap: var(--sp-2); align-items: center; min-height: var(--tap); font-size: var(--fs-sm); }
-  .check-line input { width: 20px; height: 20px; accent-color: var(--c-accent); }
+  .check-line input { width: 22px; height: 22px; flex: none; accent-color: var(--c-accent); }
 
   /* ---------- Éxito ---------- */
   .success { display: grid; gap: var(--sp-3); text-align: center; justify-items: center; }
@@ -171,19 +169,29 @@
   /* ---------- Estudio: mapa ---------- */
   .map { position: relative; border-radius: var(--r-md); overflow: hidden; aspect-ratio: 16 / 9; max-width: 100%; background: var(--c-map-land); border: 1px solid var(--c-line); }
   .map svg.streets { width: 100%; height: 100%; display: block; }
-  .map iframe { width: 100%; height: 100%; border: 0; display: block; animation: fade-in var(--dur-slow) var(--ease-out); }
+  .map .leaflet-container { position: absolute; inset: 0; width: 100%; height: 100%; font: inherit; background: var(--c-map-land); animation: fade-in var(--dur-slow) var(--ease-out); }
+  .map.vivo { aspect-ratio: 4 / 3.4; }
+  .pin-l { position: relative; width: 34px; height: 44px; }
+  .pin-l svg { width: 34px; height: 44px; filter: drop-shadow(0 4px 6px rgb(0 0 0 / .3)); animation: pin-drop 900ms var(--ease-spring); }
+  .yo-l { width: 18px; height: 18px; border-radius: 50%; background: #1F5FD1; border: 3px solid #FFF; box-shadow: 0 0 0 0 rgb(31 95 209 / .5); animation: yo-pulse 1.8s var(--ease-out) infinite; }
+  @keyframes yo-pulse { 0% { box-shadow: 0 0 0 0 rgb(31 95 209 / .55); } 100% { box-shadow: 0 0 0 18px rgb(31 95 209 / 0); } }
+  .map-msg { font-size: var(--fs-sm); }
+  .map-msg:empty { display: none; }
+  .distancia { display: inline-flex; gap: var(--sp-2); align-items: center; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-pill); background: var(--c-accent-soft); color: var(--c-accent); font-weight: 700; font-size: var(--fs-sm); animation: pop 500ms var(--ease-spring); }
   .pin { position: absolute; left: 50%; top: 50%; width: 34px; height: 44px; margin: -44px 0 0 -17px; animation: pin-drop 900ms var(--ease-spring) 300ms backwards; }
   .pin::after { content: ""; position: absolute; left: 50%; bottom: -4px; width: 14px; height: 6px; margin-left: -7px; border-radius: 50%; background: rgb(0 0 0 / .18); }
   .pin-ring { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; color: var(--c-accent); animation: pulse-ring 1.8s var(--ease-out) 1.2s infinite; }
   @keyframes pin-drop { from { opacity: 0; transform: translateY(-60px); } }
-  .map-load { position: absolute; right: var(--sp-2); bottom: var(--sp-2); }
+  .map-load { position: absolute; left: 50%; bottom: var(--sp-3); transform: translateX(-50%); z-index: 2; white-space: nowrap; }
+  .credito { font-size: var(--fs-xs); color: var(--c-muted); display: grid; gap: 2px; justify-items: center; padding-top: var(--sp-3); border-top: 1px solid var(--c-line); margin-top: var(--sp-3); }
+  .credito a { color: var(--c-muted); }
   .address { display: grid; gap: 2px; }
   .address strong { font-size: var(--fs-md); }
   .row { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
 
   /* Horario */
   .hours { display: grid; }
-  .hours div { display: flex; justify-content: space-between; gap: var(--sp-3); padding-block: var(--sp-2); border-top: 1px solid var(--c-line); font-size: var(--fs-sm); text-transform: capitalize; }
+  .hours div { display: flex; justify-content: space-between; gap: var(--sp-3); padding-block: var(--sp-2); border-top: 1px solid var(--c-line); font-size: var(--fs-sm); }
   .hours div:first-child { border-top: 0; }
   .hours .today { font-weight: 700; color: var(--c-accent); }
 
@@ -206,7 +214,7 @@
   .star-input input:focus-visible + label { outline: 3px solid var(--c-focus); border-radius: var(--r-sm); }
 
   /* Tarjeta de sellos */
-  .loyalty { background: linear-gradient(140deg, var(--c-ink), color-mix(in srgb, var(--c-ink) 80%, var(--c-accent))); color: var(--c-bg); border-radius: var(--r-lg); padding: var(--sp-5); display: grid; gap: var(--sp-4); position: relative; overflow: hidden; }
+  .loyalty { background: linear-gradient(140deg, var(--c-ink), color-mix(in srgb, var(--c-ink) 80%, var(--c-accent))); color: var(--c-bg); border-radius: var(--r-lg); padding: var(--sp-5); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-4); position: relative; overflow: hidden; }
   .loyalty::before { content: ""; position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--c-gloss) 45%, transparent), transparent 70%); }
   .loyalty h3 { font-size: var(--fs-xl); font-style: italic; font-weight: 500; }
   .loyalty .muted { color: color-mix(in srgb, var(--c-bg) 75%, transparent); }
@@ -245,6 +253,57 @@
   .tab svg { width: 22px; height: 22px; transition: transform var(--dur) var(--ease-spring); }
   .tab[aria-selected="true"] { color: var(--c-accent); }
   .tab[aria-selected="true"] svg { transform: translateY(-2px) scale(1.08); }
+  /* ---------- Carrito ---------- */
+  .fabs { position: fixed; right: var(--sp-4); bottom: calc(92px + env(safe-area-inset-bottom, 0px)); z-index: 25; display: flex; gap: var(--sp-2); align-items: center; transition: bottom var(--dur) var(--ease-out); }
+  /* Con botones flotantes: la página deja sitio al final y el aviso sube para no taparlos */
+  body:has(.fabs .fab:not([hidden])) main.wrap { padding-bottom: calc(168px + env(safe-area-inset-bottom, 0px)); }
+  body:has(.fabs .fab:not([hidden])) .toast { bottom: calc(156px + env(safe-area-inset-bottom, 0px)); }
+  /* En Turnos el botón Continuar va fijo abajo: los flotantes suben por encima */
+  body:has(#p-turnos:not([hidden]) .cta-bar) .fabs { bottom: calc(148px + env(safe-area-inset-bottom, 0px)); }
+  body:has(#p-turnos:not([hidden]) .cta-bar) .toast { bottom: calc(212px + env(safe-area-inset-bottom, 0px)); }
+  .fab { display: inline-flex; align-items: center; gap: var(--sp-2); min-height: 52px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-pill); font: 700 var(--fs-sm) var(--f-body); cursor: pointer; box-shadow: var(--shadow-lift); animation: fab-in 520ms var(--ease-spring); }
+  .fab svg { width: 22px; height: 22px; }
+  .fab-carrito { background: var(--c-ink); color: var(--c-bg); }
+  .fab-count { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 999px; background: var(--c-accent); color: var(--c-accent-ink); font-size: 13px; }
+  .fab-espera { background: var(--c-surface); color: var(--c-ink); border: 1.5px solid var(--c-line); }
+  .fab-espera:not(.pendiente) .dot { display: none; }
+  .fab.bump { animation: bump 600ms var(--ease-spring); }
+  @keyframes fab-in { from { opacity: 0; transform: translateY(24px) scale(.8); } }
+  @keyframes bump { 0% { transform: scale(1); } 30% { transform: scale(1.15) rotate(-4deg); } 60% { transform: scale(.95); } 100% { transform: scale(1); } }
+  .vchip .mas { color: var(--c-muted); font-weight: 700; }
+  .vchip.added, .btn.added { animation: pop 500ms var(--ease-spring); background: var(--c-ok-soft); border-color: var(--c-ok); }
+  .cart-strip { display: flex; gap: var(--sp-3); align-items: center; justify-content: space-between; padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--c-accent-soft); font-size: var(--fs-sm); animation: fade-up var(--dur-slow) var(--ease-out); }
+  .cart-strip.vacio { background: var(--c-surface-2); }
+  .cart-list { list-style: none; margin: 0; padding: 0; display: grid; }
+  .cart-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: var(--sp-3); align-items: center; padding-block: var(--sp-2); border-bottom: 1px solid var(--c-line); animation: fade-up var(--dur) var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * 50ms); }
+  .cart-list.compacta li { padding-block: 6px; font-size: var(--fs-sm); }
+  .cart-list .quitar { width: 36px; height: 36px; font-size: 1.1rem; }
+  details.agregar summary { cursor: pointer; font-weight: 600; color: var(--c-accent); min-height: var(--tap); display: flex; align-items: center; }
+  .modo { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
+  .modo-op { display: grid; gap: 2px; padding: var(--sp-3); border: 1.5px solid var(--c-line); border-radius: var(--r-md); background: var(--c-surface); cursor: pointer; transition: border-color var(--dur), background var(--dur); }
+  .modo-op small { color: var(--c-muted); font-size: var(--fs-xs); }
+  .choice input:checked + .modo-op { border-color: var(--c-accent); background: var(--c-accent-soft); animation: pop 420ms var(--ease-spring); }
+  .choice input:focus-visible + .modo-op, .choice input:focus-visible + .card-pay { outline: 3px solid var(--c-focus); outline-offset: 3px; }
+  .metodo .card-pay { cursor: pointer; transition: transform var(--dur) var(--ease-spring), box-shadow var(--dur); opacity: .78; }
+  .metodo input:checked + .card-pay { opacity: 1; transform: translateY(-3px); box-shadow: 0 0 0 3px var(--c-gloss), var(--shadow-lift); }
+  .card-pay.saldo { background: linear-gradient(135deg, #16324A 0%, #1F5FD1 100%); }
+  .monto-metodo { font-weight: 700; color: #F3D9A4; }
+  /* ---------- Sala de espera ---------- */
+  .espera { display: grid; gap: var(--sp-2); padding: var(--sp-4); border-radius: var(--r-lg); border: 1px solid var(--c-line); background: var(--c-surface); animation: fade-up var(--dur-slow) var(--ease-out); }
+  .espera.lista { border-color: var(--c-ok); box-shadow: 0 0 0 3px var(--c-ok-soft); }
+  .espera-t { font-family: var(--f-display); font-size: var(--fs-lg); }
+  .codigo { border: 1.5px dashed var(--c-line); background: var(--c-surface-2); color: var(--c-ink); border-radius: var(--r-sm); padding: 4px 10px; font: 700 var(--fs-sm) var(--f-body); letter-spacing: .08em; cursor: pointer; }
+  .pasos { list-style: none; margin: var(--sp-2) 0; padding: 0; display: grid; gap: 0; }
+  .paso { position: relative; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: var(--sp-3); padding-bottom: var(--sp-3); animation: fade-up var(--dur-slow) var(--ease-out) backwards; animation-delay: calc(var(--i) * 120ms); }
+  .paso:not(:last-child)::before { content: ""; position: absolute; left: 15px; top: 32px; bottom: 0; width: 2px; background: var(--c-line); }
+  .paso.ok:not(:last-child)::before { background: var(--c-ok); }
+  .paso div { display: grid; gap: 2px; font-size: var(--fs-sm); padding-top: 4px; }
+  .punto { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; border: 2px solid var(--c-line); background: var(--c-surface); color: var(--c-muted); }
+  .paso.ok .punto { background: var(--c-ok); border-color: var(--c-ok); color: #fff; animation: pop 500ms var(--ease-spring); }
+  .paso.mal .punto { background: var(--c-danger); border-color: var(--c-danger); color: #fff; }
+  .paso.act .punto { border-color: var(--c-accent); border-top-color: transparent; animation: girar 1s linear infinite; }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  .reenvio { display: grid; gap: var(--sp-2); padding: var(--sp-3); border-radius: var(--r-md); background: var(--c-danger-soft); }
   /* ---------- Pago de la seña ---------- */
   .trampa { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   .sena-box { display: grid; gap: 2px; padding: var(--sp-4); border-radius: var(--r-md); background: var(--c-accent-soft); text-align: center; }
@@ -263,15 +322,16 @@
   .card-pay .btn-ghost:hover { background: rgb(255 255 255 / .12); }
   .card-pay .pill-gloss { background: rgb(255 255 255 / .16); color: #FFF7FA; }
   .card-pay .muted { color: rgb(255 247 250 / .78); }
-  .card-num { font-size: 1.35rem; letter-spacing: .08em; font-weight: 700; }
+  .card-num { font-size: clamp(1.05rem, 5.4vw, 1.35rem); letter-spacing: .06em; font-weight: 700; white-space: nowrap; }
   .confirm-line { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; font-size: var(--fs-sm); padding-top: var(--sp-2); border-top: 1px solid rgb(255 255 255 / .2); }
   .comp-prev { max-width: 160px; max-height: 220px; border-radius: var(--r-sm); border: 1px solid var(--c-line); object-fit: contain; animation: pop 420ms var(--ease-spring); }
   #paso2.enter-r { animation: panel-r 480ms var(--ease-out); }
-  .footer { font-size: var(--fs-xs); color: var(--c-muted); text-align: center; padding-top: var(--sp-6); display: grid; gap: var(--sp-1); }
+  .footer { font-size: var(--fs-xs); color: var(--c-muted); text-align: center; padding-top: var(--sp-6); display: grid; gap: var(--sp-1); justify-items: center; }
+  .footer > a, .credito a { display: inline-flex; align-items: center; min-height: var(--tap); padding-inline: var(--sp-2); }
 </style>
 
 <a class="skip-link" href="#contenido">Saltar al contenido</a>
-<div class="promo" id="promo" role="note" hidden></div>
+<aside class="promo" id="promo" aria-label="Promoción" hidden></aside>
 
 <header class="wrap hero" id="hero" aria-busy="true">
   <div class="skel skel-line w80" style="height:3rem"></div>
@@ -344,6 +404,23 @@
   <div class="sheet-body" id="reviewBody"></div>
 </dialog>
 
+<div class="fabs">
+  <button type="button" class="fab fab-espera" id="fabEspera" hidden><span class="dot on" aria-hidden="true"></span><span id="fabEsperaTxt">Mis reservas</span></button>
+  <button type="button" class="fab fab-carrito" id="fabCarrito" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+    <span class="fab-count num" id="fabCount">0</span><span class="fab-total num" id="fabTotal"></span></button>
+</div>
+
+<dialog class="sheet" id="cartDialog" aria-labelledby="cartTitle">
+  <div class="sheet-head"><h2 id="cartTitle" style="font-size:var(--fs-lg)">Tu carrito</h2><button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button></div>
+  <div class="sheet-body" id="cartBody"></div>
+</dialog>
+
+<dialog class="sheet" id="esperaDialog" aria-labelledby="esperaTitulo">
+  <div class="sheet-head"><h2 id="esperaTitulo" style="font-size:var(--fs-lg)">Mis reservas</h2><button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button></div>
+  <div class="sheet-body" id="esperaBody" aria-live="polite"></div>
+</dialog>
+
 <canvas id="confetti" aria-hidden="true" hidden></canvas>
 <div class="sr-only" aria-live="polite" id="live"></div>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -357,7 +434,7 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const TABS = ['trabajos', 'precios', 'turnos', 'estudio'];
-  const state = { data: null, demo: false, tab: 'trabajos', filtro: 'Todos', dia: null, turno: null, servicioId: null, variante: null, extras: new Set(), nota: '', workIdx: 0, lista: [] };
+  const state = { data: null, demo: false, tab: 'trabajos', filtro: 'Todos', dia: null, turno: null, nota: '', modoPago: 'sena', metodo: null, comp: null, workIdx: 0, lista: [] };
   const store = {
     get(k) { try { return JSON.parse(localStorage.getItem('estudio_' + k)); } catch { return null; } },
     set(k, v) { try { localStorage.setItem('estudio_' + k, JSON.stringify(v)); } catch {} },
@@ -382,7 +459,7 @@
         horario: [{ abierto: false, abre: '09:00', cierra: '13:00' }, ...Array.from({ length: 5 }, () => ({ abierto: true, abre: '09:00', cierra: '18:00' })), { abierto: true, abre: '09:00', cierra: '14:00' }],
         moneda: 'CUP', promo_activa: '1', promo_texto: 'Ejemplo de promoción: 10 % menos en Pedicura Spa este mes',
         fidelidad_activa: '1', fidelidad_visitas: '6', fidelidad_premio: 'La 7.ª pedicura básica es gratis',
-        sena_activa: '1', sena_porcentaje: '30',
+        sena_activa: '1', sena_porcentaje: '30', pago_total_activo: '1', tasa_mlc: '', tasa_usd: '',
         sena: 'La seña se descuenta del total el día de tu turno.',
         politica: 'Si no puedes venir, avisa con 24 horas. Con más de 15 minutos de retraso el turno puede perderse.',
         faq: [
@@ -418,14 +495,25 @@
         { id: 3, nombre: 'Ejemplo', estrellas: 4, texto: 'El promedio de estrellas se calcula solo con las opiniones aprobadas.' },
       ],
       resumenResenas: { total: 3, promedio: 4.7 },
-      tarjetas: [{ id: 1, banco: 'BANDEC (tarjeta de ejemplo)', numero: '9225000000000000', moneda: 'CUP', titular: 'Leyanis', confirmar: '59092880' }],
+      tarjetas: [{ id: 1, tipo: 'tarjeta', banco: 'BANDEC (ejemplo)', numero: '9225000000000000', moneda: 'CUP', titular: 'Leyanis', confirmar: '59092880' },
+        { id: 2, tipo: 'saldo', banco: 'Saldo móvil', numero: '59092880', moneda: 'CUP', titular: '', confirmar: '59092880' }],
       dias,
     };
   }
 
   // ---------- Formato ----------
   const moneda = () => state.data?.ajustes.moneda || 'CUP';
-  const fmtPrecio = n => new Intl.NumberFormat('es-CU').format(n) + ' ' + moneda();
+  // Números al estilo cubano: 1000 · 12.500 · 4,10 (igual en todos los navegadores)
+  const fmtNum = (n, dec = 0) => { const [e, d] = Math.abs(Number(n) || 0).toFixed(dec).split('.'); const ent = e.length > 4 ? e.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : e; return (Number(n) < 0 ? '−' : '') + ent + (d ? ',' + d : ''); };
+  const camIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+  const fileHtml = (attrs, texto = 'Elegir foto') => `<div class="file"><input type="file" accept="image/*" ${attrs}><span class="file-ui" aria-hidden="true">${camIcon}<span class="file-name">${texto}</span><span class="file-cta">Buscar</span></span></div>`;
+  // Muestra el nombre de la foto elegida en cualquier selector de foto
+  document.addEventListener('change', e => {
+    const box = e.target.closest?.('.file'); if (!box) return;
+    const nombre = e.target.files?.[0]?.name; box.classList.toggle('ok', !!nombre);
+    box.querySelector('.file-name').textContent = nombre ? '✓ ' + nombre : 'Elegir foto';
+  });
+  const fmtPrecio = n => fmtNum(n) + ' ' + moneda();
   const fecha = iso => new Date(iso + 'T12:00:00');
   const fmtDia = (iso, opts) => fecha(iso).toLocaleDateString('es', opts);
   const fmtDur = m => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ' ' + (m % 60) + ' min' : ''}` : `${m} min`;
@@ -487,6 +575,7 @@
     $('#prices').innerHTML = Array.from({ length: 5 }, () => `<div class="price-row" aria-hidden="true"><div style="display:grid;gap:8px"><div class="skel skel-line w60"></div><div class="skel skel-line w80"></div></div><div class="skel" style="width:72px;height:1.2em"></div></div>`).join('');
     $('#booking').innerHTML = `<div class="days" aria-hidden="true">${Array.from({ length: 7 }, () => `<div class="skel" style="height:76px;border-radius:var(--r-md)"></div>`).join('')}</div>
       <div class="slots" aria-hidden="true">${Array.from({ length: 6 }, () => `<div class="skel" style="height:44px"></div>`).join('')}</div>`;
+    if (state.mapa) { state.mapa.m.remove(); state.mapa = null; state.yo = null; state.linea = null; }
     $('#estudio').innerHTML = `<div class="skel" style="aspect-ratio:16/9;border-radius:var(--r-md)" aria-hidden="true"></div><div class="skel skel-line w60" aria-hidden="true"></div><div class="skel skel-line w80" aria-hidden="true"></div>`;
   }
 
@@ -512,8 +601,10 @@
     const promo = $('#promo');
     promo.hidden = !(a.promo_activa === '1' && a.promo_texto);
     promo.innerHTML = `<span aria-hidden="true">✦</span> ${esc(a.promo_texto)} <span aria-hidden="true">✦</span>`;
-    renderHero(); renderGallery(); renderPrices(); renderBooking(); renderEstudio();
-    $('#footer').innerHTML = `<span>${esc(a.nombre)} · ${esc(a.direccion)}, ${esc(a.ciudad)}</span>${state.demo ? '' : '<a href="/admin" class="muted">Acceso de la manicurista</a>'}`;
+    renderHero(); renderGallery(); renderPrices(); renderBooking(); renderEstudio(); pintarFabs();
+    if (state.pedidos.length) refrescarEspera(true);
+    if ((location.hash || '') === '#espera') abrirEspera();
+    $('#footer').innerHTML = `<span>${esc(a.nombre)} · ${esc(a.direccion)}, ${esc(a.ciudad)}</span>${state.demo ? '' : '<a href="/admin" class="muted">Acceso de la manicurista</a>'}${creditoHtml()}`;
     moveIndicator();
   }
 
@@ -544,6 +635,7 @@
       <div class="hero-actions hero-in" style="--d:1250ms">
         <button class="btn btn-primary" type="button" data-goto="turnos">Reservar turno</button>
         <a class="btn btn-ghost" href="${waLink('Hola, quiero consultar por un turno.')}" rel="noopener">WhatsApp</a>
+        <button class="btn btn-ghost" type="button" id="irUbicacion">Ubicación</button>
       </div>`;
   }
 
@@ -576,17 +668,17 @@
   function renderPrices() {
     const { servicios, categorias, ajustes: a } = state.data;
     $('#currencyNote').textContent = `Precios en ${a.moneda}`;
-    $('#prices').innerHTML = categorias.map(cat => {
+    $('#prices').innerHTML = categorias.map((cat, ci) => {
       const items = servicios.filter(s => s.categoria === cat).sort((x, y) => x.extra - y.extra);
       if (!items.length) return '';
-      return `<section class="price-group reveal" aria-labelledby="cat-${esc(cat)}"><h3 id="cat-${esc(cat)}">${esc(cat)}</h3>
+      return `<section class="price-group reveal" aria-labelledby="cat-${ci}"><h3 id="cat-${ci}">${esc(cat)}</h3>
         ${items.map(s => { const vars = s.variantes || []; return `<div class="price-row">
           <div><div class="name">${esc(s.nombre)} ${s.popular ? '<span class="pill pill-accent">Más pedido</span>' : ''}${s.extra ? '<span class="pill pill-gloss">Complemento</span>' : ''}</div>
             ${s.duracion ? `<div class="dur">${s.extra ? '+' : ''}${fmtDur(s.duracion)}</div>` : ''}</div>
           <div class="amount num">${vars.length ? '<span class="desde">desde</span> ' : ''}${s.extra ? '+' : ''}${fmtPrecio(s.precio)}</div>
           ${s.descripcion ? `<p class="desc">${esc(s.descripcion)}</p>` : '<span></span>'}
-          ${vars.length ? `<ul class="variants" aria-label="Precios de ${esc(s.nombre)}">${vars.map((v, i) => `<li><button type="button" class="vchip" data-reservar="${s.id}" data-variante="${i}" aria-label="Reservar ${esc(s.nombre)}, ${esc(v.nombre)}, ${fmtPrecio(v.precio)}"><span>${esc(v.nombre)}</span><strong class="num">${fmtPrecio(v.precio)}</strong></button></li>`).join('')}</ul><span></span>` : ''}
-          ${s.extra ? '<span></span>' : `<button type="button" class="btn btn-soft btn-sm" data-reservar="${s.id}" aria-label="Reservar ${esc(s.nombre)}">Reservar</button>`}
+          ${vars.length ? `<ul class="variants" aria-label="Precios de ${esc(s.nombre)}">${vars.map((v, i) => `<li><button type="button" class="vchip" data-agregar="${s.id}" data-variante="${i}" aria-label="Agregar ${esc(s.nombre)} ${esc(v.nombre)} al carrito, ${fmtPrecio(v.precio)}"><span>${esc(v.nombre)}</span><strong class="num">${fmtPrecio(v.precio)}</strong><span class="mas" aria-hidden="true">+</span></button></li>`).join('')}</ul><span class="hint" style="grid-column:1/-1">Toca una opción para agregarla al carrito.</span>` : ''}
+          ${vars.length ? '' : `<button type="button" class="btn btn-soft btn-sm" data-agregar="${s.id}" aria-label="Agregar ${esc(s.nombre)} al carrito">+ Agregar</button>`}
         </div>`; }).join('')}</section>`;
     }).join('') || '<div class="empty">La lista de precios estará aquí muy pronto.</div>';
     $('#policy').innerHTML = `<h3 id="policyTitle">Antes de reservar</h3>${pagoRequerido() ? `<p>Para apartar tu turno se transfiere una <strong>seña del ${pctSena()} %</strong> por Transfermóvil o EnZona y se sube la foto del comprobante al reservar.</p>` : ''}<p>${esc(a.sena)}</p><p>${esc(a.politica)}</p>`;
@@ -605,6 +697,7 @@
       return;
     }
     $('#booking').innerHTML = `
+      <div id="cartBar">${carritoBarra()}</div>
       <fieldset><legend>1. Elige el día</legend>
         <div class="days stagger">${dias.map((d, i) => {
           const n = d.turnos.length;
@@ -623,43 +716,88 @@
     <span class="slot num" aria-hidden="true">${hora12(t.hora)}</span></label>`).join('');
   const ctaText = () => state.turno ? `Continuar · ${fmtDia(state.dia, { weekday: 'short', day: 'numeric' })}, ${hora12(state.turno.hora)}` : 'Elige una hora para continuar';
 
-  // ---------- Formulario de reserva ----------
-  function totalActual() {
-    const s = state.data.servicios; const base = s.find(x => x.id === state.servicioId);
-    const vars = base?.variantes || []; const v = vars[state.variante];
-    const ex = s.filter(x => state.extras.has(x.id));
-    return { precio: (v ? v.precio : base?.precio || 0) + ex.reduce((t, e) => t + e.precio, 0), dur: (base?.duracion || 0) + ex.reduce((t, e) => t + e.duracion, 0), falta: vars.length > 0 && !v };
+  // ================== CARRITO ==================
+  // Guardado en este teléfono. Cada elemento: { sid: id del servicio, vi: índice de la opción (largo) o null }
+  state.carrito = (store.get('carrito') || []).filter((x, i, arr) => x && Number.isFinite(x.sid) && arr.findIndex(y => y && y.sid === x.sid) === i).slice(0, 8);
+  const guardarCarrito = () => store.set('carrito', state.carrito);
+  function itemsCarrito() {
+    const out = [];
+    for (const [idx, x] of state.carrito.entries()) {
+      const s = state.data.servicios.find(v => v.id === x.sid); if (!s) continue;
+      const vars = s.variantes || []; const v = vars.length ? vars[x.vi] : null;
+      if (vars.length && !v) continue;
+      out.push({ idx, sid: s.id, vi: v ? x.vi : null, nombre: s.nombre, variante: v?.nombre || null, precio: v ? v.precio : s.precio, duracion: s.duracion || 0, extra: !!s.extra });
+    }
+    return out;
   }
-  function animarNumero(el, hasta) {
-    const desde = Number(el.dataset.v || 0); el.dataset.v = hasta;
-    if (reduced || desde === hasta) { el.textContent = fmtPrecio(hasta); return; }
-    const t0 = performance.now(); const D = 450;
-    const tick = t => { const k = Math.min(1, (t - t0) / D); const e = 1 - Math.pow(1 - k, 3); el.textContent = fmtPrecio(Math.round(desde + (hasta - desde) * e)); if (k < 1) requestAnimationFrame(tick); };
-    requestAnimationFrame(tick);
+  const totalCarrito = () => itemsCarrito().reduce((t, i) => t + i.precio, 0);
+  function agregarAlCarrito(sid, vi, origen) {
+    const s = state.data.servicios.find(v => v.id === sid); if (!s) return;
+    const vars = s.variantes || [];
+    if (vars.length && !(vi >= 0 && vi < vars.length)) { toast(`Elige una opción de "${s.nombre}".`); return; }
+    const ya = state.carrito.find(x => x.sid === sid);
+    if (ya && (!vars.length || ya.vi === vi)) { toast(`"${s.nombre}" ya está en tu carrito.`); return; }
+    if (ya) { // mismo servicio con otra opción: se cambia la opción, no se duplica
+      ya.vi = vi; guardarCarrito(); pintarFabs(true); toast(`${s.nombre}: cambiado a ${vars[vi].nombre}`);
+      if (origen) { origen.classList.remove('added'); void origen.offsetWidth; origen.classList.add('added'); }
+      return;
+    }
+    if (state.carrito.length >= 8) { toast('Máximo 8 servicios por reserva.'); return; }
+    state.carrito.push({ sid, vi: vars.length ? vi : null }); guardarCarrito();
+    const v = vars[vi];
+    pintarFabs(true);
+    toast(`${s.nombre}${v ? ' · ' + v.nombre : ''} en tu carrito`);
+    if (origen) { origen.classList.remove('added'); void origen.offsetWidth; origen.classList.add('added'); }
   }
-  function actualizarTotal() {
-    const t = totalActual(); animarNumero($('#totalPrecio'), t.precio);
-    $('#totalDur').textContent = t.falta ? 'Desde · elige una opción' : t.dur ? `Duración aprox. ${fmtDur(t.dur)}` : 'Total';
-  }
-  // Opciones del servicio (largo de uña, pulgar o todas): solo aparecen si el servicio las tiene
-  function variantesHtml() {
-    const s = state.data.servicios.find(x => x.id === state.servicioId); const vars = s?.variantes || [];
-    if (!vars.length) { state.variante = null; return ''; }
-    if (!(state.variante >= 0 && state.variante < vars.length)) state.variante = null;
-    const esLargo = vars.every(v => /^(cortas|medianas|largas|x+l)$/i.test(v.nombre));
-    return `<fieldset><legend class="label" style="font-size:var(--fs-sm)">${esLargo ? 'Elige el largo' : 'Elige una opción'}</legend>
-      <div class="vopts stagger">${vars.map((v, i) => `<label class="choice" style="--i:${i}"><input type="radio" name="variante" value="${i}" ${state.variante === i ? 'checked' : ''} aria-label="${esc(v.nombre)}, ${fmtPrecio(v.precio)}">
-        <span class="vopt" aria-hidden="true"><span>${esc(v.nombre)}</span><small class="num">${fmtPrecio(v.precio)}</small></span></label>`).join('')}</div>
-      <span class="error-text" id="e-variante" role="alert"></span></fieldset>`;
-  }
-  const marcar = (el, on) => { if (el && el.setAttribute) el.setAttribute('aria-invalid', on ? 'true' : 'false'); };
+  function quitarDelCarrito(idx) { state.carrito.splice(idx, 1); guardarCarrito(); pintarFabs(); }
 
-  // ---------- Pago de la seña ----------
-  const pagoRequerido = () => state.data.ajustes.sena_activa === '1' && (state.data.tarjetas || []).length > 0;
+  // Botones flotantes: carrito y sala de espera (solo aparecen cuando hacen falta)
+  function pintarFabs(rebote) {
+    const n = itemsCarrito().length; const fab = $('#fabCarrito');
+    fab.hidden = n === 0;
+    $('#fabCount').textContent = n; fab.setAttribute('aria-label', `Carrito: ${n} ${n === 1 ? 'servicio' : 'servicios'}, ${fmtPrecio(totalCarrito())}`);
+    $('#fabTotal').textContent = fmtPrecio(totalCarrito());
+    if (rebote && !reduced) { fab.classList.remove('bump'); void fab.offsetWidth; fab.classList.add('bump'); }
+    const pend = state.pedidos.filter(p => !p.fin).length; const fe = $('#fabEspera');
+    fe.hidden = state.pedidos.length === 0;
+    $('#fabEsperaTxt').textContent = pend ? `En espera (${pend})` : 'Mis reservas';
+    fe.classList.toggle('pendiente', pend > 0);
+    const cb = $('#cartBar'); if (cb) cb.innerHTML = carritoBarra();
+  }
+  // Resumen del carrito arriba de los turnos
+  function carritoBarra() {
+    const it = itemsCarrito();
+    if (!it.length) return `<div class="cart-strip vacio"><span>Tu carrito está vacío. Elige tus servicios en <b>Precios</b>.</span><button type="button" class="btn btn-soft btn-sm" data-tab="precios">Ver precios</button></div>`;
+    return `<div class="cart-strip"><span><b>${it.length} ${it.length === 1 ? 'servicio' : 'servicios'}</b> · <span class="num">${fmtPrecio(totalCarrito())}</span><br><span class="muted">${esc(it.map(i => i.nombre + (i.variante ? ' ' + i.variante : '')).join(' + '))}</span></span>
+      <button type="button" class="btn btn-ghost btn-sm" id="verCarrito">Editar</button></div>`;
+  }
+
+  function abrirCarrito() {
+    const it = itemsCarrito(); const total = totalCarrito();
+    $('#cartBody').innerHTML = it.length ? `
+      <ul class="cart-list">${it.map((i, k) => `<li style="--i:${k}"><div><strong>${esc(i.nombre)}</strong>${i.variante ? `<span class="muted"> · ${esc(i.variante)}</span>` : ''}${i.extra ? ' <span class="pill pill-gloss">Complemento</span>' : ''}</div>
+        <span class="num">${fmtPrecio(i.precio)}</span><button type="button" class="icon-btn quitar" data-quitar="${i.idx}" aria-label="Quitar ${esc(i.nombre)}">×</button></li>`).join('')}</ul>
+      <div class="total"><span class="muted">Total</span><strong class="num">${fmtPrecio(total)}</strong></div>
+      ${pagoRequerido() ? `<p class="hint">Para apartar el turno pagas ahora ${fmtPrecio(senaDe(total))} (${pctSena()} %)${state.data.ajustes.pago_total_activo === '1' ? ' o el total' : ''}.</p>` : ''}
+      ${!it.some(i => !i.extra) ? '<p class="error-text">Agrega un servicio principal: los complementos van junto a otro.</p>' : ''}
+      <button type="button" class="btn btn-primary btn-block" id="carritoTurno" ${it.some(i => !i.extra) ? '' : 'disabled'}>${state.turno ? `Continuar · ${fmtDia(state.dia, { weekday: 'short', day: 'numeric' })}, ${hora12(state.turno.hora)}` : 'Elegir día y hora'}</button>
+      <button type="button" class="btn btn-ghost btn-block" data-close data-tab="precios">Seguir agregando</button>`
+      : `<div class="empty"><p>Tu carrito está vacío.</p><button type="button" class="btn btn-primary" data-close data-tab="precios">Ver servicios y precios</button></div>`;
+    if (!$('#cartDialog').open) $('#cartDialog').showModal();
+  }
+
+  // ================== CHECKOUT: datos → pago ==================
+  const pagoRequerido = () => state.data.ajustes.sena_activa === '1' && metodos().length > 0;
   const pctSena = () => Math.min(Math.max(parseInt(state.data.ajustes.sena_porcentaje, 10) || 0, 0), 100);
   const senaDe = total => Math.ceil(total * pctSena() / 100);
+  const tasa = m => m === 'CUP' ? 1 : (Number(state.data.ajustes['tasa_' + m.toLowerCase()]) || 0);
+  const metodos = () => (state.data.tarjetas || []).filter(t => tasa(t.moneda) > 0);
+  const enMoneda = (cup, m) => m === 'CUP' ? cup : Math.ceil(cup / tasa(m) * 100) / 100;
+  const fmtMonto = (n, m) => m === 'CUP' ? fmtPrecio(n) : fmtNum(n, 2) + ' ' + m;
   const fmtTarjeta = n => String(n).replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
   const fmtTel = n => { const d = String(n).replace(/\D/g, ''); return d.length === 8 ? d.replace(/(\d{2})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4') : '+' + d; };
+  const montoAPagar = () => { const t = totalCarrito(); return state.modoPago === 'total' ? t : senaDe(t); };
+  const marcar = (el, on) => { if (el && el.setAttribute) el.setAttribute('aria-invalid', on ? 'true' : 'false'); };
 
   function comprimirFoto(file, max = 1400) {
     return new Promise((resolve, reject) => {
@@ -671,6 +809,7 @@
         c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
         let out = c.toDataURL('image/webp', .82);
         if (!out.startsWith('data:image/webp')) out = c.toDataURL('image/jpeg', .85);
+        if (out.length > 4_000_000) return reject(new Error('La foto sigue siendo muy pesada. Usa una captura de pantalla.'));
         resolve(out);
       };
       img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('No se pudo leer la foto. Prueba con otra.')); };
@@ -678,13 +817,38 @@
     });
   }
 
+  function listaPedidoHtml() {
+    const it = itemsCarrito();
+    return `<ul class="cart-list compacta">${it.map(i => `<li><div>${esc(i.nombre)}${i.variante ? `<span class="muted"> · ${esc(i.variante)}</span>` : ''}</div><span class="num">${fmtPrecio(i.precio)}</span>
+      <button type="button" class="icon-btn quitar" data-quitar="${i.idx}" data-en-checkout aria-label="Quitar ${esc(i.nombre)}">×</button></li>`).join('')}</ul>
+      <div class="total"><span class="muted">Total</span><strong class="num" id="totalPrecio">${fmtPrecio(totalCarrito())}</strong></div>`;
+  }
+  function selectorAgregar() {
+    const { servicios, categorias } = state.data;
+    return `<details class="agregar"><summary>Agregar otro servicio</summary>
+      <div class="sheet-body" style="padding:var(--sp-3) 0 0">
+        <div class="field"><label for="f-add">Servicio</label><select class="input" id="f-add"><option value="">Elige un servicio…</option>
+          ${categorias.map(c => { const it = servicios.filter(s => s.categoria === c); return it.length ? `<optgroup label="${esc(c)}">${it.map(s => `<option value="${s.id}">${esc(s.nombre)}${s.extra ? ' (complemento)' : ''} · ${(s.variantes || []).length ? 'desde ' : ''}${fmtPrecio(s.precio)}</option>`).join('')}</optgroup>` : ''; }).join('')}
+        </select></div>
+        <div id="addVars"></div>
+        <button type="button" class="btn btn-soft btn-sm" id="addBtn" disabled>Agregar</button>
+      </div></details>`;
+  }
+  function varsAgregarHtml(sid) {
+    const s = state.data.servicios.find(x => x.id === sid); const vars = s?.variantes || [];
+    if (!vars.length) return '';
+    const esLargo = vars.every(v => /^(cortas|medianas|largas|x+l)$/i.test(v.nombre));
+    return `<fieldset><legend class="label" style="font-size:var(--fs-sm)">${esLargo ? 'Elige el largo' : 'Elige una opción'}</legend>
+      <div class="vopts stagger">${vars.map((v, i) => `<label class="choice" style="--i:${i}"><input type="radio" name="addvar" value="${i}" aria-label="${esc(v.nombre)}, ${fmtPrecio(v.precio)}">
+      <span class="vopt" aria-hidden="true"><span>${esc(v.nombre)}</span><small class="num">${fmtPrecio(v.precio)}</small></span></label>`).join('')}</div></fieldset>`;
+  }
+
   function openBook() {
-    const { servicios, ajustes: a } = state.data;
-    const principales = servicios.filter(s => !s.extra); const extras = servicios.filter(s => s.extra);
-    if (!principales.some(s => s.id === state.servicioId)) state.servicioId = (principales.find(s => s.popular) || principales[0])?.id;
+    const a = state.data.ajustes;
     const recordado = store.get('clienta') || {};
-    const pago = pagoRequerido(); state.comp = null;
-    $('#bookDialogTitle').textContent = pago ? 'Paso 1 de 2 · Tus datos' : 'Tus datos';
+    const pago = pagoRequerido(); state.comp = null; state.modoPago = 'sena';
+    const ms = metodos(); state.metodo = ms.length === 1 ? ms[0].id : null;
+    $('#bookDialogTitle').textContent = pago ? 'Paso 1 de 2 · Tu pedido' : 'Tu pedido';
     $('#bookBody').innerHTML = `
       <div class="summary"><span class="eyebrow">Tu turno</span>
         <strong>${fmtDia(state.dia, { weekday: 'long', day: 'numeric', month: 'long' })}</strong>
@@ -692,16 +856,8 @@
       <form id="bookForm" novalidate class="sheet-body" style="padding:0">
         <input type="text" name="web" tabindex="-1" autocomplete="off" aria-hidden="true" class="trampa">
         <div id="paso1" class="sheet-body" style="padding:0">
-          <div class="field"><label for="f-servicio">Servicio</label>
-            <select class="input" id="f-servicio" name="servicio" aria-describedby="e-servicio">
-              ${state.data.categorias.map(c => { const it = principales.filter(s => s.categoria === c);
-                return it.length ? `<optgroup label="${esc(c)}">${it.map(s => `<option value="${s.id}" ${s.id === state.servicioId ? 'selected' : ''}>${esc(s.nombre)} · ${(s.variantes || []).length ? 'desde ' : ''}${fmtPrecio(s.precio)}</option>`).join('')}</optgroup>` : ''; }).join('')}
-            </select><span class="error-text" id="e-servicio"></span></div>
-          <div id="varBox">${variantesHtml()}</div>
-          ${extras.length ? `<fieldset><legend class="label" style="font-size:var(--fs-sm)">Complementos <span class="muted" style="font-weight:400">(opcional)</span></legend>
-            <div class="extras">${extras.map(e => `<label class="extra"><input type="checkbox" name="extra" value="${e.id}" ${state.extras.has(e.id) ? 'checked' : ''}>
-              <span>${esc(e.nombre)}</span><span class="num muted">+${fmtPrecio(e.precio)}</span></label>`).join('')}</div></fieldset>` : ''}
-          <div class="total" aria-live="polite"><span class="muted" id="totalDur"></span><strong class="num" id="totalPrecio"></strong></div>
+          <div class="field"><span class="label">Servicios</span><div id="pedidoLista">${listaPedidoHtml()}</div><span class="error-text" id="e-servicio" role="alert"></span></div>
+          ${selectorAgregar()}
           <div class="field"><label for="f-nombre">Nombre</label>
             <input class="input" id="f-nombre" name="nombre" autocomplete="name" required aria-describedby="e-nombre" value="${esc(recordado.nombre || '')}">
             <span class="error-text" id="e-nombre"></span></div>
@@ -714,28 +870,33 @@
           <label class="check-line"><input type="checkbox" id="f-recordar" ${recordado.nombre ? 'checked' : ''}> Recordar mi nombre y teléfono en este equipo</label>
           <p class="hint">${esc(a.politica)}</p>
           <p class="error-text" id="e-general1" role="alert"></p>
-          ${pago ? '<button class="btn btn-primary btn-block" type="button" id="irPago">Continuar al pago de la seña</button>'
+          ${pago ? '<button class="btn btn-primary btn-block" type="button" id="irPago">Continuar al pago</button>'
                  : '<button class="btn btn-primary btn-block" type="submit" id="enviar">Solicitar turno</button>'}
         </div>
         ${pago ? `<div id="paso2" class="sheet-body pay" style="padding:0" hidden>
-          <div class="sena-box" aria-live="polite"><span class="eyebrow">Seña para apartar el turno (${pctSena()} %)</span>
-            <strong class="num" id="senaMonto"></strong><span class="muted" id="senaDe"></span></div>
-          <ol class="pay-steps">
-            <li>Transfiere la seña por <strong>Transfermóvil</strong> o <strong>EnZona</strong> a una de estas tarjetas.</li>
-            <li>Toma una captura del comprobante.</li>
-            <li>Súbela aquí y envía tu reserva.</li>
-          </ol>
-          <div class="cards">${state.data.tarjetas.map((t, i) => `<div class="card-pay" style="--i:${i}">
-            <div class="row" style="justify-content:space-between"><strong>${esc(t.banco)}</strong><span class="pill pill-gloss">${esc(t.moneda)}</span></div>
-            <div class="card-num num" id="tn${t.id}">${fmtTarjeta(t.numero)}</div>
-            ${t.titular ? `<span class="muted" style="font-size:var(--fs-xs)">A nombre de ${esc(t.titular)}</span>` : ''}
-            <div class="row"><button type="button" class="btn btn-ghost btn-sm" data-copy="#tn${t.id}" data-copy-raw="${esc(t.numero)}">Copiar tarjeta</button></div>
-            <div class="confirm-line">Número a confirmar: <strong class="num" id="tc${t.id}">${fmtTel(t.confirmar)}</strong>
-              <button type="button" class="btn btn-ghost btn-sm" data-copy="#tc${t.id}" data-copy-raw="${esc(t.confirmar)}">Copiar</button></div>
-          </div>`).join('')}</div>
+          ${a.pago_total_activo === '1' ? `<fieldset><legend class="label" style="font-size:var(--fs-sm)">¿Cuánto pagas ahora?</legend>
+            <div class="modo">
+              <label class="choice"><input type="radio" name="modo" value="sena" checked><span class="modo-op"><b>Seña ${pctSena()} %</b><span class="num" id="mSena"></span><small>El resto el día del turno</small></span></label>
+              <label class="choice"><input type="radio" name="modo" value="total"><span class="modo-op"><b>Pago completo</b><span class="num" id="mTotal"></span><small>No pagas nada en el turno</small></span></label>
+            </div></fieldset>` : ''}
+          <div class="sena-box" aria-live="polite" tabindex="-1"><span class="eyebrow" id="montoTit">A transferir</span><strong class="num" id="senaMonto"></strong><span class="muted" id="senaDe"></span></div>
+          <fieldset><legend class="label" style="font-size:var(--fs-sm)">${ms.length > 1 ? 'Elige cómo pagas' : 'Paga aquí'}</legend>
+            <div class="cards">${ms.map((t, i) => `<label class="choice metodo" style="--i:${i}"><input type="radio" name="metodo" value="${t.id}" ${state.metodo === t.id ? 'checked' : ''}
+                aria-label="${t.tipo === 'saldo' ? 'Saldo móvil' : esc(t.banco) + ' ' + t.moneda}">
+              <span class="card-pay ${t.tipo === 'saldo' ? 'saldo' : ''}">
+                <span class="row" style="justify-content:space-between"><strong>${t.tipo === 'saldo' ? 'Saldo móvil' : esc(t.banco)}</strong><span class="pill pill-gloss">${esc(t.moneda)}</span></span>
+                <span class="card-num num" id="tn${t.id}">${t.tipo === 'saldo' ? fmtTel(t.numero) : fmtTarjeta(t.numero)}</span>
+                <span class="monto-metodo num" data-monto="${t.id}"></span>
+                ${t.titular ? `<span class="muted" style="font-size:var(--fs-xs)">A nombre de ${esc(t.titular)}</span>` : ''}
+                <span class="row"><button type="button" class="btn btn-ghost btn-sm" data-copy="#tn${t.id}" data-copy-raw="${esc(t.numero)}">${t.tipo === 'saldo' ? 'Copiar número' : 'Copiar tarjeta'}</button></span>
+                ${t.tipo === 'saldo' ? '<span class="confirm-line">Transfiere el saldo desde tu móvil (Transferir saldo).</span>'
+                  : `<span class="confirm-line">Número a confirmar: <strong class="num" id="tc${t.id}">${fmtTel(t.confirmar)}</strong>
+                  <button type="button" class="btn btn-ghost btn-sm" data-copy="#tc${t.id}" data-copy-raw="${esc(t.confirmar)}">Copiar</button></span>`}
+              </span></label>`).join('')}</div>
+            <span class="error-text" id="e-metodo" role="alert"></span></fieldset>
           <div class="field"><label for="f-comp">Foto del comprobante</label>
-            <input class="input" id="f-comp" type="file" accept="image/*" aria-describedby="h-comp e-comprobante">
-            <span class="hint" id="h-comp">Se reduce antes de enviarla para gastar menos datos. Solo la ve ${esc(a.nombre)}.</span>
+            ${fileHtml('id="f-comp" aria-describedby="h-comp e-comprobante"', 'Elegir captura o foto')}
+            <span class="hint" id="h-comp">Captura de la transferencia. Solo la ve ${esc(a.nombre)}.</span>
             <span class="error-text" id="e-comprobante" role="alert"></span>
             <img id="compPrev" class="comp-prev" alt="Vista previa del comprobante" hidden></div>
           <div class="field"><label for="f-trans">Número de transacción <span class="muted" style="font-weight:400">(opcional)</span></label>
@@ -744,47 +905,60 @@
           <p class="hint">${esc(a.sena)}</p>
           <p class="error-text" id="e-general" role="alert"></p>
           <div class="row" style="flex-wrap:nowrap"><button class="btn btn-ghost" type="button" id="volverPaso1">← Volver</button>
-            <button class="btn btn-primary" type="submit" id="enviar" style="flex:1">Enviar reserva</button></div>
+            <button class="btn btn-primary" type="submit" id="enviar" style="flex:1">Enviar pedido</button></div>
         </div>` : '<p class="error-text" id="e-general" role="alert"></p>'}
       </form>`;
-    $('#bookDialog').showModal();
-    actualizarTotal();
+    if (!$('#bookDialog').open) $('#bookDialog').showModal();
     (recordado.nombre ? ($('#irPago') || $('#enviar')) : $('#f-nombre')).focus();
   }
+  function refrescarPedido() {
+    const pl = $('#pedidoLista'); if (pl) pl.innerHTML = listaPedidoHtml();
+    pintarFabs();
+  }
+  function actualizarMontos() {
+    const t = totalCarrito(); const m = montoAPagar();
+    if ($('#mSena')) { $('#mSena').textContent = fmtPrecio(senaDe(t)); $('#mTotal').textContent = fmtPrecio(t); }
+    const met = metodos().find(x => x.id === state.metodo);
+    $('#senaMonto').textContent = met ? fmtMonto(enMoneda(m, met.moneda), met.moneda) : fmtPrecio(m);
+    $('#montoTit').textContent = state.modoPago === 'total' ? 'Pago completo a transferir' : `Seña a transferir (${pctSena()} %)`;
+    $('#senaDe').textContent = met && met.moneda !== 'CUP' ? `${fmtPrecio(m)} a ${tasa(met.moneda)} CUP por ${met.moneda}` : `del total de ${fmtPrecio(t)}`;
+    $$('[data-monto]').forEach(el => { const x = metodos().find(y => y.id === Number(el.dataset.monto)); el.textContent = 'Transfiere ' + fmtMonto(enMoneda(m, x.moneda), x.moneda); });
+  }
 
-  // Valida el paso 1 (datos). Devuelve true si está bien.
   function validarPaso1() {
     const f = $('#bookForm').elements; const errores = {};
-    if (totalActual().falta) errores.variante = 'Elige una opción del servicio.';
+    const it = itemsCarrito();
+    if (!it.length) errores.servicio = 'Agrega al menos un servicio.';
+    else if (!it.some(i => !i.extra)) errores.servicio = 'Agrega un servicio principal: los complementos van junto a otro.';
     if (f.nombre.value.trim().length < 2) errores.nombre = 'Escribe tu nombre.';
     if (f.telefono.value.replace(/\D/g, '').length < 8) errores.telefono = 'Escribe un teléfono de al menos 8 dígitos.';
-    ['nombre', 'telefono', 'servicio', 'variante'].forEach(k => { const m = $('#e-' + k); if (m) m.textContent = errores[k] || ''; marcar(f[k], errores[k]); });
-    if (Object.keys(errores).length) { const k = Object.keys(errores)[0]; (k === 'variante' ? $('input[name="variante"]') : f[k]).focus(); return false; }
+    ['nombre', 'telefono', 'servicio'].forEach(k => { const m = $('#e-' + k); if (m) m.textContent = errores[k] || ''; marcar(f[k], errores[k]); });
+    if (Object.keys(errores).length) { const k = Object.keys(errores)[0]; (k === 'servicio' ? $('#f-add') || $('#pedidoLista') : f[k]).focus(); if (k === 'servicio') $('.agregar').open = true; return false; }
     return true;
   }
   function irAlPago() {
     if (!validarPaso1()) return;
-    const t = totalActual();
-    $('#senaMonto').textContent = fmtPrecio(senaDe(t.precio));
-    $('#senaDe').textContent = `del total de ${fmtPrecio(t.precio)}`;
+    actualizarMontos();
     $('#paso1').hidden = true; $('#paso2').hidden = false; $('#paso2').classList.add('enter-r');
-    $('#bookDialogTitle').textContent = 'Paso 2 de 2 · Seña';
-    $('#bookDialog').scrollTop = 0; $('#paso2 .sena-box').setAttribute('tabindex', '-1'); $('#paso2 .sena-box').focus();
+    $('#bookDialogTitle').textContent = 'Paso 2 de 2 · Pago';
+    $('#bookDialog').scrollTop = 0; $('#paso2 .sena-box').focus();
   }
 
   async function submitBook(e) {
     e.preventDefault();
     const pago = pagoRequerido();
-    if (pago && $('#paso2').hidden) return irAlPago();    // Enter en el paso 1 lleva al pago
+    if (pago && $('#paso2').hidden) return irAlPago();
     if (!validarPaso1()) { if (pago) { $('#paso2').hidden = true; $('#paso1').hidden = false; } return; }
     const f = e.target.elements;
+    const it = itemsCarrito();
     const body = {
-      turno_id: state.turno.id, servicio_id: Number(f.servicio.value), variante: state.variante, extras: [...state.extras],
+      turno_id: state.turno.id, items: it.map(i => ({ servicio_id: i.sid, variante: i.vi })),
       nombre: f.nombre.value.trim(), telefono: f.telefono.value.trim(), notas: f.notas.value.trim(), web: f.web.value,
     };
     if (pago) {
+      if (!state.metodo) { $('#e-metodo').textContent = 'Elige la tarjeta o el saldo móvil al que transferiste.'; $('input[name="metodo"]')?.focus(); return; }
       if (!state.comp) { $('#e-comprobante').textContent = 'Sube la foto del comprobante de la transferencia.'; marcar($('#f-comp'), true); $('#f-comp').focus(); return; }
-      body.comprobante = state.comp; body.transaccion = f.transaccion.value.trim();
+      Object.assign(body, { comprobante: state.comp, transaccion: f.transaccion.value.trim(), modo_pago: state.modoPago, metodo_id: state.metodo });
     }
     if ($('#f-recordar').checked) store.set('clienta', { nombre: body.nombre, telefono: body.telefono }); else store.del('clienta');
     $('#e-general').textContent = '';
@@ -794,16 +968,20 @@
     try {
       if (state.demo) {
         await new Promise(r => setTimeout(r, 800));
-        const s = state.data.servicios.find(x => x.id === body.servicio_id); const t = totalActual(); const v = (s.variantes || [])[state.variante];
-        res = { fecha: state.dia, hora: state.turno.hora, servicio: s.nombre + (v ? ' · ' + v.nombre : ''), extras: state.data.servicios.filter(x => state.extras.has(x.id)).map(x => x.nombre),
-          precio: t.precio, sena: pago ? senaDe(t.precio) : 0, pago: pago ? 'por_verificar' : 'sin_pago', duracion: t.dur };
+        const met = metodos().find(x => x.id === state.metodo); const m = pago ? montoAPagar() : 0;
+        res = { codigo: 'DEMO' + String(Date.now()).slice(-1) + '-' + Math.random().toString(36).slice(2, 7).toUpperCase().replace(/[01IO]/g, 'X'),
+          fecha: state.dia, hora: state.turno.hora, servicio: it.map(i => i.nombre + (i.variante ? ' · ' + i.variante : '')).join(' + '), items: it, precio: totalCarrito(),
+          sena: m, modo_pago: state.modoPago, pago: pago ? 'por_verificar' : 'sin_pago', estado: 'pendiente', duracion: it.reduce((t, i) => t + i.duracion, 0),
+          metodo: met ? (met.tipo === 'saldo' ? 'Saldo móvil' : met.banco) : '', moneda_pago: met?.moneda || 'CUP', monto_pago: met ? enMoneda(m, met.moneda) : 0 };
+        demoPedidos[res.codigo] = { ...res, total: res.precio, nombre: body.nombre.split(' ')[0], creado: Date.now() };
       } else {
         const r = await fetch('/api/reservas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const j = await r.json().catch(() => ({ error: 'Respuesta inesperada del servidor. Intenta de nuevo.' }));
         if (!r.ok) {
           const enPaso1 = ['nombre', 'telefono', 'servicio', 'variante'].includes(j.campo);
           if (enPaso1 && pago) { $('#paso2').hidden = true; $('#paso1').hidden = false; }
-          if (j.campo && $('#e-' + j.campo)) { $('#e-' + j.campo).textContent = j.error; marcar(j.campo === 'comprobante' ? $('#f-comp') : f[j.campo], true); btn.disabled = false; btn.textContent = txt; }
+          const campo = j.campo === 'variante' ? 'servicio' : j.campo;
+          if (campo && $('#e-' + campo)) { $('#e-' + campo).textContent = j.error; marcar(campo === 'comprobante' ? $('#f-comp') : f[campo], true); btn.disabled = false; btn.textContent = txt; }
           else fallo(j.error || 'No se pudo enviar. Intenta de nuevo.');
           if (r.status === 409) { state.turno = null; reloadSilently(); $('#e-general').textContent += ' Cierra esta ventana y elige otra hora.'; }
           return;
@@ -812,9 +990,13 @@
       }
     } catch { return fallo('No hay conexión. Revisa tus datos móviles y vuelve a intentar.'); }
     const d = state.data.dias.find(x => x.fecha === res.fecha); if (d) d.turnos = d.turnos.filter(t => t.id !== body.turno_id);
-    state.turno = null; state.nota = ''; state.extras.clear(); state.variante = null; state.comp = null;
-    showSuccess(res, body);
-    renderBooking(); renderHero();
+    state.turno = null; state.nota = ''; state.comp = null;
+    state.carrito = []; guardarCarrito();
+    state.pedidos.unshift({ codigo: res.codigo, fin: false }); guardarPedidos();
+    state.estados[res.codigo] = res;
+    pintarFabs(); renderBooking(); renderHero();
+    $('#bookDialog').close();
+    abrirEspera(res.codigo, { nuevo: true, body });
   }
 
   function calendarLink(res) {
@@ -824,34 +1006,218 @@
     const fin = new Date(Date.UTC(Y, M - 1, D, h, m + (res.duracion || 60)));
     const ini = `${res.fecha.replace(/-/g, '')}T${p(h)}${p(m)}00`;
     const finS = `${fin.getUTCFullYear()}${p(fin.getUTCMonth() + 1)}${p(fin.getUTCDate())}T${p(fin.getUTCHours())}${p(fin.getUTCMinutes())}00`;
-    const q = new URLSearchParams({ action: 'TEMPLATE', text: `${res.servicio} · ${a.nombre}`, dates: `${ini}/${finS}`, ctz: 'America/Havana', location: `${a.direccion}, ${a.ciudad}`, details: 'Turno pendiente de confirmación.' });
+    const q = new URLSearchParams({ action: 'TEMPLATE', text: `${res.servicio} · ${a.nombre}`, dates: `${ini}/${finS}`, ctz: 'America/Havana', location: `${a.direccion}, ${a.ciudad}`, details: 'Código de reserva ' + (res.codigo || '') });
     return 'https://calendar.google.com/calendar/render?' + q;
   }
 
-  function showSuccess(res, body) {
-    const a = state.data.ajustes;
-    const cuando = `${fmtDia(res.fecha, { weekday: 'long', day: 'numeric', month: 'long' })} a las ${hora12(res.hora)}`;
-    const extras = res.extras?.length ? ` + ${res.extras.join(', ')}` : '';
-    const conPago = res.pago === 'por_verificar';
-    const msg = `Hola ${a.nombre}, soy ${body.nombre}. Reservé ${res.servicio}${extras} el ${cuando} (total ${fmtPrecio(res.precio)}).${conPago ? ` Ya transferí la seña de ${fmtPrecio(res.sena)} y subí el comprobante.` : ''}${body.notas ? ' Nota: ' + body.notas : ''}`;
-    $('#bookDialogTitle').textContent = conPago ? 'Reserva enviada' : 'Turno solicitado';
-    $('#bookBody').innerHTML = `<div class="success">
-      <svg class="tick" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" fill="none" stroke="var(--c-ok)" stroke-width="4"/><path d="M23 37l9 9 18-19" fill="none" stroke="var(--c-ok)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <p><strong>${esc(res.servicio)}${esc(extras)}</strong><br>${cuando}<br><span class="num">Total ${fmtPrecio(res.precio)}</span>${conPago ? `<br><span class="num">Seña enviada: ${fmtPrecio(res.sena)}</span>` : ''}</p>
-      <p class="muted">${conPago ? `${esc(a.nombre)} va a verificar tu transferencia y te confirma el turno por WhatsApp.` : `Queda <strong>pendiente</strong> hasta que ${esc(a.nombre)} lo confirme.`}</p>
-      <a class="btn btn-primary btn-block" href="${waLink(msg)}" rel="noopener">Avisar por WhatsApp</a>
-      <a class="btn btn-ghost btn-block" href="${calendarLink(res)}" rel="noopener" target="_blank">Agregar a mi calendario</a>
-      <div class="copy-row"><span>WhatsApp: <strong class="num" id="waNum">+${esc(numeroWA())}</strong></span>
-        <button type="button" class="btn btn-ghost btn-sm" data-copy="#waNum">Copiar número</button></div>
-      <button type="button" class="btn btn-ghost btn-block" data-close>Listo</button></div>`;
-    live((conPago ? 'Reserva enviada con comprobante para ' : 'Turno solicitado para ') + cuando);
-    $('#bookBody .btn-primary').focus();
-    confetti();
+  // ================== SALA DE ESPERA ==================
+  // Los códigos de reserva de esta clienta se guardan en su teléfono. El estado se consulta al servidor.
+  state.pedidos = (store.get('pedidos') || []).filter(p => p && /^[A-Z0-9]{5}-[A-Z0-9]{5}$/.test(p.codigo)).slice(0, 10);
+  state.estados = {};
+  const guardarPedidos = () => store.set('pedidos', state.pedidos);
+  const demoPedidos = {};
+  async function consultarEstado(codigo) {
+    if (state.demo) {
+      const p = demoPedidos[codigo]; if (!p) throw Object.assign(new Error('No encontramos una reserva con ese código.'), { status: 404 });
+      const s = (Date.now() - p.creado) / 1000;    // en la demo: verificado a los 8 s, confirmado a los 14 s
+      if (p.pago === 'por_verificar' && s > 8) p.pago = 'verificado';
+      if (p.estado === 'pendiente' && s > 14) p.estado = 'confirmada';
+      return { ...p };
+    }
+    const r = await fetch('/api/reservas/estado/' + encodeURIComponent(codigo));
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw Object.assign(new Error(j.error || 'No se pudo consultar.'), { status: r.status });
+    return j;
   }
+  const esFinal = e => ['confirmada', 'cancelada', 'completada', 'no_asistio'].includes(e.estado);
+  const PASOS = e => {
+    const pagoPaso = e.pago === 'sin_pago' ? null
+      : e.pago === 'por_verificar' ? { k: 'act', t: 'Verificando tu transferencia', d: `${e.metodo ? esc(e.metodo) + ' · ' : ''}${fmtMonto(e.monto_pago || e.sena, e.moneda_pago || 'CUP')}` }
+      : e.pago === 'verificado' ? { k: 'ok', t: 'Transferencia aprobada', d: fmtMonto(e.monto_pago || e.sena, e.moneda_pago || 'CUP') + ' recibidos' }
+      : { k: 'mal', t: 'No se pudo verificar el pago', d: e.nota ? esc(e.nota) : 'Revisa el comprobante y envíalo de nuevo.' };
+    const turnoPaso = e.estado === 'confirmada' ? { k: 'ok', t: '¡Turno confirmado!', d: 'Te esperamos. Llega 5 minutos antes.' }
+      : e.estado === 'completada' ? { k: 'ok', t: 'Visita completada', d: 'Gracias por venir.' }
+      : e.estado === 'cancelada' ? { k: 'mal', t: 'Reserva cancelada', d: 'Escribe por WhatsApp si fue un error.' }
+      : e.estado === 'no_asistio' ? { k: 'mal', t: 'No asististe', d: '' }
+      : { k: e.pago === 'rechazado' ? 'esp' : (e.pago === 'por_verificar' ? 'esp' : 'act'), t: 'Confirmación del turno', d: 'Te avisamos aquí y por WhatsApp.' };
+    return [{ k: 'ok', t: 'Pedido recibido', d: 'Código ' + esc(e.codigo) }, pagoPaso, turnoPaso].filter(Boolean);
+  };
+  function tarjetaEstado(e, extra = {}) {
+    const a = state.data.ajustes; const cuando = `${fmtDia(e.fecha, { weekday: 'long', day: 'numeric', month: 'long' })}, ${hora12(e.hora)}`;
+    const conf = e.estado === 'confirmada';
+    const msg = `Hola ${a.nombre}, soy ${e.nombre || extra.body?.nombre || ''}. Mi código de reserva es ${e.codigo} (${e.servicio}, ${cuando}).${e.pago === 'por_verificar' ? ` Ya transferí ${fmtMonto(e.monto_pago || e.sena, e.moneda_pago || 'CUP')} y subí el comprobante.` : ''}`;
+    return `<article class="espera ${conf ? 'lista' : ''}" data-codigo="${esc(e.codigo)}" aria-labelledby="t-${esc(e.codigo)}">
+      <div class="row" style="justify-content:space-between"><span class="eyebrow">Reserva</span><button type="button" class="codigo num" data-copy="#c-${esc(e.codigo)}" data-copy-raw="${esc(e.codigo)}" aria-label="Copiar código ${esc(e.codigo)}"><span id="c-${esc(e.codigo)}">${esc(e.codigo)}</span></button></div>
+      <h3 id="t-${esc(e.codigo)}" class="espera-t">${cuando}</h3>
+      <p class="muted">${esc(e.servicio)} · <span class="num">${fmtPrecio(e.total ?? e.precio)}</span></p>
+      <ol class="pasos">${PASOS(e).map((p, i) => `<li class="paso ${p.k}" style="--i:${i}"><span class="punto" aria-hidden="true">${p.k === 'ok' ? '✓' : p.k === 'mal' ? '!' : ''}</span>
+        <div><strong>${p.t}</strong>${p.d ? `<span class="muted">${p.d}</span>` : ''}</div><span class="sr-only">${{ ok: 'hecho', mal: 'con problema', act: 'en curso', esp: 'pendiente' }[p.k]}</span></li>`).join('')}</ol>
+      ${e.pago === 'rechazado' && e.estado === 'pendiente' ? `<div class="reenvio"><label class="label" for="re-${esc(e.codigo)}">Enviar otro comprobante</label>
+        ${fileHtml(`id="re-${esc(e.codigo)}" data-reenvio="${esc(e.codigo)}"`)}
+        <input class="input num" placeholder="Número de transacción (opcional)" aria-label="Número de transacción (opcional)" id="rt-${esc(e.codigo)}" maxlength="60" autocomplete="off">
+        <span class="error-text" id="re-err-${esc(e.codigo)}" role="alert"></span>
+        <button type="button" class="btn btn-primary btn-sm" data-reenviar="${esc(e.codigo)}" disabled>Enviar comprobante</button></div>` : ''}
+      <div class="row">
+        <a class="btn btn-soft btn-sm" href="${waLink(msg)}" rel="noopener">WhatsApp</a>
+        ${!['cancelada', 'no_asistio'].includes(e.estado) ? `<a class="btn btn-ghost btn-sm" href="${calendarLink(e)}" rel="noopener" target="_blank">Agregar al calendario</a>` : ''}
+        ${esFinal(e) ? `<button type="button" class="btn btn-ghost btn-sm" data-olvidar="${esc(e.codigo)}">Quitar de la lista</button>` : ''}
+      </div></article>`;
+  }
+  function pintarEspera() {
+    const lista = state.pedidos;
+    $('#esperaBody').innerHTML = `${lista.length ? lista.map(p => state.estados[p.codigo] ? tarjetaEstado(state.estados[p.codigo]) : `<article class="espera" aria-busy="true"><div class="skel skel-line w40"></div><div class="skel skel-line w80" style="height:1.4em"></div><div class="skel skel-line w60"></div></article>`).join('')
+      : '<p class="muted">Aquí verás tus reservas y si ya aprobaron tu transferencia.</p>'}
+      <details class="agregar"><summary>¿Reservaste desde otro teléfono? Busca tu código</summary>
+        <form id="buscarCodigo" class="row" novalidate style="padding-top:var(--sp-3);align-items:end">
+          <div class="field" style="flex:1;min-width:160px"><label for="f-codigo">Código</label><input class="input num" id="f-codigo" placeholder="ABCDE-23456" autocapitalize="characters" maxlength="11" aria-describedby="e-codigo"></div>
+          <button class="btn btn-primary" type="submit">Buscar</button></form><span class="error-text" id="e-codigo" role="alert"></span></details>
+      <p class="hint" style="text-align:center">Esta pantalla se actualiza sola cada 20 segundos.</p>`;
+  }
+  async function refrescarEspera(avisar) {
+    let cambio = false;
+    await Promise.all(state.pedidos.map(async p => {
+      try {
+        const e = await consultarEstado(p.codigo); const antes = state.estados[p.codigo];
+        if (antes && (antes.estado !== e.estado || antes.pago !== e.pago)) {
+          cambio = true;
+          if (avisar) {
+            if (e.estado === 'confirmada' && antes.estado !== 'confirmada') { toast('¡Tu turno está confirmado!'); live('Tu turno del ' + fmtDia(e.fecha, { weekday: 'long', day: 'numeric' }) + ' está confirmado'); confetti(); }
+            else if (e.pago === 'verificado' && antes.pago !== 'verificado') toast('Tu transferencia fue aprobada.');
+            else if (e.pago === 'rechazado' && antes.pago !== 'rechazado') toast('Hay un problema con tu comprobante. Ábrelo en "Mis reservas".');
+          }
+        }
+        state.estados[p.codigo] = e; p.fin = esFinal(e);
+      } catch (er) { if (er.status === 404) { p.fin = true; } }
+    }));
+    guardarPedidos(); pintarFabs();
+    if ($('#esperaDialog').open) {
+      // Solo se repinta si algo cambió, para no borrar un archivo ya elegido para reenviar
+      if (cambio || $('#esperaBody [aria-busy="true"]')) pintarEspera();
+    }
+  }
+  function abrirEspera(codigoNuevo, info) {
+    pintarEspera();
+    if (info?.nuevo) {
+      const e = state.estados[codigoNuevo];
+      $('#esperaTitulo').textContent = e.pago === 'por_verificar' ? 'Pedido enviado' : 'Turno solicitado';
+      $('#esperaBody').insertAdjacentHTML('afterbegin', `<div class="success"><svg class="tick" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" fill="none" stroke="var(--c-ok)" stroke-width="4"/><path d="M23 37l9 9 18-19" fill="none" stroke="var(--c-ok)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p><strong>Guarda tu código: <span class="num">${esc(codigoNuevo)}</span></strong></p>
+        <p class="muted">${e.pago === 'por_verificar' ? `${esc(state.data.ajustes.nombre)} está revisando tu transferencia. Puedes cerrar esta pantalla: tu reserva queda en <b>Mis reservas</b>.` : 'Te confirmamos por WhatsApp.'}</p></div>`);
+      confetti();
+    } else $('#esperaTitulo').textContent = 'Mis reservas';
+    if (!$('#esperaDialog').open) $('#esperaDialog').showModal();
+    refrescarEspera(true);
+    clearInterval(state.pollRapido); state.pollRapido = setInterval(() => { if ($('#esperaDialog').open) refrescarEspera(true); else clearInterval(state.pollRapido); }, 20000);
+  }
+  // En segundo plano: cada minuto, si hay reservas en espera, avisa de cambios aunque la sala esté cerrada
+  setInterval(() => { if (state.data && state.pedidos.some(p => !p.fin) && !document.hidden) refrescarEspera(true); }, 60000);
 
+  async function reenviarComprobante(codigo, btn) {
+    const r = state.reenvio; if (!r || r.codigo !== codigo) return;
+    btn.disabled = true; const txt = btn.textContent; btn.textContent = 'Enviando…';
+    try {
+      if (state.demo) { const p = demoPedidos[codigo]; Object.assign(p, { pago: 'por_verificar', nota: '', creado: Date.now() }); state.estados[codigo] = { ...p }; }
+      else {
+        const res = await fetch(`/api/reservas/estado/${encodeURIComponent(codigo)}/comprobante`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ comprobante: r.foto, transaccion: $('#rt-' + codigo)?.value.trim() || '' }) });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(j.error || 'No se pudo enviar.');
+        state.estados[codigo] = j;
+      }
+      state.reenvio = null; toast('Comprobante enviado. Lo revisamos otra vez.'); pintarEspera();
+    } catch (er) { $('#re-err-' + codigo).textContent = er.message; btn.disabled = false; btn.textContent = txt; }
+  }
+  async function buscarCodigo(e) {
+    e.preventDefault();
+    const c = $('#f-codigo').value.trim().toUpperCase().replace(/\s/g, '');
+    if (!/^[A-Z0-9]{5}-?[A-Z0-9]{5}$/.test(c)) { $('#e-codigo').textContent = 'El código tiene 10 letras y números, por ejemplo ABCDE-23456.'; return; }
+    const cod = c.includes('-') ? c : c.slice(0, 5) + '-' + c.slice(5);
+    try {
+      const est = await consultarEstado(cod);
+      if (!state.pedidos.some(p => p.codigo === cod)) state.pedidos.unshift({ codigo: cod, fin: esFinal(est) });
+      state.estados[cod] = est; guardarPedidos(); pintarFabs(); pintarEspera();
+    } catch (er) { $('#e-codigo').textContent = er.message; }
+  }
   async function reloadSilently() {
     if (state.demo) return;
     try { const r = await fetch('/api/publico'); if (r.ok) { state.data = await r.json(); renderBooking(); renderHero(); } } catch {}
+  }
+
+  // ---------- Créditos del desarrollador ----------
+  const DEV = { estudio: '爪丨匚卄乇.studios', whatsapp: '5355633280' };
+  const creditoHtml = () => `<div class="credito"><span>App creada por <strong>${DEV.estudio}</strong></span>
+    <a href="https://wa.me/${DEV.whatsapp}" rel="noopener">WhatsApp +53 5563 3280</a></div>`;
+
+  // ---------- Mapa interactivo ----------
+  const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  function appMapas(a) {
+    return esIOS ? `https://maps.apple.com/?daddr=${a.lat},${a.lng}&q=${encodeURIComponent(a.nombre)}`
+      : `geo:${a.lat},${a.lng}?q=${a.lat},${a.lng}(${encodeURIComponent(a.nombre)})`;
+  }
+  function cargarLeaflet() {
+    if (window.L) return Promise.resolve(window.L);
+    if (cargarLeaflet.p) return cargarLeaflet.p;
+    cargarLeaflet.p = new Promise((resolve, reject) => {
+      const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/vendor/leaflet/leaflet.css'; document.head.appendChild(css);
+      const js = document.createElement('script'); js.src = '/vendor/leaflet/leaflet.js';
+      js.onload = () => resolve(window.L); js.onerror = () => { cargarLeaflet.p = null; reject(new Error('No se pudo cargar el mapa. Revisa tu conexión.')); };
+      document.head.appendChild(js);
+    });
+    return cargarLeaflet.p;
+  }
+  const pinIcono = L => L.divIcon({ className: '', iconSize: [34, 44], iconAnchor: [17, 44], popupAnchor: [0, -40],
+    html: '<div class="pin-l"><svg viewBox="0 0 34 44" aria-hidden="true"><path d="M17 43S3 27 3 16a14 14 0 0 1 28 0c0 11-14 27-14 27Z" fill="#A3123F"/><circle cx="17" cy="16" r="5.5" fill="#fff"/></svg></div>' });
+  async function abrirMapa() {
+    if (state.mapa) return state.mapa;
+    if (!state.coords) return null;
+    const msg = $('#mapMsg');
+    if (state.demo) { msg.textContent = 'En la vista de demostración el mapa es ilustrado. En la web real se abre el mapa interactivo.'; return null; }
+    msg.textContent = 'Cargando mapa…';
+    try {
+      const L = await cargarLeaflet();
+      const box = $('#map'); box.classList.add('vivo'); box.innerHTML = '';
+      const a = state.data.ajustes;
+      const m = L.map(box, { zoomControl: true, attributionControl: true, scrollWheelZoom: false, tap: true }).setView(state.coords, 17);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(m);
+      const marcador = L.marker(state.coords, { icon: pinIcono(L), title: a.nombre, alt: 'Ubicación de ' + a.nombre }).addTo(m);
+      marcador.bindPopup(`<strong>${esc(a.nombre)}</strong><br>${esc(a.direccion)}${a.referencia ? '<br>' + esc(a.referencia) : ''}`).openPopup();
+      state.mapa = { L, m };
+      msg.textContent = '';
+      setTimeout(() => m.invalidateSize(), 250);
+      return state.mapa;
+    } catch (e) { msg.textContent = e.message; return null; }
+  }
+  function distanciaKm([a1, o1], [a2, o2]) {
+    const R = 6371, r = x => x * Math.PI / 180;
+    const d = Math.sin(r(a2 - a1) / 2) ** 2 + Math.cos(r(a1)) * Math.cos(r(a2)) * Math.sin(r(o2 - o1) / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(d));
+  }
+  function mostrarDondeEstoy() {
+    const msg = $('#mapMsg');
+    if (!('geolocation' in navigator)) { msg.textContent = 'Este navegador no puede darte tu ubicación.'; return; }
+    msg.textContent = 'Buscando tu ubicación…';
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const yo = [pos.coords.latitude, pos.coords.longitude];
+      const km = distanciaKm(yo, state.coords);
+      const texto = km < 1 ? `Estás a ${Math.round(km * 1000)} m del estudio` : `Estás a ${km.toFixed(1).replace('.', ',')} km del estudio`;
+      const a = state.data.ajustes;
+      const ruta = `https://www.google.com/maps/dir/?api=1&origin=${yo[0]},${yo[1]}&destination=${a.lat},${a.lng}&travelmode=${km < 2 ? 'walking' : 'driving'}`;
+      $('#distBox').innerHTML = `<span class="distancia">${texto}</span><a class="btn btn-primary btn-sm" href="${ruta}" target="_blank" rel="noopener">Ver ruta desde aquí</a>`;
+      msg.textContent = '';
+      live(texto);
+      const mapa = await abrirMapa();
+      if (!mapa) return;
+      const { L, m } = mapa;
+      state.yo?.remove(); state.linea?.remove();
+      state.yo = L.marker(yo, { icon: L.divIcon({ className: '', html: '<div class="yo-l"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }), title: 'Tú estás aquí', alt: 'Tu ubicación' }).addTo(m).bindTooltip('Tú');
+      try { state.linea = L.polyline([yo, state.coords], { color: '#A3123F', weight: 3, dashArray: '6 8', opacity: .8 }).addTo(m); } catch { state.linea = null; }
+      m.fitBounds(L.latLngBounds([yo, state.coords]), { padding: [40, 40], maxZoom: 17, animate: !reduced });
+    }, err => {
+      msg.textContent = { 1: 'No diste permiso de ubicación. Actívalo para este sitio en los ajustes del navegador y vuelve a tocar el botón.', 2: 'No se encontró tu ubicación. Activa el GPS o la ubicación del teléfono.', 3: 'Tardó demasiado en encontrar tu ubicación. Prueba de nuevo al aire libre.' }[err.code] || 'No se pudo obtener tu ubicación.';
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
+  }
+  function irAUbicacion(abrir) {
+    setTab('estudio');
+    setTimeout(() => { $('#ubicacion')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }); if (abrir) abrirMapa(); }, 120);
   }
 
   // ---------- Estudio: ubicación, horario, reseñas, sellos, preguntas ----------
@@ -860,6 +1226,7 @@
     const tieneCoords = a.lat && a.lng;
     const destino = tieneCoords ? `${a.lat},${a.lng}` : `${a.direccion}, ${a.ciudad}`;
     const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destino)}`;
+    state.coords = tieneCoords ? [Number(a.lat), Number(a.lng)] : null;
     const osm = tieneCoords ? `https://www.openstreetmap.org/?mlat=${a.lat}&mlon=${a.lng}#map=18/${a.lat}/${a.lng}` : `https://www.openstreetmap.org/search?query=${encodeURIComponent(destino)}`;
     const rr = state.data.resumenResenas; const res = state.data.resenas || [];
     const st = estadoAbierto();
@@ -871,12 +1238,16 @@
     ].filter(Boolean).join('');
 
     $('#estudio').innerHTML = `
-      <section class="section reveal" aria-labelledby="s-ubic"><h3 id="s-ubic">Dónde estamos</h3>
-        <div class="map" id="map" role="img" aria-label="Mapa de ubicación de ${esc(a.nombre)}">${mapSvg()}
-          ${tieneCoords && !state.demo ? '<button type="button" class="btn btn-ghost btn-sm map-load" id="loadMap" style="background:var(--c-surface)">Cargar mapa interactivo</button>' : ''}</div>
+      <section class="section" id="ubicacion" aria-labelledby="s-ubic"><h3 id="s-ubic">Dónde estamos</h3>
+        <div class="map" id="map" aria-label="Mapa de ubicación de ${esc(a.nombre)}">${mapSvg()}
+          ${tieneCoords ? '<button type="button" class="btn btn-primary btn-sm map-load" id="loadMap">Abrir mapa interactivo</button>' : ''}</div>
+        <p class="map-msg muted" id="mapMsg" aria-live="polite">${tieneCoords ? '' : 'La ubicación exacta en el mapa todavía no está configurada. Usa la dirección o escribe por WhatsApp.'}</p>
+        <div class="row" id="distBox"></div>
         <div class="address"><strong id="addr">${esc(a.direccion)}</strong>${a.referencia ? `<span class="muted">${esc(a.referencia)}</span>` : ''}<span class="muted">${esc(a.ciudad)}</span></div>
         <div class="row">
-          <a class="btn btn-primary btn-sm" href="${gmaps}" target="_blank" rel="noopener">Cómo llegar</a>
+          ${tieneCoords ? '<button type="button" class="btn btn-primary btn-sm" id="dondeEstoy">Mostrar dónde estoy</button>' : ''}
+          <a class="btn ${tieneCoords ? 'btn-soft' : 'btn-primary'} btn-sm" href="${gmaps}" target="_blank" rel="noopener">Cómo llegar (Google Maps)</a>
+          ${tieneCoords ? `<a class="btn btn-ghost btn-sm" href="${appMapas(a)}" target="_blank" rel="noopener">Abrir en mi app de mapas</a>` : ''}
           <a class="btn btn-ghost btn-sm" href="${osm}" target="_blank" rel="noopener">OpenStreetMap</a>
           <button type="button" class="btn btn-ghost btn-sm" data-copy="#addr" data-copy-extra="${esc(', ' + a.ciudad)}">Copiar dirección</button>
         </div>
@@ -914,7 +1285,7 @@
 
       <section class="section reveal" aria-labelledby="s-cont"><h3 id="s-cont">Contacto</h3>
         <div class="row"><a class="btn btn-primary btn-sm" href="${waLink('Hola, tengo una consulta.')}" rel="noopener">WhatsApp</a>${redes}</div>
-        <p class="muted">WhatsApp: <span class="num" id="waNum2">+${esc(numeroWA())}</span> <button type="button" class="btn btn-ghost btn-sm" data-copy="#waNum2">Copiar</button></p>
+        <p class="muted">WhatsApp: <span class="num" id="waNum2">${esc(numeroWA().replace(/^53(\d{4})(\d{4})$/, '+53 $1 $2').replace(/^(\d{5,})$/, '+$1'))}</span> <button type="button" class="btn btn-ghost btn-sm" data-copy="#waNum2" data-copy-raw="+${esc(numeroWA())}" aria-label="Copiar número de WhatsApp">Copiar</button></p>
       </section>`;
   }
 
@@ -1021,7 +1392,7 @@
   // ---------- Eventos ----------
   document.addEventListener('click', async e => {
     const t = e.target.closest('button, a'); if (!t) return;
-    if (t.hasAttribute('data-close')) { t.closest('dialog').close(); return; }
+    if (t.hasAttribute('data-close')) { t.closest('dialog').close(); if (!t.dataset.tab) return; }
     if (t.dataset.tab) setTab(t.dataset.tab);
     else if (t.dataset.goto) {
       setTab(t.dataset.goto);
@@ -1031,21 +1402,33 @@
     else if (t.dataset.work) { showWork(Number(t.dataset.work)); $('#workDialog').showModal(); }
     else if (t.id === 'prevWork') showWork(state.workIdx - 1, 'l');
     else if (t.id === 'nextWork') showWork(state.workIdx + 1, 'r');
-    else if (t.id === 'wantThis') { state.nota = `Quiero el diseño "${state.lista[state.workIdx].titulo}".`; $('#workDialog').close(); setTab('turnos'); toast('Elige día y hora. Tu diseño quedó anotado.'); }
-    else if (t.dataset.reservar) {
-      state.servicioId = Number(t.dataset.reservar); state.variante = t.dataset.variante !== undefined ? Number(t.dataset.variante) : null;
-      setTab('turnos');
-      const s = state.data.servicios.find(x => x.id === state.servicioId); const v = (s?.variantes || [])[state.variante];
-      toast(`${s.nombre}${v ? ' · ' + v.nombre : ''} elegido. Ahora el día y la hora.`);
+    else if (t.id === 'wantThis') { state.nota = `Quiero el diseño "${state.lista[state.workIdx].titulo}".`; $('#workDialog').close(); setTab('turnos'); toast(itemsCarrito().length ? 'Diseño anotado. Elige día y hora.' : 'Diseño anotado. Agrega tu servicio en Precios.'); }
+    else if (t.dataset.agregar) agregarAlCarrito(Number(t.dataset.agregar), t.dataset.variante !== undefined ? Number(t.dataset.variante) : null, t);
+    else if (t.id === 'fabCarrito' || t.id === 'verCarrito') abrirCarrito();
+    else if (t.id === 'fabEspera') abrirEspera();
+    else if (t.dataset.quitar !== undefined && t.dataset.quitar !== '') {
+      quitarDelCarrito(Number(t.dataset.quitar));
+      if (t.hasAttribute('data-en-checkout')) { refrescarPedido(); if (!$('#paso2')?.hidden) actualizarMontos(); } else abrirCarrito();
     }
-    else if (t.id === 'continuar') { if (!state.turno) { live('Primero elige una hora.'); $('input[name="turno"]')?.focus(); return; } openBook(); }
+    else if (t.id === 'carritoTurno') { $('#cartDialog').close(); if (state.turno) openBook(); else { setTab('turnos'); toast('Ahora elige el día y la hora.'); } }
+    else if (t.id === 'addBtn') {
+      const sid = Number($('#f-add').value); const vi = $('input[name="addvar"]:checked')?.value;
+      agregarAlCarrito(sid, vi !== undefined ? Number(vi) : null); refrescarPedido(); $('#e-servicio').textContent = '';
+      $('#f-add').value = ''; $('#addVars').innerHTML = ''; t.disabled = true;
+    }
+    else if (t.dataset.olvidar) { state.pedidos = state.pedidos.filter(p => p.codigo !== t.dataset.olvidar); guardarPedidos(); pintarFabs(); pintarEspera(); }
+    else if (t.dataset.reenviar) reenviarComprobante(t.dataset.reenviar, t);
+    else if (t.id === 'continuar') {
+      if (!state.turno) { live('Primero elige una hora.'); $('input[name="turno"]')?.focus(); return; }
+      if (!itemsCarrito().some(i => !i.extra)) { toast('Primero agrega tus servicios.'); abrirCarrito(); return; }
+      openBook();
+    }
     else if (t.id === 'openReview') openReview();
     else if (t.id === 'irPago') irAlPago();
-    else if (t.id === 'volverPaso1') { $('#paso2').hidden = true; $('#paso1').hidden = false; $('#bookDialogTitle').textContent = 'Paso 1 de 2 · Tus datos'; $('#irPago').focus(); }
-    else if (t.id === 'loadMap') {
-      const a = state.data.ajustes; const la = Number(a.lat), lo = Number(a.lng), d = .004;
-      $('#map').innerHTML = `<iframe title="Mapa interactivo de ${esc(a.nombre)}" loading="lazy" referrerpolicy="no-referrer" src="https://www.openstreetmap.org/export/embed.html?bbox=${lo - d},${la - d * .6},${lo + d},${la + d * .6}&layer=mapnik&marker=${la},${lo}"></iframe>`;
-    }
+    else if (t.id === 'volverPaso1') { $('#paso2').hidden = true; $('#paso1').hidden = false; $('#bookDialogTitle').textContent = 'Paso 1 de 2 · Tu pedido'; $('#irPago').focus(); }
+    else if (t.id === 'loadMap') abrirMapa();
+    else if (t.id === 'dondeEstoy') mostrarDondeEstoy();
+    else if (t.id === 'irUbicacion') irAUbicacion(true);
     else if (t.dataset.copy) {
       const el = $(t.dataset.copy); const txt = t.dataset.copyRaw || (el.textContent + (t.dataset.copyExtra || ''));
       try { await navigator.clipboard.writeText(txt); toast('Copiado'); }
@@ -1066,8 +1449,14 @@
       state.turno = state.data.dias.find(d => d.fecha === state.dia).turnos.find(x => String(x.id) === e.target.value);
       const b = $('#continuar'); b.removeAttribute('aria-disabled'); b.textContent = ctaText(); b.classList.remove('ready'); void b.offsetWidth; b.classList.add('ready');
     }
-    if (e.target.id === 'f-servicio') { state.servicioId = Number(e.target.value); state.variante = null; $('#varBox').innerHTML = variantesHtml(); actualizarTotal(); }
-    if (n === 'variante') { state.variante = Number(e.target.value); $('#e-variante').textContent = ''; actualizarTotal(); }
+    if (e.target.id === 'f-add') { const sid = Number(e.target.value); $('#addVars').innerHTML = sid ? varsAgregarHtml(sid) : ''; const vars = state.data.servicios.find(x => x.id === sid)?.variantes || []; $('#addBtn').disabled = !sid || vars.length > 0; }
+    if (n === 'addvar') $('#addBtn').disabled = false;
+    if (n === 'modo') { state.modoPago = e.target.value; actualizarMontos(); }
+    if (n === 'metodo') { state.metodo = Number(e.target.value); $('#e-metodo').textContent = ''; actualizarMontos(); }
+    if (e.target.dataset.reenvio && e.target.files[0]) {
+      const c = e.target.dataset.reenvio; const btn = $(`[data-reenviar="${c}"]`); $('#re-err-' + c).textContent = '';
+      comprimirFoto(e.target.files[0]).then(d => { state.reenvio = { codigo: c, foto: d }; btn.disabled = false; }).catch(er => { $('#re-err-' + c).textContent = er.message; btn.disabled = true; });
+    }
     if (e.target.id === 'f-comp' && e.target.files[0]) {
       const prev = $('#compPrev'); $('#e-comprobante').textContent = ''; marcar(e.target, false);
       comprimirFoto(e.target.files[0]).then(d => {
@@ -1075,12 +1464,13 @@
         state.comp = d; prev.src = d; prev.hidden = false; live('Comprobante listo para enviar');
       }).catch(er => { state.comp = null; prev.hidden = true; $('#e-comprobante').textContent = er.message; marcar(e.target, true); });
     }
-    if (n === 'extra') { const id = Number(e.target.value); e.target.checked ? state.extras.add(id) : state.extras.delete(id); actualizarTotal(); }
+
   });
   document.addEventListener('submit', e => {
     if (e.target.id === 'bookForm') submitBook(e);
     if (e.target.id === 'loyaltyForm') consultarSellos(e);
     if (e.target.id === 'reviewForm') submitReview(e);
+    if (e.target.id === 'buscarCodigo') buscarCodigo(e);
   });
 
   // Visor: flechas del teclado y deslizar con el dedo
@@ -1100,6 +1490,13 @@
   });
   addEventListener('resize', moveIndicator);
 
+  // Enlaces internos (#precios, #turnos, #espera…) también funcionan con la página ya abierta
+  addEventListener('hashchange', () => {
+    const h = location.hash.slice(1);
+    if (TABS.includes(h) && h !== state.tab) setTab(h);
+    else if (h === 'espera' && state.data && !$('#esperaDialog').open) abrirEspera();
+  });
+  $('#esperaDialog').addEventListener('close', () => { if (location.hash === '#espera') try { history.replaceState(null, '', '#' + state.tab); } catch {} });
   const inicial = (location.hash || '').slice(1);
   if (TABS.includes(inicial)) setTab(inicial); else moveIndicator();
   load();

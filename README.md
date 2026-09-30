@@ -30,10 +30,22 @@ Todas están explicadas en `.env.example`. En Railway van en **Variables**; en t
 
 **Railway:** volumen en `/data`, Healthcheck Path `/salud`, start `npm start`. Cierre ordenado con `SIGTERM`. Las bases de versiones anteriores se migran solas.
 
+## Ubicación y mapa
+
+- **Web:** botón **Ubicación** en la portada que lleva directo al mapa. El mapa interactivo (Leaflet + OpenStreetMap, servido desde la propia app en `public/vendor/leaflet`) solo se descarga cuando la clienta lo abre, para ahorrar datos. **Mostrar dónde estoy** pone su posición, la distancia al estudio y un botón **Ver ruta desde aquí**. También: Google Maps, **Abrir en mi app de mapas** (Maps.me, OsmAnd, Google Maps en Android; Apple Maps en iPhone) y OpenStreetMap.
+- **Panel → Mi estudio → Ubicación:** **Ubicarme en el mapa** usa el GPS del teléfono; también se puede tocar el mapa o arrastrar el pin hasta la puerta, o pegar un enlace de Google Maps. Después, **Guardar ubicación**. Sin coordenadas guardadas, la web no puede mostrar el mapa exacto.
+
+## Carrito, pago y sala de espera
+
+- **Carrito:** en Precios cada servicio (o cada largo) tiene "+ Agregar". Aparece un botón flotante con la cantidad y el total, que rebota al agregar. El carrito se guarda en el teléfono. Hasta 8 servicios por visita; los complementos van junto a un servicio principal.
+- **Pedido:** carrito → día y hora → datos → pago. En el pago la clienta elige **seña (%)** o **pago completo** (si está activado) y el **método**: tarjeta CUP, tarjeta MLC/USD (el monto se convierte con la tasa del panel) o **saldo móvil**. Sube la foto del comprobante; el número de transacción es opcional. Precios, seña y conversión se calculan en el servidor.
+- **Sala de espera ("Mis reservas"):** al enviar, la clienta recibe un **código** (ej. ABCDE-23456) y ve su pedido en tres pasos: Pedido recibido → Verificando tu transferencia → Turno confirmado. Se actualiza sola cada 20 segundos (y cada minuto en segundo plano) y avisa con confeti cuando se aprueba. Si el pago se rechaza, ve el motivo y **envía otro comprobante** sin perder el turno. Desde otro teléfono puede buscar su reserva con el código.
+- **Panel:** cada pedido muestra código, servicios, total, método y monto en su moneda. En "Ver comprobante": **Pago correcto: confirmar turno** o **Hay un problema con el pago** (motivo que ve la clienta + mensaje de WhatsApp listo).
+
 ## Pago de la seña (nuevo)
 
 1. En **Mi estudio → Pago de la seña**, Leyanis activa la seña y pone el porcentaje (30 % por defecto).
-2. En **Tarjetas para recibir la seña** agrega una o varias tarjetas: banco, número de 16 dígitos, moneda, titular y **número a confirmar** (su móvil). Puede ocultarlas sin borrarlas.
+2. En **Métodos de pago** agrega tarjetas (banco, número de 16 dígitos, moneda CUP/MLC/USD, titular y **número a confirmar**) o **saldo móvil** (solo el número). Las tasas MLC/USD se ponen en la misma sección. Puede ocultarlos sin borrarlos.
 3. Al reservar, la clienta ve el paso 2 de 2: el monto exacto de la seña (lo calcula el servidor), las tarjetas con botón de copiar, el número a confirmar, y **debe subir la foto del comprobante** (se reduce en el teléfono antes de enviarla). El número de transacción es opcional.
 4. En **Agenda** aparece "Pago por verificar". Con **Ver comprobante** Leyanis ve la foto junto a lo que debe decir (monto, nombre, fecha) y elige **Pago correcto: confirmar** o **Rechazar pago** (libera el turno y le da el mensaje de WhatsApp listo para avisar).
 5. Si no hay ninguna tarjeta activa, la web no pide seña.
@@ -58,7 +70,7 @@ Los comprobantes son **privados**: se guardan fuera de la carpeta pública, solo
 ```bash
 npm test
 ```
-Levanta un servidor temporal con una base vacía (no toca tus datos) y corre 33 pruebas de flujos y seguridad: variables de entorno, cabeceras, CORS, acceso, fuerza bruta, validaciones, seña, comprobantes privados, doble reserva simultánea, transiciones, reseñas, sellos, galería y sesiones.
+Levanta un servidor temporal con una base vacía (no toca tus datos) y corre 39 pruebas de flujos y seguridad: variables de entorno, cabeceras, CORS, acceso, fuerza bruta, validaciones, seña, comprobantes privados, doble reserva simultánea, transiciones, reseñas, sellos, galería y sesiones.
 
 ## Qué configura la manicurista en el panel
 

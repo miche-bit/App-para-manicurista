@@ -100,6 +100,15 @@ columna('reservas', 'sena', 'INTEGER DEFAULT 0');
 columna('reservas', 'comprobante', "TEXT DEFAULT ''");
 columna('reservas', 'transaccion', "TEXT DEFAULT ''");
 columna('reservas', 'pago', "TEXT DEFAULT 'sin_pago'");   // sin_pago | por_verificar | verificado | rechazado
+columna('reservas', 'items', "TEXT DEFAULT ''");           // carrito: [{servicio_id, nombre, variante, precio, duracion, extra}]
+columna('reservas', 'codigo', "TEXT DEFAULT ''");          // código de seguimiento que ve la clienta
+columna('reservas', 'modo_pago', "TEXT DEFAULT 'sena'");   // sena | total
+columna('reservas', 'nota_admin', "TEXT DEFAULT ''");      // motivo que ve la clienta si se rechaza el pago
+columna('reservas', 'metodo', "TEXT DEFAULT ''");          // cómo pagó: "BANDEC ···· 2222", "Saldo móvil 5x xx xx xx"
+columna('reservas', 'moneda_pago', "TEXT DEFAULT 'CUP'");
+columna('reservas', 'monto_pago', 'REAL DEFAULT 0');       // monto en la moneda del método
+columna('tarjetas', 'tipo', "TEXT DEFAULT 'tarjeta'");      // tarjeta | saldo (saldo móvil)
+db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_reservas_codigo ON reservas(codigo) WHERE codigo != ''");
 
 function conVariantes(s) {
   if (!s) return s;
@@ -143,6 +152,9 @@ const AJUSTES_BASE = {
   moneda: 'CUP',
   sena_activa: '1',
   sena_porcentaje: '30',
+  pago_total_activo: '1',
+  tasa_mlc: '',      // CUP por 1 MLC (vacío = no se aceptan tarjetas MLC)
+  tasa_usd: '',      // CUP por 1 USD
   sena: 'La seña se descuenta del total el día de tu turno.',
   politica: 'Si no puedes venir, avisa con 24 horas. Con más de 15 minutos de retraso el turno puede perderse.',
   promo_activa: '0',
@@ -272,7 +284,7 @@ const PUBLICO = {
     .map(t => ({ ...t, imagen: t.imagen ? '/uploads/' + t.imagen.replace(/^\/uploads\//, '') : null })),
   resenas: () => db.prepare("SELECT id, nombre, estrellas, texto FROM resenas WHERE estado='aprobada' ORDER BY id DESC LIMIT 30").all(),
   resumenResenas: () => { const s = db.prepare("SELECT COUNT(*) n, AVG(estrellas) prom FROM resenas WHERE estado='aprobada'").get(); return { total: s.n, promedio: s.prom ? Math.round(s.prom * 10) / 10 : null }; },
-  tarjetas: () => db.prepare('SELECT id, banco, numero, moneda, titular, confirmar FROM tarjetas WHERE activa=1 ORDER BY orden, id').all(),
+  tarjetas: () => metodosUsables(),
   turnosLibres: (desde, hasta) => db.prepare("SELECT id, fecha, hora FROM turnos WHERE estado='libre' AND fecha BETWEEN ? AND ? ORDER BY fecha, hora").all(desde, hasta),
   // Las reservas, teléfonos, notas y comprobantes NO tienen vista pública.
 };
@@ -287,9 +299,17 @@ function datosPublicos() {
   return { ahora, ajustes: ajustes(), categorias: CATEGORIAS, servicios: PUBLICO.servicios(), trabajos: PUBLICO.trabajos(),
     resenas: PUBLICO.resenas(), resumenResenas: PUBLICO.resumenResenas(), tarjetas: PUBLICO.tarjetas(), dias };
 }
-function pagoRequerido(a = ajustes()) {
-  return a.sena_activa === '1' && db.prepare('SELECT COUNT(*) n FROM tarjetas WHERE activa=1').get().n > 0;
+// Métodos de pago que la clienta puede usar ahora (tarjetas en MLC/USD solo si hay tasa de cambio)
+function tasaDe(moneda, a = ajustes()) { if (moneda === 'CUP') return 1; const t = Number(a['tasa_' + moneda.toLowerCase()]); return t > 0 ? t : 0; }
+function metodosUsables(a = ajustes()) {
+  return db.prepare("SELECT id, tipo, banco, numero, moneda, titular, confirmar FROM tarjetas WHERE activa=1 ORDER BY orden, id").all()
+    .filter(t => tasaDe(t.moneda, a) > 0);
 }
+function pagoRequerido(a = ajustes()) {
+  return a.sena_activa === '1' && metodosUsables(a).length > 0;
+}
+const etiquetaMetodo = t => t.tipo === 'saldo' ? `Saldo móvil al ${t.numero}` : `${t.banco} ${t.moneda} ···· ${t.numero.slice(-4)}`;
+const enMoneda = (cup, moneda, a) => moneda === 'CUP' ? cup : Math.ceil(cup / tasaDe(moneda, a) * 100) / 100;
 
 // ============================================================
 // 5. RUTAS
@@ -300,6 +320,44 @@ const ruta = (metodo, patron, admin, fn) => rutas.push({ metodo, patron: new Reg
 ruta('GET', '/salud', false, () => ({ ok: true }));
 ruta('GET', '/api/publico', false, () => datosPublicos());
 
+// Código de seguimiento: 10 caracteres sin letras que se confunden (0/O, 1/I)
+const ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function nuevoCodigo() {
+  for (;;) {
+    const b = crypto.randomBytes(10); let c = '';
+    for (let i = 0; i < 10; i++) c += ALFABETO[b[i] % ALFABETO.length];
+    c = c.slice(0, 5) + '-' + c.slice(5);
+    if (!db.prepare('SELECT 1 FROM reservas WHERE codigo=?').get(c)) return c;
+  }
+}
+const codigoValido = c => /^[A-Z2-9]{5}-[A-Z2-9]{5}$/.test(String(c || ''));
+const leerItems = r => { try { return r.items ? JSON.parse(r.items) : []; } catch { return []; } };
+
+// Arma el pedido (carrito) validando cada servicio en el servidor: precios y variantes nunca vienen del navegador
+function armarPedido(b) {
+  let pedido = Array.isArray(b.items) && b.items.length ? b.items
+    : [{ servicio_id: b.servicio_id, variante: b.variante }, ...(Array.isArray(b.extras) ? b.extras : []).map(id => ({ servicio_id: id }))];
+  if (pedido.length > 8) throw err('Máximo 8 servicios por reserva.', 400, 'servicio');
+  const vistos = new Set(); const items = [];
+  for (const it of pedido) {
+    const serv = conVariantes(db.prepare('SELECT * FROM servicios WHERE id=? AND activo=1').get(entero(it?.servicio_id)));
+    if (!serv) { if (it?.servicio_id == null && items.length) continue; throw err('Uno de los servicios ya no está disponible. Revisa tu carrito.', 400, 'servicio'); }
+    let precio = serv.precio; let variante = null;
+    if (serv.variantes.length) {
+      const v = serv.variantes[entero(it.variante)];
+      if (!v) throw err(`Elige una opción para "${serv.nombre}".`, 400, 'variante');
+      precio = v.precio; variante = v.nombre;
+    }
+    const clave = serv.id + '|' + (variante || '');
+    if (serv.extra && vistos.has(clave)) continue;          // un complemento no se repite
+    vistos.add(clave);
+    items.push({ servicio_id: serv.id, nombre: serv.nombre, variante, precio, duracion: serv.duracion, extra: !!serv.extra });
+  }
+  if (!items.some(i => !i.extra)) throw err('Elige al menos un servicio (los complementos van junto a otro).', 400, 'servicio');
+  return items;
+}
+const resumenItems = items => items.map(i => i.nombre + (i.variante ? ' · ' + i.variante : '')).join(' + ');
+
 ruta('POST', '/api/reservas', false, async (req) => {
   limitar(req, 'reserva', 5);
   const b = await leerJSON(req, 6 * 1024 * 1024);
@@ -307,24 +365,22 @@ ruta('POST', '/api/reservas', false, async (req) => {
   const nombre = texto(b.nombre, 80); const telefono = texto(b.telefono, 20).replace(/[^\d+]/g, ''); const notas = texto(b.notas, 400);
   if (nombre.length < 2) throw err('Escribe tu nombre.', 400, 'nombre');
   if (soloDigitos(telefono).length < 8) throw err('Escribe un teléfono de al menos 8 dígitos.', 400, 'telefono');
-  const serv = conVariantes(db.prepare('SELECT * FROM servicios WHERE id=? AND activo=1 AND extra=0').get(entero(b.servicio_id)));
-  if (!serv) throw err('Elige un servicio.', 400, 'servicio');
-  let base = serv.precio; let nombreServ = serv.nombre;
-  if (serv.variantes.length) {
-    const v = serv.variantes[entero(b.variante)];
-    if (!v) throw err('Elige una opción del servicio.', 400, 'variante');
-    base = v.precio; nombreServ = `${serv.nombre} · ${v.nombre}`;
-  }
-  const ids = [...new Set((Array.isArray(b.extras) ? b.extras : []).map(entero).filter(Number.isFinite))].slice(0, 10);
-  const extras = ids.length ? db.prepare(`SELECT * FROM servicios WHERE activo=1 AND extra=1 AND id IN (${ids.map(() => '?').join(',')})`).all(...ids) : [];
-  const total = base + extras.reduce((s, e) => s + e.precio, 0);
-  // Seña: se calcula en el servidor (nunca se confía en el navegador)
-  const a = ajustes(); const requierePago = pagoRequerido(a);
+  const items = armarPedido(b);
+  const total = items.reduce((t, i) => t + i.precio, 0);
+  const duracion = items.reduce((t, i) => t + i.duracion, 0);
+  // Pago: seña o total, calculado en el servidor
+  const a = ajustes(); const hayTarjetas = pagoRequerido(a);
   const pct = Math.min(Math.max(entero(a.sena_porcentaje) || 0, 0), 100);
-  const sena = requierePago ? Math.ceil(total * pct / 100) : 0;
-  const trans = texto(b.transaccion, 60);
+  const modo = b.modo_pago === 'total' && a.pago_total_activo === '1' ? 'total' : 'sena';
+  const monto = hayTarjetas ? (modo === 'total' ? total : Math.ceil(total * pct / 100)) : 0;
+  const requierePago = monto > 0;
+  let metodo = null;
+  if (requierePago) {
+    const usables = metodosUsables(a);
+    metodo = b.metodo_id != null ? usables.find(t => t.id === entero(b.metodo_id)) : (usables.length === 1 ? usables[0] : null);
+    if (!metodo) throw err('Elige cómo vas a pagar (tarjeta o saldo móvil).', 400, 'metodo');
+  }
   if (requierePago && !b.comprobante) throw err('Sube la foto del comprobante de la transferencia.', 400, 'comprobante');
-  // Validar la foto antes de ocupar el turno
   if (requierePago) decodificarImagen(b.comprobante, 3 * 1024 * 1024);
   const ahora = ahoraEnTZ();
   let archivo = '';
@@ -334,13 +390,54 @@ ruta('POST', '/api/reservas', false, async (req) => {
       if (!t) throw err('Ese turno se acaba de ocupar. Elige otra hora.', 409);
       if (t.fecha < ahora.fecha || (t.fecha === ahora.fecha && t.hora <= ahora.hora)) throw err('Ese turno ya pasó. Elige otra hora.', 409);
       if (requierePago) archivo = guardarImagen(b.comprobante, PRIVADO, 3 * 1024 * 1024);
+      const codigo = nuevoCodigo();
       db.prepare("UPDATE turnos SET estado='reservado' WHERE id=?").run(t.id);
-      const r = db.prepare('INSERT INTO reservas (turno_id, servicio_id, fecha, hora, servicio, extras, precio, nombre, telefono, notas, sena, comprobante, transaccion, pago) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
-        .run(t.id, serv.id, t.fecha, t.hora, nombreServ, extras.map(e => e.nombre).join(', '), total, nombre, telefono, notas, sena, archivo, trans, requierePago ? 'por_verificar' : 'sin_pago');
-      return { id: Number(r.lastInsertRowid), fecha: t.fecha, hora: t.hora, servicio: nombreServ, extras: extras.map(e => e.nombre), precio: total,
-        sena, pago: requierePago ? 'por_verificar' : 'sin_pago', duracion: serv.duracion + extras.reduce((s, e) => s + e.duracion, 0), estado: 'pendiente' };
+      const principal = items.find(i => !i.extra);
+      const r = db.prepare(`INSERT INTO reservas (turno_id, servicio_id, fecha, hora, servicio, extras, precio, nombre, telefono, notas, sena, comprobante, transaccion, pago, items, codigo, modo_pago)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+        .run(t.id, principal.servicio_id, t.fecha, t.hora, resumenItems(items), '', total, nombre, telefono, notas, monto, archivo, texto(b.transaccion, 60),
+          requierePago ? 'por_verificar' : 'sin_pago', JSON.stringify(items), codigo, modo);
+      const pagoMetodo = metodo ? { metodo: etiquetaMetodo(metodo), moneda_pago: metodo.moneda, monto_pago: enMoneda(monto, metodo.moneda, a) } : { metodo: '', moneda_pago: 'CUP', monto_pago: 0 };
+      db.prepare('UPDATE reservas SET metodo=?, moneda_pago=?, monto_pago=? WHERE id=?').run(pagoMetodo.metodo, pagoMetodo.moneda_pago, pagoMetodo.monto_pago, r.lastInsertRowid);
+      return { id: Number(r.lastInsertRowid), codigo, fecha: t.fecha, hora: t.hora, servicio: resumenItems(items), items, extras: [], precio: total, ...pagoMetodo,
+        sena: monto, modo_pago: modo, pago: requierePago ? 'por_verificar' : 'sin_pago', duracion, estado: 'pendiente' };
     });
   } catch (e) { borrarArchivo(PRIVADO, archivo); throw e; }
+});
+
+// Estado de una reserva: solo quien tiene el código (sin teléfono, notas ni comprobante)
+function vistaEstado(r) {
+  return { codigo: r.codigo, estado: r.estado, pago: r.pago, fecha: r.fecha, hora: r.hora, servicio: r.servicio,
+    items: leerItems(r).map(i => ({ nombre: i.nombre, variante: i.variante, precio: i.precio, extra: i.extra })),
+    total: r.precio, sena: r.sena, modo_pago: r.modo_pago, metodo: r.metodo, moneda_pago: r.moneda_pago, monto_pago: r.monto_pago, nombre: String(r.nombre).split(' ')[0], nota: r.pago === 'rechazado' ? r.nota_admin : '' };
+}
+ruta('GET', '/api/reservas/estado/:codigo', false, (req, p) => {
+  limitar(req, 'estado', 240);
+  const c = String(p.codigo).toUpperCase();
+  const r = codigoValido(c) && db.prepare('SELECT * FROM reservas WHERE codigo=?').get(c);
+  if (!r) throw err('No encontramos una reserva con ese código.', 404);
+  return vistaEstado(r);
+});
+// Reenviar comprobante cuando el pago fue rechazado (el turno sigue apartado)
+ruta('POST', '/api/reservas/estado/:codigo/comprobante', false, async (req, p) => {
+  limitar(req, 'reenvio', 6);
+  const b = await leerJSON(req, 6 * 1024 * 1024);
+  const c = String(p.codigo).toUpperCase();
+  if (!codigoValido(c)) throw err('No encontramos una reserva con ese código.', 404);
+  decodificarImagen(b.comprobante, 3 * 1024 * 1024);
+  let viejo = ''; let nuevo = '';
+  try {
+    const r = transaccion(() => {
+      const r = db.prepare('SELECT * FROM reservas WHERE codigo=?').get(c);
+      if (!r) throw err('No encontramos una reserva con ese código.', 404);
+      if (r.estado !== 'pendiente' || r.pago !== 'rechazado') throw err('Esta reserva no necesita un comprobante nuevo.', 409);
+      nuevo = guardarImagen(b.comprobante, PRIVADO, 3 * 1024 * 1024); viejo = r.comprobante;
+      db.prepare("UPDATE reservas SET comprobante=?, transaccion=?, pago='por_verificar', nota_admin='' WHERE id=?").run(nuevo, texto(b.transaccion, 60) || r.transaccion, r.id);
+      return db.prepare('SELECT * FROM reservas WHERE id=?').get(r.id);
+    });
+    borrarArchivo(PRIVADO, viejo);
+    return vistaEstado(r);
+  } catch (e) { borrarArchivo(PRIVADO, nuevo); throw e; }
 });
 
 ruta('POST', '/api/resenas', false, async (req) => {
@@ -385,7 +482,7 @@ ruta('GET', '/api/admin/datos', true, () => {
     turnos: db.prepare('SELECT * FROM turnos WHERE fecha >= ? ORDER BY fecha, hora').all(sumarDias(ahora.fecha, -1)),
     // El nombre del archivo del comprobante no sale del servidor: solo si existe
     reservas: db.prepare('SELECT * FROM reservas WHERE fecha >= ? ORDER BY fecha, hora').all(sumarDias(ahora.fecha, -60))
-      .map(({ comprobante, ...r }) => ({ ...r, tieneComprobante: !!comprobante })),
+      .map(({ comprobante, ...r }) => ({ ...r, items: leerItems(r), tieneComprobante: !!comprobante })),
     resenas: db.prepare('SELECT * FROM resenas ORDER BY id DESC').all(),
     tarjetas: db.prepare('SELECT * FROM tarjetas ORDER BY orden, id').all(),
   };
@@ -494,7 +591,7 @@ ruta('PUT', '/api/admin/reservas/:id', true, async (req, p) => {
     if (r.estado === b.estado) return;
     if (!TRANSICIONES[r.estado]?.includes(b.estado)) throw err(`No se puede pasar de "${r.estado}" a "${b.estado}".`, 409);
     let pago = r.pago;
-    if (b.estado === 'confirmada' && r.pago === 'por_verificar') pago = 'verificado';
+    if (b.estado === 'confirmada' && ['por_verificar', 'rechazado'].includes(r.pago) && r.comprobante) pago = 'verificado';
     if (b.estado === 'cancelada' && b.pago === 'rechazado') pago = 'rechazado';
     if (b.estado === 'cancelada') db.prepare("UPDATE turnos SET estado='libre' WHERE id=? AND estado='reservado'").run(r.turno_id);
     if (r.estado === 'cancelada') {
@@ -508,6 +605,17 @@ ruta('PUT', '/api/admin/reservas/:id', true, async (req, p) => {
   return { ok: true };
 });
 
+// Rechazar el pago SIN cancelar: el turno sigue apartado y la clienta puede reenviar el comprobante
+ruta('PUT', '/api/admin/reservas/:id/pago', true, async (req, p) => {
+  const b = await leerJSON(req, 2000);
+  if (b.pago !== 'rechazado') throw err('Acción no válida.');
+  const r = db.prepare('SELECT * FROM reservas WHERE id=?').get(entero(p.id));
+  if (!r) throw err('Reserva no encontrada.', 404);
+  if (r.estado !== 'pendiente' || r.pago !== 'por_verificar') throw err('Solo se puede rechazar un pago que está por verificar.', 409);
+  db.prepare("UPDATE reservas SET pago='rechazado', nota_admin=? WHERE id=?").run(texto(b.motivo, 200), r.id);
+  return { ok: true };
+});
+
 // Reseñas
 ruta('PUT', '/api/admin/resenas/:id', true, async (req, p) => {
   const b = await leerJSON(req, 1000);
@@ -518,17 +626,23 @@ ruta('DELETE', '/api/admin/resenas/:id', true, (req, p) => { db.prepare('DELETE 
 
 // Tarjetas para la seña
 function validarTarjeta(b) {
-  const t = { banco: texto(b.banco, 40), numero: soloDigitos(b.numero), moneda: ['CUP', 'MLC', 'USD'].includes(b.moneda) ? b.moneda : 'CUP',
+  const tipo = b.tipo === 'saldo' ? 'saldo' : 'tarjeta';
+  const t = { tipo, banco: texto(b.banco, 40), numero: soloDigitos(b.numero), moneda: tipo === 'saldo' ? 'CUP' : (['CUP', 'MLC', 'USD'].includes(b.moneda) ? b.moneda : 'CUP'),
     titular: texto(b.titular, 60), confirmar: soloDigitos(b.confirmar), activa: [false, 0, "0"].includes(b.activa) ? 0 : 1, orden: entero(b.orden) || 0 };
+  if (tipo === 'saldo') {
+    if (!t.banco) t.banco = 'Saldo móvil';
+    if (t.numero.length < 8 || t.numero.length > 11) throw err('Escribe el número de móvil que recibe el saldo (8 dígitos).', 400, 'numero');
+    if (!t.confirmar) t.confirmar = t.numero;
+  }
   if (!t.banco) throw err('Escribe el banco (BANDEC, BPA, Metropolitano…).', 400, 'banco');
-  if (t.numero.length < 16 || t.numero.length > 19) throw err('El número de tarjeta debe tener 16 dígitos.', 400, 'numero');
+  if (tipo === 'tarjeta' && (t.numero.length < 16 || t.numero.length > 19)) throw err('El número de tarjeta debe tener 16 dígitos.', 400, 'numero');
   if (t.confirmar.length < 8 || t.confirmar.length > 11) throw err('Escribe el número de teléfono a confirmar (8 dígitos).', 400, 'confirmar');
   return t;
 }
-const COLS_TAR = ['banco', 'numero', 'moneda', 'titular', 'confirmar', 'activa', 'orden'];
+const COLS_TAR = ['tipo', 'banco', 'numero', 'moneda', 'titular', 'confirmar', 'activa', 'orden'];
 ruta('POST', '/api/admin/tarjetas', true, async (req) => {
   const t = validarTarjeta(await leerJSON(req, 2000));
-  if (db.prepare('SELECT COUNT(*) n FROM tarjetas').get().n >= 6) throw err('Máximo 6 tarjetas.');
+  if (db.prepare('SELECT COUNT(*) n FROM tarjetas').get().n >= 8) throw err('Máximo 8 métodos de pago.');
   const r = db.prepare(`INSERT INTO tarjetas (${COLS_TAR.join(',')}) VALUES (${COLS_TAR.map(() => '?').join(',')})`).run(...COLS_TAR.map(c => t[c]));
   return { id: Number(r.lastInsertRowid) };
 });
@@ -562,11 +676,15 @@ ruta('PUT', '/api/admin/ajustes', true, async (req) => {
       const n = Number(String(v).replace(',', '.'));
       if (String(v).trim() !== '' && (!Number.isFinite(n) || Math.abs(n) > (k === 'lat' ? 90 : 180))) throw err(`La ${k === 'lat' ? 'latitud' : 'longitud'} no es válida.`);
       v = String(v).trim() === '' ? '' : n.toFixed(6);
-    } else if (['promo_activa', 'fidelidad_activa', 'sena_activa'].includes(k)) v = v ? '1' : '0';
+    } else if (['promo_activa', 'fidelidad_activa', 'sena_activa', 'pago_total_activo'].includes(k)) v = v ? '1' : '0';
     else if (k === 'sena_porcentaje' || k === 'fidelidad_visitas') {
       const n = entero(v); const [min, max] = k === 'sena_porcentaje' ? [0, 100] : [2, 30];
       if (!(n >= min && n <= max)) throw err(k === 'sena_porcentaje' ? 'El porcentaje de la seña va de 0 a 100.' : 'Las visitas para el premio van de 2 a 30.');
       v = String(n);
+    } else if (k === 'tasa_mlc' || k === 'tasa_usd') {
+      const n = Number(String(v).replace(',', '.'));
+      if (String(v).trim() !== '' && !(n > 0 && n < 100000)) throw err('La tasa de cambio debe ser un número mayor que 0 (CUP por cada unidad).');
+      v = String(v).trim() === '' ? '' : String(Math.round(n * 100) / 100);
     } else if (k === 'whatsapp') { v = soloDigitos(v); if (v.length < 8) throw err('El WhatsApp debe tener al menos 8 dígitos.'); }
     else if (k === 'facebook') { v = texto(v, 200); if (v && /^[a-z]+:/i.test(v) && !/^https:\/\/(www\.|m\.)?facebook\.com\//i.test(v)) throw err('El enlace de Facebook debe empezar por https://facebook.com/'); }
     else if (k === 'instagram') { v = texto(v, 60).replace(/^@/, ''); if (v && !/^[A-Za-z0-9._]+$/.test(v)) throw err('El usuario de Instagram solo lleva letras, números, punto y guion bajo.'); }
@@ -592,9 +710,9 @@ function cabecerasBase(req, res) {
 }
 function csp(nonce) {
   return [
-    "default-src 'self'", `script-src 'nonce-${nonce}'`, "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src https://fonts.gstatic.com", "img-src 'self' data: blob:", "connect-src 'self'",
-    'frame-src https://www.openstreetmap.org', "manifest-src 'self'", "object-src 'none'", "base-uri 'none'",
+    "default-src 'self'", `script-src 'self' 'nonce-${nonce}'`, "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src https://fonts.gstatic.com", "img-src 'self' data: blob: https://tile.openstreetmap.org", "connect-src 'self'",
+    "frame-src 'none'", "manifest-src 'self'", "object-src 'none'", "base-uri 'none'",
     "form-action 'self'", "frame-ancestors 'none'",
   ].join('; ');
 }

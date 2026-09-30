@@ -90,11 +90,13 @@
 
 /* ---------- Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { interpolate-size: allow-keywords; }
+/* Todo lo que lleva el atributo hidden se oculta, aunque su clase le dé display (paneles, botones flotantes, avisos) */
+[hidden] { display: none !important; }
+html { interpolate-size: allow-keywords; overflow-x: clip; }
 body {
   margin: 0; background: var(--c-bg); color: var(--c-ink);
   font: 400 var(--fs-md)/var(--lh-body) var(--f-body);
-  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  -webkit-font-smoothing: antialiased; overflow-x: clip;
 }
 h1, h2, h3 { font-family: var(--f-display); font-weight: 600; line-height: 1.1; text-wrap: balance; margin: 0; }
 h2 { font-style: italic; font-weight: 500; }
@@ -106,6 +108,8 @@ a { color: var(--c-accent); text-underline-offset: 3px; }
 .eyebrow { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: .14em; font-weight: 600; color: var(--c-muted); }
 
 :focus-visible { outline: 3px solid var(--c-focus); outline-offset: 2px; border-radius: var(--r-sm); }
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+legend { font-weight: 700; padding: 0; margin-bottom: var(--sp-2); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .skip-link { position: absolute; left: var(--sp-4); top: -100px; z-index: 50; background: var(--c-ink); color: var(--c-bg); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-sm); }
 .skip-link:focus { top: var(--sp-4); }
@@ -140,7 +144,7 @@ a { color: var(--c-accent); text-underline-offset: 3px; }
 /* ---------- Formularios ---------- */
 .field { display: grid; gap: var(--sp-1); }
 .field label, .field .label { font-weight: 600; font-size: var(--fs-sm); }
-.field .hint { font-size: var(--fs-xs); color: var(--c-muted); }
+.field .hint, .hint { font-size: var(--fs-xs); color: var(--c-muted); }
 .input, select.input, textarea.input {
   width: 100%; min-height: var(--tap); padding: var(--sp-2) var(--sp-3);
   border: 1.5px solid var(--c-line); border-radius: var(--r-sm);
@@ -202,6 +206,21 @@ dialog.sheet[open]::backdrop { opacity: 1; backdrop-filter: blur(4px); }
 @keyframes shake { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
 @keyframes toast-in { from { opacity: 0; transform: translate(-50%, 20px) scale(.95); } }
 @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
+
+/* Selector de foto propio (el nativo sale en inglés en algunos teléfonos) */
+.file { position: relative; display: block; }
+.file input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 1; font-size: 0; }
+.file-ui { display: flex; align-items: center; gap: var(--sp-3); min-height: 56px; padding: var(--sp-2) var(--sp-3); border: 1.5px dashed var(--c-line); border-radius: var(--r-md); background: var(--c-surface); color: var(--c-ink); font-weight: 600; font-size: var(--fs-sm); transition: border-color var(--dur), background var(--dur); }
+.file-ui svg { width: 24px; height: 24px; flex: none; color: var(--c-accent); }
+.file-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-cta { flex: none; padding: 6px 12px; border-radius: var(--r-pill); background: var(--c-accent-soft); color: var(--c-accent); font-size: var(--fs-xs); font-weight: 700; }
+.file:hover .file-ui { border-color: var(--c-accent); }
+.file input:focus-visible + .file-ui { outline: 3px solid var(--c-focus); outline-offset: 2px; border-color: var(--c-accent); }
+.file input[aria-invalid="true"] + .file-ui, .file.ok input[aria-invalid="true"] + .file-ui { border-color: var(--c-danger); background: var(--c-danger-soft); }
+.file.ok .file-ui { border-style: solid; border-color: var(--c-ok); background: var(--c-ok-soft); }
+.file.ok .file-ui svg { color: var(--c-ok); }
+
+.leaflet-container .leaflet-control-attribution a { text-decoration: underline; }
 
 /* Entrada escalonada: los hijos aparecen uno tras otro (visible al terminar o sin animación) */
 .stagger > * { animation: fade-up var(--dur-slow) var(--ease-out) backwards; animation-delay: calc(var(--i, 0) * var(--stagger)); }
