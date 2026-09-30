@@ -1,189 +1,312 @@
 <title>Estudio Nácar</title>
-<meta name="description" content="Trabajos, precios y turnos disponibles de la semana. Reserva en un minuto.">
+<meta name="description" content="Trabajos, precios, turnos libres de la semana, ubicación y horario. Reserva en un minuto.">
 <meta property="og:title" content="Reserva tu turno de uñas">
 <meta property="og:description" content="Mira mis trabajos, precios y turnos libres de esta semana.">
 <meta name="theme-color" content="#A3123F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Unbounded:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;1,6..96,500&family=Figtree:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="design.css">
 <style>
-  /* Estilos de la vista pública. Todo color/medida sale de design.css */
+  /* Vista pública. Todo color, tipo, medida y curva sale de design.css */
   .wrap { max-width: var(--w-page); margin: 0 auto; padding-inline: var(--sp-4); }
-  main.wrap { padding-block: var(--sp-5) calc(96px + env(safe-area-inset-bottom, 0px)); }
+  main.wrap { padding-block: var(--sp-4) calc(104px + env(safe-area-inset-bottom, 0px)); }
 
-  .hero { padding-block: var(--sp-6) var(--sp-4); display: grid; gap: var(--sp-3); }
-  .hero .brand { font-size: var(--fs-2xl); }
-  .hero .brand em { font-style: normal; color: var(--c-accent); }
-  .hero-meta { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-sm); color: var(--c-muted); }
+  /* ---------- Promo ---------- */
+  .promo {
+    display: flex; align-items: center; justify-content: center; gap: var(--sp-2); text-align: center;
+    padding: var(--sp-2) var(--sp-4); font-size: var(--fs-sm); font-weight: 600; color: var(--c-accent-ink);
+    background: linear-gradient(110deg, var(--c-accent) 0%, var(--c-accent) 40%, color-mix(in srgb, var(--c-accent) 70%, var(--c-gloss)) 50%, var(--c-accent) 60%) 0 0 / 250% 100%;
+    animation: promo-sheen 6s var(--ease-in-out) infinite;
+  }
+  @keyframes promo-sheen { 0%, 40% { background-position: 100% 0; } 100% { background-position: -150% 0; } }
+
+  /* ---------- Portada ---------- */
+  .hero { position: relative; padding-block: var(--sp-7) var(--sp-5); display: grid; gap: var(--sp-3); }
+  .hero-swirl { position: absolute; right: -60px; top: 6px; width: 260px; height: 260px; z-index: -1; opacity: .9; pointer-events: none; animation: swirl 40s linear infinite; }
+  @keyframes swirl { to { transform: rotate(360deg); } }
+  .brand { font-size: var(--fs-2xl); letter-spacing: -.01em; line-height: 1; }
+  .brand em { color: var(--c-accent); font-weight: 500; }
+  .brand .l { display: inline-block; animation: letter-in 1s var(--ease-out) backwards; animation-delay: calc(180ms + var(--i) * 45ms); }
+  @keyframes letter-in { from { opacity: 0; transform: translateY(.45em) rotate(6deg); filter: blur(8px); } }
+  .brush { width: min(100%, 320px); height: 26px; margin-top: calc(-1 * var(--sp-2)); overflow: visible; }
+  .brush .paint { stroke-dasharray: 380; stroke-dashoffset: 380; animation: paint 1.1s var(--ease-in-out) 750ms forwards; }
+  .brush .shine { stroke-dasharray: 60 400; stroke-dashoffset: 60; opacity: 0; animation: shine 5.5s var(--ease-in-out) 2s infinite; }
+  @keyframes paint { to { stroke-dashoffset: 0; } }
+  @keyframes shine { 0% { stroke-dashoffset: 60; opacity: 0; } 10% { opacity: .9; } 40%, 100% { stroke-dashoffset: -380; opacity: 0; } }
+  .hero-in { animation: fade-up var(--dur-slow) var(--ease-out) backwards; animation-delay: var(--d, 0ms); }
+  .tagline { font-size: var(--fs-lg); max-width: 32ch; }
+  .status-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
+  .status { display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-1) var(--sp-3); border-radius: var(--r-pill); font-size: var(--fs-xs); font-weight: 600; background: var(--c-surface); border: 1px solid var(--c-line); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--c-muted); }
+  .dot.on { background: var(--c-ok); color: var(--c-ok); animation: pulse-ring 1.8s var(--ease-out) infinite; }
+  .rating-chip { display: inline-flex; gap: var(--sp-1); align-items: center; }
+  .rating-chip .star { color: var(--c-gloss); }
+  .next-free { font-size: var(--fs-sm); }
   .hero-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); padding-top: var(--sp-2); }
-  .next-free { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-ok); flex: none; }
 
-  .demo-note { background: var(--c-warn-soft); color: var(--c-warn); font-size: var(--fs-xs); font-weight: 600; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-sm); }
+  .demo-note { background: var(--c-warn-soft); color: var(--c-warn); font-size: var(--fs-xs); font-weight: 600; padding: var(--sp-2) var(--sp-3); border-radius: var(--r-sm); margin-bottom: var(--sp-4); }
 
-  .panel { display: grid; gap: var(--sp-4); }
+  /* ---------- Paneles ---------- */
+  .panel { display: grid; gap: var(--sp-5); }
+  .panel.enter-r { animation: panel-r 520ms var(--ease-out); }
+  .panel.enter-l { animation: panel-l 520ms var(--ease-out); }
+  @keyframes panel-r { from { opacity: 0; transform: translateX(28px); } }
+  @keyframes panel-l { from { opacity: 0; transform: translateX(-28px); } }
   .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; }
   .panel-head h2 { font-size: var(--fs-xl); }
+  .section { display: grid; gap: var(--sp-3); }
+  .section > h3 { font-size: var(--fs-lg); font-style: italic; font-weight: 500; }
+  .card { background: var(--c-surface); border: 1px solid var(--c-line); border-radius: var(--r-md); padding: var(--sp-4); display: grid; gap: var(--sp-3); }
 
-  /* Filtros de galería: pocas opciones (Ley de Hick) */
-  .chips { display: flex; gap: var(--sp-2); overflow-x: auto; padding-bottom: var(--sp-1); scrollbar-width: none; }
+  /* ---------- Galería ---------- */
+  .chips { display: flex; gap: var(--sp-2); overflow-x: auto; padding: 2px 2px var(--sp-1); scrollbar-width: none; }
   .chip {
     min-height: 38px; padding: 0 var(--sp-4); border-radius: var(--r-pill); border: 1.5px solid var(--c-line);
     background: var(--c-surface); color: var(--c-ink); font: 600 var(--fs-sm) var(--f-body); cursor: pointer; white-space: nowrap;
+    transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out), border-color var(--dur), transform var(--dur-fast);
   }
+  .chip:active { transform: scale(.95); }
   .chip[aria-pressed="true"] { background: var(--c-ink); border-color: var(--c-ink); color: var(--c-bg); }
-
   .gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); }
   @media (min-width: 560px) { .gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  .work { display: grid; gap: var(--sp-2); text-align: left; background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; }
-  .work-img { aspect-ratio: 1; max-width: 100%; width: 100%; border-radius: var(--r-md); overflow: hidden; background: var(--c-skel); }
-  .work-img img, .work-img svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .work { position: relative; display: grid; gap: var(--sp-2); align-content: start; text-align: left; background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; }
+  .work.featured { grid-column: span 2; }
+  .work-img { position: relative; aspect-ratio: 1; max-width: 100%; width: 100%; border-radius: var(--r-md); overflow: hidden; background: var(--c-skel); transition: transform var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out); }
+  .work.featured .work-img { aspect-ratio: 2 / 1.15; }
+  .work-img img, .work-img svg { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 900ms var(--ease-out); }
+  .work-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / .38) 48%, transparent 62%); transform: translateX(-110%); pointer-events: none; }
+  .work:hover .work-img, .work:focus-visible .work-img { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+  .work:hover .work-img img, .work:hover .work-img svg { transform: scale(1.06); }
+  .work:hover .work-img::after { transform: translateX(110%); transition: transform 1s var(--ease-in-out); }
   .work-title { font-weight: 600; font-size: var(--fs-sm); line-height: 1.3; }
   .work-cat { font-size: var(--fs-xs); color: var(--c-muted); }
-  .work:hover .work-img { outline: 2px solid var(--c-line); outline-offset: 2px; }
+  .work .pill { position: absolute; top: var(--sp-2); left: var(--sp-2); z-index: 1; }
 
-  /* Precios */
-  .price-group { display: grid; gap: var(--sp-1); }
-  .price-group h3 { font-size: var(--fs-md); font-family: var(--f-body); font-weight: 700; padding-bottom: var(--sp-1); }
+  /* ---------- Precios ---------- */
+  .price-group { display: grid; gap: 0; }
+  .price-group h3 { font-size: var(--fs-lg); font-style: italic; font-weight: 500; padding-bottom: var(--sp-2); }
   .price-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-1) var(--sp-3); padding-block: var(--sp-3); border-top: 1px solid var(--c-line); align-items: start; }
   .price-row .name { font-weight: 600; display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
-  .price-row .desc { font-size: var(--fs-sm); color: var(--c-muted); grid-column: 1; }
-  .price-row .amount { font-weight: 700; font-size: var(--fs-lg); text-align: right; }
+  .price-row .desc { font-size: var(--fs-sm); color: var(--c-muted); }
+  .price-row .amount { font-weight: 700; font-size: var(--fs-lg); text-align: right; white-space: nowrap; }
   .price-row .dur { font-size: var(--fs-xs); color: var(--c-muted); }
-  .price-row .btn { grid-column: 2; justify-self: end; min-height: 40px; padding: 0 var(--sp-4); }
-  .policy { background: var(--c-surface); border: 1px solid var(--c-line); border-radius: var(--r-md); padding: var(--sp-4); display: grid; gap: var(--sp-2); font-size: var(--fs-sm); }
-  .policy h3 { font-family: var(--f-body); font-size: var(--fs-md); font-weight: 700; }
+  .price-row .btn { grid-column: 2; justify-self: end; }
+  .leader { display: none; }
+  .policy { background: var(--c-gloss-soft); border-radius: var(--r-md); padding: var(--sp-4); display: grid; gap: var(--sp-2); font-size: var(--fs-sm); }
+  .policy h3 { font-size: var(--fs-lg); font-style: italic; font-weight: 500; }
 
-  /* Turnos */
+  /* ---------- Turnos ---------- */
   fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
   legend { font-weight: 700; padding: 0; margin-bottom: var(--sp-2); }
   .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--sp-1); }
+  .choice { position: relative; }
   .choice input { position: absolute; opacity: 0; pointer-events: none; }
   .day {
-    display: grid; justify-items: center; gap: 2px; padding: var(--sp-2) 2px; min-height: 72px;
+    display: grid; justify-items: center; gap: 2px; padding: var(--sp-2) 2px; min-height: 76px;
     border: 1.5px solid var(--c-line); border-radius: var(--r-md); background: var(--c-surface); cursor: pointer; text-align: center;
+    transition: background var(--dur) var(--ease-out), color var(--dur), border-color var(--dur), transform var(--dur-fast);
   }
   .day .dow { font-size: var(--fs-xs); color: var(--c-muted); text-transform: capitalize; }
-  .day .dnum { font-family: var(--f-display); font-size: var(--fs-lg); font-weight: 600; }
+  .day .dnum { font-family: var(--f-display); font-size: var(--fs-xl); font-weight: 600; line-height: 1; }
   .day .free { font-size: 11px; font-weight: 600; color: var(--c-ok); }
-  .choice input:checked + .day, .choice input:checked + .slot { background: var(--c-ink); border-color: var(--c-ink); color: var(--c-bg); }
+  .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--sp-2); }
+  .slot { display: grid; place-items: center; min-height: var(--tap); border: 1.5px solid var(--c-line); border-radius: var(--r-sm); background: var(--c-surface); font-weight: 600; cursor: pointer; transition: background var(--dur) var(--ease-out), color var(--dur), border-color var(--dur); }
+  .day:hover, .slot:hover { border-color: var(--c-muted); }
+  .choice input:checked + .day, .choice input:checked + .slot { background: var(--c-ink); border-color: var(--c-ink); color: var(--c-bg); animation: pop 420ms var(--ease-spring); }
   .choice input:checked + .day .dow, .choice input:checked + .day .free { color: var(--c-bg); }
   .choice input:focus-visible + .day, .choice input:focus-visible + .slot { outline: 3px solid var(--c-focus); outline-offset: 2px; }
   .choice input:disabled + .day { opacity: .45; cursor: not-allowed; }
   .choice input:disabled + .day .free { color: var(--c-muted); }
-  .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: var(--sp-2); }
-  .slot { display: grid; place-items: center; min-height: var(--tap); border: 1.5px solid var(--c-line); border-radius: var(--r-sm); background: var(--c-surface); font-weight: 600; cursor: pointer; }
   .empty { padding: var(--sp-5); border: 1.5px dashed var(--c-line); border-radius: var(--r-md); text-align: center; color: var(--c-muted); display: grid; gap: var(--sp-3); justify-items: center; }
-  .cta-bar { position: sticky; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); padding-top: var(--sp-2); }
+  .cta-bar { position: sticky; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); padding-top: var(--sp-2); z-index: 5; }
+  .cta-bar .btn.ready { animation: glow 1.4s var(--ease-out) 1; }
+  @keyframes glow { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-accent) 55%, transparent); } 100% { box-shadow: 0 0 0 16px transparent; } }
 
-  /* Barra inferior: 3 destinos, nada más */
+  /* ---------- Formulario de reserva ---------- */
+  .summary { display: grid; gap: 2px; padding: var(--sp-3) var(--sp-4); background: var(--c-accent-soft); border-radius: var(--r-md); }
+  .summary strong { font-family: var(--f-display); font-size: var(--fs-lg); font-weight: 600; text-transform: capitalize; }
+  .extras { display: grid; gap: var(--sp-2); }
+  .extra { display: flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); padding: var(--sp-2) var(--sp-3); border: 1.5px solid var(--c-line); border-radius: var(--r-sm); cursor: pointer; transition: border-color var(--dur), background var(--dur); }
+  .extra input { width: 20px; height: 20px; accent-color: var(--c-accent); flex: none; }
+  .extra:has(input:checked) { border-color: var(--c-accent); background: var(--c-accent-soft); }
+  .extra span:nth-child(2) { flex: 1; min-width: 0; }
+  .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: var(--sp-2); border-top: 1px dashed var(--c-line); }
+  .total strong { font-family: var(--f-display); font-size: var(--fs-xl); }
+  .check-line { display: flex; gap: var(--sp-2); align-items: center; min-height: var(--tap); font-size: var(--fs-sm); }
+  .check-line input { width: 20px; height: 20px; accent-color: var(--c-accent); }
+
+  /* ---------- Éxito ---------- */
+  .success { display: grid; gap: var(--sp-3); text-align: center; justify-items: center; }
+  .success svg.tick { width: 72px; height: 72px; }
+  .success .tick circle { stroke-dasharray: 190; stroke-dashoffset: 190; animation: draw 700ms var(--ease-out) forwards; }
+  .success .tick path { stroke-dasharray: 50; stroke-dashoffset: 50; animation: draw 450ms var(--ease-out) 550ms forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .copy-row { display: flex; gap: var(--sp-2); align-items: center; justify-content: center; flex-wrap: wrap; font-size: var(--fs-sm); }
+  #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 70; }
+
+  /* ---------- Visor de trabajos ---------- */
+  .viewer { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: var(--r-md); overflow: hidden; background: var(--c-skel); touch-action: pan-y; }
+  .viewer > * { width: 100%; height: 100%; object-fit: cover; }
+  .viewer .slide-r { animation: panel-r 420ms var(--ease-out); }
+  .viewer .slide-l { animation: panel-l 420ms var(--ease-out); }
+  .viewer-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); }
+
+  /* ---------- Estudio: mapa ---------- */
+  .map { position: relative; border-radius: var(--r-md); overflow: hidden; aspect-ratio: 16 / 9; max-width: 100%; background: var(--c-map-land); border: 1px solid var(--c-line); }
+  .map svg.streets { width: 100%; height: 100%; display: block; }
+  .map iframe { width: 100%; height: 100%; border: 0; display: block; animation: fade-in var(--dur-slow) var(--ease-out); }
+  .pin { position: absolute; left: 50%; top: 50%; width: 34px; height: 44px; margin: -44px 0 0 -17px; animation: pin-drop 900ms var(--ease-spring) 300ms backwards; }
+  .pin::after { content: ""; position: absolute; left: 50%; bottom: -4px; width: 14px; height: 6px; margin-left: -7px; border-radius: 50%; background: rgb(0 0 0 / .18); }
+  .pin-ring { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; color: var(--c-accent); animation: pulse-ring 1.8s var(--ease-out) 1.2s infinite; }
+  @keyframes pin-drop { from { opacity: 0; transform: translateY(-60px); } }
+  .map-load { position: absolute; right: var(--sp-2); bottom: var(--sp-2); }
+  .address { display: grid; gap: 2px; }
+  .address strong { font-size: var(--fs-md); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
+
+  /* Horario */
+  .hours { display: grid; }
+  .hours div { display: flex; justify-content: space-between; gap: var(--sp-3); padding-block: var(--sp-2); border-top: 1px solid var(--c-line); font-size: var(--fs-sm); text-transform: capitalize; }
+  .hours div:first-child { border-top: 0; }
+  .hours .today { font-weight: 700; color: var(--c-accent); }
+
+  /* Reseñas */
+  .rating-big { display: flex; align-items: center; gap: var(--sp-4); }
+  .rating-big .score { font-family: var(--f-display); font-size: 3rem; line-height: 1; }
+  .stars { --pct: 0%; position: relative; display: inline-block; font-size: 1.25rem; letter-spacing: 2px; color: var(--c-line); line-height: 1; }
+  .stars::before { content: "★★★★★"; }
+  .stars::after { content: "★★★★★"; position: absolute; left: 0; top: 0; width: var(--pct); overflow: hidden; color: var(--c-gloss); animation: stars-fill 1.2s var(--ease-out) 200ms backwards; white-space: nowrap; }
+  @keyframes stars-fill { from { width: 0; } }
+  .reviews { display: grid; grid-auto-flow: column; grid-auto-columns: min(82%, 300px); gap: var(--sp-3); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: var(--sp-2); scrollbar-width: thin; }
+  .review { scroll-snap-align: start; background: var(--c-surface); border: 1px solid var(--c-line); border-radius: var(--r-md); padding: var(--sp-4); display: grid; gap: var(--sp-2); align-content: start; }
+  .review .stars { font-size: var(--fs-sm); }
+  .review p { font-size: var(--fs-sm); }
+  .star-input { display: flex; gap: var(--sp-1); flex-direction: row-reverse; justify-content: flex-end; }
+  .star-input input { position: absolute; opacity: 0; }
+  .star-input label { font-size: 2rem; line-height: 1; color: var(--c-line); cursor: pointer; padding: 4px; transition: transform var(--dur) var(--ease-spring), color var(--dur-fast); }
+  .star-input label:hover, .star-input label:hover ~ label, .star-input input:checked ~ label { color: var(--c-gloss); }
+  .star-input label:hover { transform: scale(1.2) rotate(-8deg); }
+  .star-input input:focus-visible + label { outline: 3px solid var(--c-focus); border-radius: var(--r-sm); }
+
+  /* Tarjeta de sellos */
+  .loyalty { background: linear-gradient(140deg, var(--c-ink), color-mix(in srgb, var(--c-ink) 80%, var(--c-accent))); color: var(--c-bg); border-radius: var(--r-lg); padding: var(--sp-5); display: grid; gap: var(--sp-4); position: relative; overflow: hidden; }
+  .loyalty::before { content: ""; position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--c-gloss) 45%, transparent), transparent 70%); }
+  .loyalty h3 { font-size: var(--fs-xl); font-style: italic; font-weight: 500; }
+  .loyalty .muted { color: color-mix(in srgb, var(--c-bg) 75%, transparent); }
+  .loyalty .input { background: color-mix(in srgb, var(--c-bg) 10%, transparent); border-color: color-mix(in srgb, var(--c-bg) 30%, transparent); color: var(--c-bg); }
+  .loyalty label { color: var(--c-bg); }
+  .stamps { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: var(--sp-2); max-width: 360px; }
+  .stamp { aspect-ratio: 1; border-radius: 50%; border: 1.5px dashed color-mix(in srgb, var(--c-bg) 40%, transparent); display: grid; place-items: center; }
+  .stamp.on { border: 0; background: var(--c-gloss); animation: stamp 520ms var(--ease-spring) backwards; animation-delay: calc(var(--i) * 110ms); }
+  .stamp svg { width: 55%; height: 55%; }
+  @keyframes stamp { from { opacity: 0; transform: scale(1.8) rotate(-25deg); } }
+  .loyalty .error-text { color: var(--c-gloss); }
+
+  /* Preguntas */
+  .faq details { border-top: 1px solid var(--c-line); }
+  .faq details:last-child { border-bottom: 1px solid var(--c-line); }
+  .faq summary { list-style: none; display: flex; justify-content: space-between; gap: var(--sp-3); align-items: center; min-height: var(--tap); padding-block: var(--sp-3); font-weight: 600; cursor: pointer; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-size: 1.4rem; color: var(--c-accent); transition: transform var(--dur) var(--ease-spring); }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details::details-content { block-size: 0; overflow: clip; transition: block-size var(--dur) var(--ease-out), content-visibility var(--dur) allow-discrete; }
+  .faq details[open]::details-content { block-size: auto; }
+  .faq .ans { padding-bottom: var(--sp-3); color: var(--c-muted); font-size: var(--fs-sm); }
+
+  /* ---------- Barra inferior con indicador deslizante ---------- */
   .tabbar {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-    background: var(--c-surface); border-top: 1px solid var(--c-line);
-    padding: var(--sp-2) var(--sp-4) calc(var(--sp-2) + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--c-surface) 88%, transparent); backdrop-filter: blur(14px); border-top: 1px solid var(--c-line);
+    padding: var(--sp-2) var(--sp-3) calc(var(--sp-2) + env(safe-area-inset-bottom, 0px));
   }
-  .tabbar-inner { max-width: var(--w-page); margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-2); }
+  .tabbar-inner { position: relative; max-width: var(--w-page); margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-1); }
+  .tab-ind { position: absolute; top: 0; bottom: 0; left: 0; width: 0; border-radius: var(--r-md); background: var(--c-accent-soft); transition: transform 520ms var(--ease-spring), width 520ms var(--ease-spring); }
   .tab {
-    display: grid; justify-items: center; gap: 2px; min-height: 52px; padding: var(--sp-1); border: 0; border-radius: var(--r-md);
-    background: transparent; color: var(--c-muted); font: 600 var(--fs-xs) var(--f-body); cursor: pointer;
+    position: relative; display: grid; justify-items: center; gap: 2px; min-height: 54px; padding: var(--sp-1); border: 0; border-radius: var(--r-md);
+    background: transparent; color: var(--c-muted); font: 600 var(--fs-xs) var(--f-body); cursor: pointer; transition: color var(--dur);
   }
-  .tab svg { width: 22px; height: 22px; }
-  .tab[aria-selected="true"] { color: var(--c-accent); background: var(--c-accent-soft); }
-
-  /* Diálogos */
-  .summary { display: grid; gap: var(--sp-1); padding: var(--sp-3) var(--sp-4); background: var(--c-accent-soft); border-radius: var(--r-md); }
-  .summary strong { font-family: var(--f-display); font-weight: 600; }
-  .work-big { aspect-ratio: 1; max-width: 100%; border-radius: var(--r-md); overflow: hidden; background: var(--c-skel); }
-  .work-big img, .work-big svg { width: 100%; height: 100%; object-fit: cover; }
-  .success { display: grid; gap: var(--sp-3); text-align: center; justify-items: center; }
-  .success .check { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--c-ok-soft); color: var(--c-ok); font-size: 1.6rem; font-weight: 700; }
-  .copy-row { display: flex; gap: var(--sp-2); align-items: center; justify-content: center; flex-wrap: wrap; font-size: var(--fs-sm); }
-  .footer { font-size: var(--fs-xs); color: var(--c-muted); text-align: center; padding-top: var(--sp-6); }
+  .tab svg { width: 22px; height: 22px; transition: transform var(--dur) var(--ease-spring); }
+  .tab[aria-selected="true"] { color: var(--c-accent); }
+  .tab[aria-selected="true"] svg { transform: translateY(-2px) scale(1.08); }
+  .footer { font-size: var(--fs-xs); color: var(--c-muted); text-align: center; padding-top: var(--sp-6); display: grid; gap: var(--sp-1); }
 </style>
 
 <a class="skip-link" href="#contenido">Saltar al contenido</a>
+<div class="promo" id="promo" role="note" hidden></div>
 
-<header class="wrap hero" aria-busy="true" id="hero">
-  <div class="skel skel-line w60" style="height:2rem"></div>
-  <div class="skel skel-line w80"></div>
+<header class="wrap hero" id="hero" aria-busy="true">
+  <div class="skel skel-line w80" style="height:3rem"></div>
+  <div class="skel skel-line w60"></div>
   <div class="skel skel-line w40"></div>
 </header>
 
 <main class="wrap" id="contenido" tabindex="-1">
-  <p class="demo-note" id="demoNote" hidden>Vista de demostración con datos de ejemplo. En el servidor real muestra los trabajos, precios y turnos que carga la manicurista.</p>
+  <p class="demo-note" id="demoNote" hidden>Vista de demostración con datos de ejemplo. En el servidor real se ven los trabajos, precios, turnos, reseñas y ubicación que carga la manicurista.</p>
 
-  <!-- TRABAJOS -->
   <section class="panel" id="p-trabajos" role="tabpanel" aria-labelledby="t-trabajos" aria-busy="true">
-    <div class="panel-head">
-      <h2>Trabajos</h2>
-      <span class="muted num" id="worksCount"></span>
-    </div>
+    <div class="panel-head"><h2>Trabajos</h2><span class="muted num" id="worksCount"></span></div>
     <div class="chips" id="filters" role="group" aria-label="Filtrar trabajos por tipo"></div>
     <div class="gallery" id="gallery"></div>
   </section>
 
-  <!-- PRECIOS -->
   <section class="panel" id="p-precios" role="tabpanel" aria-labelledby="t-precios" aria-busy="true" hidden>
-    <div class="panel-head">
-      <h2>Precios</h2>
-      <span class="muted" id="currencyNote"></span>
-    </div>
+    <div class="panel-head"><h2>Precios</h2><span class="muted" id="currencyNote"></span></div>
     <div id="prices" class="panel"></div>
-    <aside class="policy" id="policy" aria-labelledby="policyTitle"></aside>
+    <aside class="policy reveal" id="policy" aria-labelledby="policyTitle"></aside>
   </section>
 
-  <!-- TURNOS -->
   <section class="panel" id="p-turnos" role="tabpanel" aria-labelledby="t-turnos" aria-busy="true" hidden>
-    <div class="panel-head">
-      <h2>Turnos de la semana</h2>
-      <span class="muted num" id="weekRange"></span>
-    </div>
+    <div class="panel-head"><h2>Turnos de la semana</h2><span class="muted num" id="weekRange"></span></div>
     <div id="booking" class="panel"></div>
   </section>
 
-  <p class="footer" id="footer"></p>
+  <section class="panel" id="p-estudio" role="tabpanel" aria-labelledby="t-estudio" aria-busy="true" hidden>
+    <div class="panel-head"><h2>El estudio</h2></div>
+    <div id="estudio" class="panel"></div>
+  </section>
+
+  <footer class="footer" id="footer"></footer>
 </main>
 
 <nav class="tabbar" aria-label="Secciones">
   <div class="tabbar-inner" role="tablist" id="tablist">
+    <span class="tab-ind" id="tabInd" aria-hidden="true"></span>
     <button class="tab" role="tab" id="t-trabajos" aria-controls="p-trabajos" aria-selected="true" data-tab="trabajos">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>
-      Trabajos
-    </button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Trabajos</button>
     <button class="tab" role="tab" id="t-precios" aria-controls="p-precios" aria-selected="false" tabindex="-1" data-tab="precios">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
-      Precios
-    </button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Precios</button>
     <button class="tab" role="tab" id="t-turnos" aria-controls="p-turnos" aria-selected="false" tabindex="-1" data-tab="turnos">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
-      Turnos
-    </button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Turnos</button>
+    <button class="tab" role="tab" id="t-estudio" aria-controls="p-estudio" aria-selected="false" tabindex="-1" data-tab="estudio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Estudio</button>
   </div>
 </nav>
 
-<!-- Diálogo: detalle de trabajo -->
 <dialog class="sheet" id="workDialog" aria-labelledby="workDialogTitle">
-  <div class="sheet-head">
-    <h2 id="workDialogTitle" style="font-size:var(--fs-lg)"></h2>
-    <button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button>
-  </div>
+  <div class="sheet-head"><h2 id="workDialogTitle" style="font-size:var(--fs-lg)"></h2><button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button></div>
   <div class="sheet-body">
-    <div class="work-big" id="workDialogImg"></div>
-    <p class="muted" id="workDialogCat"></p>
+    <div class="viewer" id="viewer" aria-live="polite"></div>
+    <div class="viewer-nav">
+      <button class="btn btn-ghost btn-sm" type="button" id="prevWork" aria-label="Trabajo anterior">← Anterior</button>
+      <span class="muted num" id="viewerCount"></span>
+      <button class="btn btn-ghost btn-sm" type="button" id="nextWork" aria-label="Trabajo siguiente">Siguiente →</button>
+    </div>
     <button class="btn btn-primary btn-block" type="button" id="wantThis">Quiero este diseño</button>
   </div>
 </dialog>
 
-<!-- Diálogo: reservar -->
 <dialog class="sheet" id="bookDialog" aria-labelledby="bookDialogTitle">
-  <div class="sheet-head">
-    <h2 id="bookDialogTitle" style="font-size:var(--fs-lg)">Tus datos</h2>
-    <button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button>
-  </div>
+  <div class="sheet-head"><h2 id="bookDialogTitle" style="font-size:var(--fs-lg)">Tus datos</h2><button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button></div>
   <div class="sheet-body" id="bookBody"></div>
 </dialog>
 
+<dialog class="sheet" id="reviewDialog" aria-labelledby="reviewTitle">
+  <div class="sheet-head"><h2 id="reviewTitle" style="font-size:var(--fs-lg)">Tu opinión</h2><button class="icon-btn" type="button" data-close aria-label="Cerrar">×</button></div>
+  <div class="sheet-body" id="reviewBody"></div>
+</dialog>
+
+<canvas id="confetti" aria-hidden="true" hidden></canvas>
 <div class="sr-only" aria-live="polite" id="live"></div>
 <div class="toast" id="toast" role="status" hidden></div>
 
@@ -192,53 +315,84 @@
   'use strict';
   document.documentElement.lang = 'es';
   const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const state = { data: null, demo: false, tab: 'trabajos', filtro: 'Todos', dia: null, turno: null, servicioId: null, nota: '' };
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TABS = ['trabajos', 'precios', 'turnos', 'estudio'];
+  const state = { data: null, demo: false, tab: 'trabajos', filtro: 'Todos', dia: null, turno: null, servicioId: null, extras: new Set(), nota: '', workIdx: 0, lista: [] };
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem('estudio_' + k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem('estudio_' + k, JSON.stringify(v)); } catch {} },
+    del(k) { try { localStorage.removeItem('estudio_' + k); } catch {} },
+  };
 
   // ---------- Datos de ejemplo (solo si no hay servidor) ----------
   function demoData() {
-    const hoy = new Date(); const iso = d => d.toISOString().slice(0, 10);
+    const hoy = new Date(); const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const horas = ['09:00', '10:30', '12:00', '14:00', '15:30', '17:00'];
     const dias = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(hoy); d.setDate(hoy.getDate() + i);
-      const cerrado = d.getDay() === 0;
-      dias.push({ fecha: iso(d), turnos: cerrado ? [] : horas.filter((_, k) => (k + i) % 3 !== 0).map((h, k) => ({ id: i * 10 + k + 1, hora: h })) });
+      dias.push({ fecha: iso(d), turnos: d.getDay() === 0 ? [] : horas.filter((_, k) => (k + i) % 3 !== 0).map((h, k) => ({ id: i * 10 + k + 1, hora: h })) });
     }
+    const hh = `${String(hoy.getHours()).padStart(2, '0')}:${String(hoy.getMinutes()).padStart(2, '0')}`;
     return {
-      ajustes: { nombre: 'Estudio Nácar', eslogan: 'Uñas a mano, sin apuro', whatsapp: '5350000000', instagram: 'estudionacar', direccion: 'Calle 37 e/ 54 y 56, Cienfuegos', moneda: 'CUP',
+      ahora: { fecha: iso(hoy), hora: hh, dow: hoy.getDay() },
+      ajustes: {
+        nombre: 'Estudio Nácar', eslogan: 'Uñas pintadas a mano, sin apuro y con buen café.', whatsapp: '5350000000', instagram: 'estudionacar', facebook: '',
+        direccion: 'Calle 37 #5402, entre 54 y 56', referencia: 'Portal azul, frente al parque', ciudad: 'Cienfuegos, Cuba', lat: '22.145600', lng: '-80.436400',
+        horario: [{ abierto: false, abre: '09:00', cierra: '13:00' }, ...Array.from({ length: 5 }, () => ({ abierto: true, abre: '09:00', cierra: '18:00' })), { abierto: true, abre: '09:00', cierra: '14:00' }],
+        moneda: 'CUP', promo_activa: '1', promo_texto: 'Octubre: 15 % menos en pedicura completa',
+        fidelidad_activa: '1', fidelidad_visitas: '6', fidelidad_premio: 'La 7.ª manicura en gel es gratis',
         sena: 'Para apartar el turno se pide una seña del 30 % por Transfermóvil o EnZona.',
-        politica: 'Si no puedes venir, avisa con 24 horas. Con más de 15 minutos de retraso el turno puede perderse.' },
+        politica: 'Si no puedes venir, avisa con 24 horas. Con más de 15 minutos de retraso el turno puede perderse.',
+        faq: [
+          { p: '¿Cuánto dura el esmalte en gel?', r: 'Entre 2 y 3 semanas si usas guantes al fregar y no usas las uñas como herramienta.' },
+          { p: '¿Puedo llevar una foto del diseño que quiero?', r: 'Sí. Escríbelo en las notas al reservar o toca "Quiero este diseño" en la galería.' },
+          { p: '¿Cómo cuido las uñas después?', r: 'Hidrata las cutículas con aceite cada noche y no te quites el gel tú misma: se daña la uña natural.' },
+        ],
+      },
       categorias: ['Manos', 'Pies', 'Extensiones', 'Diseños'],
       servicios: [
-        { id: 1, nombre: 'Manicura sencilla', categoria: 'Manos', precio: 1200, duracion: 45, descripcion: 'Limado, cutícula y esmalte tradicional.', popular: 0 },
-        { id: 2, nombre: 'Esmalte en gel', categoria: 'Manos', precio: 2500, duracion: 60, descripcion: 'Dura de 2 a 3 semanas sin descascararse.', popular: 1 },
-        { id: 3, nombre: 'Retiro de gel', categoria: 'Manos', precio: 600, duracion: 20, descripcion: 'Sin limar la uña natural.', popular: 0 },
-        { id: 4, nombre: 'Pedicura completa', categoria: 'Pies', precio: 1800, duracion: 60, descripcion: 'Baño, exfoliación, cutícula y esmalte.', popular: 0 },
-        { id: 5, nombre: 'Acrílico (juego completo)', categoria: 'Extensiones', precio: 4500, duracion: 120, descripcion: 'Forma almendra, cuadrada o coffin.', popular: 1 },
-        { id: 6, nombre: 'Relleno de acrílico', categoria: 'Extensiones', precio: 3000, duracion: 90, descripcion: 'Hasta 3 semanas de crecimiento.', popular: 0 },
-        { id: 7, nombre: 'Diseño por uña', categoria: 'Diseños', precio: 150, duracion: 10, descripcion: 'French, flores, líneas, pedrería.', popular: 0 },
+        { id: 1, nombre: 'Manicura sencilla', categoria: 'Manos', precio: 1200, duracion: 45, descripcion: 'Limado, cutícula y esmalte tradicional.', popular: 0, extra: 0 },
+        { id: 2, nombre: 'Esmalte en gel', categoria: 'Manos', precio: 2500, duracion: 60, descripcion: 'Dura de 2 a 3 semanas sin descascararse.', popular: 1, extra: 0 },
+        { id: 3, nombre: 'Retiro de gel', categoria: 'Manos', precio: 600, duracion: 20, descripcion: 'Sin limar la uña natural.', popular: 0, extra: 1 },
+        { id: 4, nombre: 'Pedicura completa', categoria: 'Pies', precio: 1800, duracion: 60, descripcion: 'Baño, exfoliación, cutícula y esmalte.', popular: 0, extra: 0 },
+        { id: 5, nombre: 'Acrílico (juego completo)', categoria: 'Extensiones', precio: 4500, duracion: 120, descripcion: 'Forma almendra, cuadrada o coffin.', popular: 1, extra: 0 },
+        { id: 6, nombre: 'Relleno de acrílico', categoria: 'Extensiones', precio: 3000, duracion: 90, descripcion: 'Hasta 3 semanas de crecimiento.', popular: 0, extra: 0 },
+        { id: 7, nombre: 'Diseño a mano (por uña)', categoria: 'Diseños', precio: 150, duracion: 10, descripcion: 'French, flores, líneas finas.', popular: 0, extra: 1 },
+        { id: 8, nombre: 'Efecto cromado', categoria: 'Diseños', precio: 500, duracion: 15, descripcion: 'Acabado espejo en todas las uñas.', popular: 0, extra: 1 },
       ],
       trabajos: [
-        { id: 1, titulo: 'French rosado', categoria: 'Manos', forma: 'almendra', color: '#E8A0B4', deco: 'french' },
+        { id: 1, titulo: 'French rosado', categoria: 'Manos', forma: 'almendra', color: '#E8A0B4', deco: 'french', nuevo: 1 },
         { id: 2, titulo: 'Cereza brillante', categoria: 'Manos', forma: 'redonda', color: '#A3123F' },
-        { id: 3, titulo: 'Coffin nude con puntos', categoria: 'Extensiones', forma: 'coffin', color: '#D6B39C', deco: 'puntos' },
+        { id: 3, titulo: 'Coffin nude con puntos', categoria: 'Extensiones', forma: 'coffin', color: '#D6B39C', deco: 'puntos', nuevo: 1 },
         { id: 4, titulo: 'Azul noche', categoria: 'Diseños', forma: 'almendra', color: '#23305E', deco: 'puntos' },
         { id: 5, titulo: 'Coral de verano', categoria: 'Pies', forma: 'cuadrada', color: '#F0735A' },
         { id: 6, titulo: 'Menta con french', categoria: 'Diseños', forma: 'cuadrada', color: '#9ED9C0', deco: 'french' },
+        { id: 7, titulo: 'Borgoña de otoño', categoria: 'Manos', forma: 'almendra', color: '#5C1A2B' },
       ],
+      resenas: [
+        { id: 1, nombre: 'Clienta de ejemplo', estrellas: 5, texto: 'Aquí se verán las opiniones reales que apruebe la manicurista desde su panel.' },
+        { id: 2, nombre: 'Otra clienta (ejemplo)', estrellas: 5, texto: 'Cada opinión llega como pendiente y solo se publica cuando ella la revisa.' },
+        { id: 3, nombre: 'Ejemplo', estrellas: 4, texto: 'El promedio de estrellas se calcula solo con las opiniones aprobadas.' },
+      ],
+      resumenResenas: { total: 3, promedio: 4.7 },
       dias,
     };
   }
 
   // ---------- Formato ----------
-  const fmtPrecio = n => new Intl.NumberFormat('es-CU').format(n) + ' ' + (state.data?.ajustes.moneda || 'CUP');
+  const moneda = () => state.data?.ajustes.moneda || 'CUP';
+  const fmtPrecio = n => new Intl.NumberFormat('es-CU').format(n) + ' ' + moneda();
   const fecha = iso => new Date(iso + 'T12:00:00');
   const fmtDia = (iso, opts) => fecha(iso).toLocaleDateString('es', opts);
   const fmtDur = m => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ' ' + (m % 60) + ' min' : ''}` : `${m} min`;
   const hora12 = h => { const [H, M] = h.split(':').map(Number); return `${((H + 11) % 12) + 1}:${String(M).padStart(2, '0')} ${H < 12 ? 'a. m.' : 'p. m.'}`; };
+  const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  const splitLetters = (txt, start = 0) => [...txt].map((ch, i) => ch === ' ' ? ' ' : `<span class="l" style="--i:${start + i}">${esc(ch)}</span>`).join('');
 
-  // Ilustración de uñas cuando el trabajo no tiene foto
+  // ---------- Ilustraciones ----------
   function nailArt(w, big) {
     const forms = {
       almendra: x => `M${x} 96V46C${x} 20 ${x + 12} 4 ${x + 18} 0C${x + 24} 4 ${x + 36} 20 ${x + 36} 46V96Z`,
@@ -249,28 +403,50 @@
     const f = forms[w.forma] || forms.almendra; const id = 'g' + w.id + (big ? 'b' : '');
     const nails = [16, 60, 104, 148].map((x, i) => {
       const y = [34, 18, 14, 30][i];
-      let deco = '';
-      if (w.deco === 'puntos') deco = `<circle cx="${x + 18}" cy="${y + 58}" r="3" fill="#fff" opacity=".9"/><circle cx="${x + 12}" cy="${y + 72}" r="2" fill="#fff" opacity=".8"/><circle cx="${x + 24}" cy="${y + 70}" r="2.2" fill="#fff" opacity=".8"/>`;
+      const deco = w.deco === 'puntos' ? `<circle cx="${x + 18}" cy="${y + 58}" r="3" fill="#fff" opacity=".9"/><circle cx="${x + 12}" cy="${y + 72}" r="2" fill="#fff" opacity=".8"/><circle cx="${x + 24}" cy="${y + 70}" r="2.2" fill="#fff" opacity=".8"/>` : '';
       return `<g transform="translate(0 ${y})"><path d="${f(x)}" fill="url(#${id})"/><path d="${f(x)}" fill="none" stroke="rgb(0 0 0 / .08)"/></g>${deco}<rect x="${x + 6}" y="${y + 14}" width="5" height="34" rx="2.5" fill="#fff" opacity=".35"/>`;
     }).join('');
-    const tip = w.deco === 'french'
-      ? `<stop offset="0" stop-color="#FFFFFF"/><stop offset=".26" stop-color="#FFFFFF"/><stop offset=".27" stop-color="${w.color}"/>`
-      : `<stop offset="0" stop-color="${w.color}"/>`;
-    return `<svg viewBox="0 0 200 200" role="img" aria-label="${esc(w.titulo)}"><rect width="200" height="200" fill="var(--c-skel)"/>
+    const tip = w.deco === 'french' ? `<stop offset="0" stop-color="#FFFFFF"/><stop offset=".26" stop-color="#FFFFFF"/><stop offset=".27" stop-color="${w.color}"/>` : `<stop offset="0" stop-color="${w.color}"/>`;
+    return `<svg viewBox="0 0 200 200" role="img" aria-label="${esc(w.titulo)}"><rect width="200" height="200" fill="var(--c-surface-2)"/>
       <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">${tip}<stop offset="1" stop-color="${w.color}"/></linearGradient></defs>${nails}
       <path d="M0 200V150Q100 120 200 150V200Z" fill="rgb(0 0 0 / .05)"/></svg>`;
   }
-  const workMedia = (w, big) => w.imagen
-    ? `<img src="${esc(w.imagen)}" alt="${esc(w.titulo)}" loading="lazy" decoding="async">`
-    : nailArt(w, big);
+  const workMedia = (w, big) => w.imagen ? `<img src="${esc(w.imagen)}" alt="${esc(w.titulo)}" loading="lazy" decoding="async">` : nailArt(w, big);
+  const mapSvg = () => `<svg class="streets" viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect width="400" height="225" fill="var(--c-map-land)"/>
+    <path d="M-10 190 C 80 160, 140 230, 230 200 S 360 170, 410 190 V240 H-10Z" fill="var(--c-map-water)"/>
+    <rect x="236" y="36" width="88" height="62" rx="10" fill="var(--c-map-park)"/>
+    <g stroke="var(--c-map-road)" stroke-linecap="round" fill="none">
+      <path d="M-10 70 H410" stroke-width="12"/><path d="M-10 140 H410" stroke-width="8"/><path d="M-10 20 H410" stroke-width="6"/>
+      <path d="M90 -10 V240" stroke-width="8"/><path d="M200 -10 V240" stroke-width="12"/><path d="M330 -10 V240" stroke-width="6"/>
+      <path d="M20 -10 L140 240" stroke-width="5"/>
+    </g></svg>
+    <span class="pin-ring" aria-hidden="true"></span>
+    <svg class="pin" viewBox="0 0 34 44" aria-hidden="true"><path d="M17 43S3 27 3 16a14 14 0 0 1 28 0c0 11-14 27-14 27Z" fill="var(--c-accent)"/><circle cx="17" cy="16" r="5.5" fill="var(--c-surface)"/></svg>`;
+  const nailIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 22V11C7 6 10 2.5 12 2c2 .5 5 4 5 9v11Z" fill="var(--c-ink)"/></svg>';
 
-  // ---------- Skeletons (misma forma que el contenido final) ----------
+  // ---------- Horario ----------
+  function estadoAbierto() {
+    const { horario } = state.data.ajustes; const { dow, hora } = state.data.ahora;
+    const hoy = horario?.[dow];
+    if (!horario) return null;
+    if (hoy?.abierto && hora >= hoy.abre && hora < hoy.cierra) return { abierto: true, texto: `Abierta · cierra ${hora12(hoy.cierra)}` };
+    if (hoy?.abierto && hora < hoy.abre) return { abierto: false, texto: `Cerrada · abre hoy ${hora12(hoy.abre)}` };
+    for (let i = 1; i <= 7; i++) {
+      const d = horario[(dow + i) % 7];
+      if (d?.abierto) return { abierto: false, texto: `Cerrada · abre ${i === 1 ? 'mañana' : 'el ' + DIAS[(dow + i) % 7]} ${hora12(d.abre)}` };
+    }
+    return { abierto: false, texto: 'Cerrada' };
+  }
+
+  // ---------- Skeletons ----------
   function skeletons() {
     $('#gallery').innerHTML = Array.from({ length: 6 }, () => `<div class="work" aria-hidden="true"><div class="work-img skel"></div><div class="skel skel-line w80"></div><div class="skel skel-line w40"></div></div>`).join('');
     $('#filters').innerHTML = Array.from({ length: 4 }, () => `<span class="skel" style="width:84px;height:38px;border-radius:999px;flex:none" aria-hidden="true"></span>`).join('');
     $('#prices').innerHTML = Array.from({ length: 5 }, () => `<div class="price-row" aria-hidden="true"><div style="display:grid;gap:8px"><div class="skel skel-line w60"></div><div class="skel skel-line w80"></div></div><div class="skel" style="width:72px;height:1.2em"></div></div>`).join('');
-    $('#booking').innerHTML = `<div class="days" aria-hidden="true">${Array.from({ length: 7 }, () => `<div class="skel" style="height:72px;border-radius:var(--r-md)"></div>`).join('')}</div>
+    $('#booking').innerHTML = `<div class="days" aria-hidden="true">${Array.from({ length: 7 }, () => `<div class="skel" style="height:76px;border-radius:var(--r-md)"></div>`).join('')}</div>
       <div class="slots" aria-hidden="true">${Array.from({ length: 6 }, () => `<div class="skel" style="height:44px"></div>`).join('')}</div>`;
+    $('#estudio').innerHTML = `<div class="skel" style="aspect-ratio:16/9;border-radius:var(--r-md)" aria-hidden="true"></div><div class="skel skel-line w60" aria-hidden="true"></div><div class="skel skel-line w80" aria-hidden="true"></div>`;
   }
 
   // ---------- Carga ----------
@@ -281,40 +457,50 @@
       if (!r.ok) throw new Error(r.status);
       state.data = await r.json();
     } catch {
-      await new Promise(r => setTimeout(r, 700)); // deja ver el skeleton en la demo
+      await new Promise(r => setTimeout(r, 800));
       state.data = demoData(); state.demo = true;
     }
     render();
-    document.querySelectorAll('[aria-busy]').forEach(el => el.setAttribute('aria-busy', 'false'));
+    $$('[aria-busy]').forEach(el => el.setAttribute('aria-busy', 'false'));
   }
 
   function render() {
-    const { ajustes: a } = state.data;
+    const a = state.data.ajustes;
     document.title = a.nombre;
     $('#demoNote').hidden = !state.demo;
-    renderHero(); renderGallery(); renderPrices(); renderBooking();
-    $('#footer').textContent = `${a.nombre} · ${a.direccion}`;
+    const promo = $('#promo');
+    promo.hidden = !(a.promo_activa === '1' && a.promo_texto);
+    promo.innerHTML = `<span aria-hidden="true">✦</span> ${esc(a.promo_texto)} <span aria-hidden="true">✦</span>`;
+    renderHero(); renderGallery(); renderPrices(); renderBooking(); renderEstudio();
+    $('#footer').innerHTML = `<span>${esc(a.nombre)} · ${esc(a.direccion)}, ${esc(a.ciudad)}</span>${state.demo ? '' : '<a href="/admin" class="muted">Acceso de la manicurista</a>'}`;
+    moveIndicator();
   }
 
-  function primerLibre() {
-    for (const d of state.data.dias) if (d.turnos.length) return { dia: d.fecha, turno: d.turnos[0] };
-    return null;
-  }
-  const waLink = msg => `https://wa.me/${(state.data.ajustes.whatsapp || '').replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+  const primerLibre = () => { for (const d of state.data.dias) if (d.turnos.length) return { dia: d.fecha, turno: d.turnos[0] }; return null; };
+  const numeroWA = () => (state.data.ajustes.whatsapp || '').replace(/\D/g, '');
+  const waLink = msg => `https://wa.me/${numeroWA()}?text=${encodeURIComponent(msg)}`;
 
   function renderHero() {
-    const a = state.data.ajustes; const p = primerLibre();
+    const a = state.data.ajustes; const p = primerLibre(); const st = estadoAbierto(); const rr = state.data.resumenResenas;
     const [n1, ...resto] = a.nombre.split(' ');
     $('#hero').innerHTML = `
-      <h1 class="brand">${esc(n1)} <em>${esc(resto.join(' '))}</em></h1>
-      <p>${esc(a.eslogan)}</p>
-      <div class="hero-meta">
-        <span>${esc(a.direccion)}</span>
-        ${a.instagram ? `<a href="https://instagram.com/${esc(a.instagram)}" rel="noopener">@${esc(a.instagram)}</a>` : ''}
+      <svg class="hero-swirl" viewBox="0 0 200 200" aria-hidden="true">
+        <defs><radialGradient id="sw" cx="35%" cy="35%" r="70%"><stop offset="0" stop-color="var(--c-accent-soft)"/><stop offset=".6" stop-color="var(--c-gloss-soft)"/><stop offset="1" stop-color="var(--c-bg)" stop-opacity="0"/></radialGradient></defs>
+        <path d="M100 10c50 0 90 35 90 85s-40 95-95 95S10 150 25 105 60 40 100 55s40 55 5 70-50-20-25-35" fill="url(#sw)" stroke="var(--c-gloss)" stroke-opacity=".35" stroke-width="1"/></svg>
+      <p class="eyebrow hero-in" style="--d:60ms">Estudio de uñas · ${esc(a.ciudad.split(',')[0])}</p>
+      <h1 class="brand" aria-label="${esc(a.nombre)}"><span aria-hidden="true">${splitLetters(n1)}${resto.length ? ' <em>' + splitLetters(resto.join(' '), n1.length + 1) + '</em>' : ''}</span></h1>
+      <svg class="brush" viewBox="0 0 360 26" aria-hidden="true">
+        <defs><linearGradient id="lac" x1="0" x2="1"><stop offset="0" stop-color="var(--c-accent)"/><stop offset="1" stop-color="var(--c-accent-hover)"/></linearGradient></defs>
+        <path class="paint" d="M6 16 C 70 4, 140 24, 210 12 S 320 8, 354 14" stroke="url(#lac)" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <path class="shine" d="M6 14 C 70 2, 140 22, 210 10 S 320 6, 354 12" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+      <p class="tagline hero-in" style="--d:900ms">${esc(a.eslogan)}</p>
+      <div class="status-row hero-in" style="--d:1050ms">
+        ${st ? `<span class="status"><span class="dot ${st.abierto ? 'on' : ''}" aria-hidden="true"></span>${st.texto}</span>` : ''}
+        ${rr?.total ? `<button type="button" class="status rating-chip" data-goto="estudio" data-scroll="resenas" aria-label="${rr.promedio} de 5 estrellas, ${rr.total} opiniones. Ver opiniones"><span class="star" aria-hidden="true">★</span><strong class="num">${rr.promedio}</strong><span class="muted">· ${rr.total} opiniones</span></button>` : ''}
       </div>
-      ${p ? `<p class="next-free"><span class="dot" aria-hidden="true"></span>Próximo turno libre: <strong>${fmtDia(p.dia, { weekday: 'long', day: 'numeric' })}, ${hora12(p.turno.hora)}</strong></p>`
-          : `<p class="next-free muted">Esta semana está completa.</p>`}
-      <div class="hero-actions">
+      ${p ? `<p class="next-free hero-in" style="--d:1150ms">Próximo turno libre: <strong>${fmtDia(p.dia, { weekday: 'long', day: 'numeric' })}, ${hora12(p.turno.hora)}</strong></p>`
+          : `<p class="next-free muted hero-in" style="--d:1150ms">Esta semana está completa.</p>`}
+      <div class="hero-actions hero-in" style="--d:1250ms">
         <button class="btn btn-primary" type="button" data-goto="turnos">Reservar turno</button>
         <a class="btn btn-ghost" href="${waLink('Hola, quiero consultar por un turno.')}" rel="noopener">WhatsApp</a>
       </div>`;
@@ -324,15 +510,25 @@
   function renderGallery() {
     const { trabajos, categorias } = state.data;
     const usadas = categorias.filter(c => trabajos.some(t => t.categoria === c));
-    const opciones = ['Todos', ...usadas];
-    $('#filters').innerHTML = opciones.map(c => `<button type="button" class="chip" aria-pressed="${c === state.filtro}" data-filtro="${esc(c)}">${esc(c)}</button>`).join('');
-    const lista = trabajos.filter(t => state.filtro === 'Todos' || t.categoria === state.filtro);
-    $('#worksCount').textContent = `${lista.length} ${lista.length === 1 ? 'trabajo' : 'trabajos'}`;
-    $('#gallery').innerHTML = lista.length
-      ? lista.map(t => `<button type="button" class="work" data-work="${t.id}" aria-label="Ver ${esc(t.titulo)}">
-          <span class="work-img">${workMedia(t)}</span>
-          <span class="work-title">${esc(t.titulo)}</span><span class="work-cat">${esc(t.categoria)}</span></button>`).join('')
+    $('#filters').innerHTML = ['Todos', ...usadas].map(c => `<button type="button" class="chip" aria-pressed="${c === state.filtro}" data-filtro="${esc(c)}">${esc(c)}</button>`).join('');
+    state.lista = trabajos.filter(t => state.filtro === 'Todos' || t.categoria === state.filtro);
+    const n = state.lista.length;
+    $('#worksCount').textContent = `${n} ${n === 1 ? 'trabajo' : 'trabajos'}`;
+    const g = $('#gallery');
+    g.classList.remove('stagger'); void g.offsetWidth; g.classList.add('stagger');
+    g.innerHTML = n ? state.lista.map((t, i) => `<button type="button" class="work ${i === 0 && n >= 3 ? 'featured' : ''}" style="--i:${i}" data-work="${i}" aria-label="Ver ${esc(t.titulo)}">
+        ${t.nuevo ? '<span class="pill pill-gloss">Nuevo</span>' : ''}
+        <span class="work-img">${workMedia(t)}</span>
+        <span class="work-title">${esc(t.titulo)}</span><span class="work-cat">${esc(t.categoria)}</span></button>`).join('')
       : `<div class="empty" style="grid-column:1/-1">Todavía no hay trabajos en esta categoría.</div>`;
+  }
+
+  function showWork(i, dir) {
+    const L = state.lista; state.workIdx = (i + L.length) % L.length; const w = L[state.workIdx];
+    $('#workDialogTitle').textContent = w.titulo;
+    $('#viewer').innerHTML = `<div class="${dir ? 'slide-' + dir : ''}" style="width:100%;height:100%">${workMedia(w, true)}</div>`;
+    $('#viewerCount').textContent = `${state.workIdx + 1} / ${L.length} · ${w.categoria}`;
+    $('#prevWork').hidden = $('#nextWork').hidden = L.length < 2;
   }
 
   // ---------- Precios ----------
@@ -340,28 +536,27 @@
     const { servicios, categorias, ajustes: a } = state.data;
     $('#currencyNote').textContent = `Precios en ${a.moneda}`;
     $('#prices').innerHTML = categorias.map(cat => {
-      const items = servicios.filter(s => s.categoria === cat);
+      const items = servicios.filter(s => s.categoria === cat).sort((x, y) => x.extra - y.extra);
       if (!items.length) return '';
-      return `<section class="price-group" aria-labelledby="cat-${esc(cat)}"><h3 id="cat-${esc(cat)}">${esc(cat)}</h3>
+      return `<section class="price-group reveal" aria-labelledby="cat-${esc(cat)}"><h3 id="cat-${esc(cat)}">${esc(cat)}</h3>
         ${items.map(s => `<div class="price-row">
-          <div><div class="name">${esc(s.nombre)} ${s.popular ? '<span class="pill pill-accent">Más pedido</span>' : ''}</div>
-            <div class="dur">${fmtDur(s.duracion)}</div></div>
-          <div class="amount num">${fmtPrecio(s.precio)}</div>
+          <div><div class="name">${esc(s.nombre)} ${s.popular ? '<span class="pill pill-accent">Más pedido</span>' : ''}${s.extra ? '<span class="pill pill-gloss">Complemento</span>' : ''}</div>
+            <div class="dur">${s.extra ? '+' : ''}${fmtDur(s.duracion)}</div></div>
+          <div class="amount num">${s.extra ? '+' : ''}${fmtPrecio(s.precio)}</div>
           ${s.descripcion ? `<p class="desc">${esc(s.descripcion)}</p>` : '<span></span>'}
-          <button type="button" class="btn btn-soft" data-reservar="${s.id}" aria-label="Reservar ${esc(s.nombre)}">Reservar</button>
+          ${s.extra ? '<span></span>' : `<button type="button" class="btn btn-soft btn-sm" data-reservar="${s.id}" aria-label="Reservar ${esc(s.nombre)}">Reservar</button>`}
         </div>`).join('')}</section>`;
-    }).join('');
+    }).join('') || '<div class="empty">La lista de precios estará aquí muy pronto.</div>';
     $('#policy').innerHTML = `<h3 id="policyTitle">Antes de reservar</h3><p>${esc(a.sena)}</p><p>${esc(a.politica)}</p>`;
   }
 
-  // ---------- Turnos: un paso a la vez (día → hora → datos) ----------
+  // ---------- Turnos: día → hora → datos ----------
   function renderBooking() {
     const { dias } = state.data;
     $('#weekRange').textContent = `${fmtDia(dias[0].fecha, { day: 'numeric', month: 'short' })} – ${fmtDia(dias[6].fecha, { day: 'numeric', month: 'short' })}`;
     if (!state.dia || !dias.find(d => d.fecha === state.dia)?.turnos.length) state.dia = primerLibre()?.dia || null;
     const dia = dias.find(d => d.fecha === state.dia);
     if (state.turno && !dia?.turnos.some(t => t.id === state.turno.id)) state.turno = null;
-
     if (!state.dia) {
       $('#booking').innerHTML = `<div class="empty"><p>No quedan turnos libres esta semana.</p>
         <a class="btn btn-primary" href="${waLink('Hola, no vi turnos libres. ¿Me avisas si se libera alguno?')}" rel="noopener">Pedir aviso por WhatsApp</a></div>`;
@@ -369,25 +564,45 @@
     }
     $('#booking').innerHTML = `
       <fieldset><legend>1. Elige el día</legend>
-        <div class="days">${dias.map(d => {
+        <div class="days stagger">${dias.map((d, i) => {
           const n = d.turnos.length;
-          return `<label class="choice"><input type="radio" name="dia" value="${d.fecha}" ${d.fecha === state.dia ? 'checked' : ''} ${n ? '' : 'disabled'}
+          return `<label class="choice" style="--i:${i}"><input type="radio" name="dia" value="${d.fecha}" ${d.fecha === state.dia ? 'checked' : ''} ${n ? '' : 'disabled'}
               aria-label="${fmtDia(d.fecha, { weekday: 'long', day: 'numeric', month: 'long' })}, ${n ? n + (n === 1 ? ' turno libre' : ' turnos libres') : 'sin turnos'}">
             <span class="day" aria-hidden="true"><span class="dow">${fmtDia(d.fecha, { weekday: 'short' }).replace('.', '')}</span>
             <span class="dnum num">${fecha(d.fecha).getDate()}</span><span class="free">${n ? n + ' libres' : 'lleno'}</span></span></label>`;
         }).join('')}</div>
       </fieldset>
       <fieldset><legend>2. Elige la hora <span class="muted" style="font-weight:400">· ${fmtDia(state.dia, { weekday: 'long', day: 'numeric' })}</span></legend>
-        <div class="slots">${dia.turnos.map(t => `<label class="choice"><input type="radio" name="turno" value="${t.id}" ${state.turno?.id === t.id ? 'checked' : ''} aria-label="${hora12(t.hora)}">
-          <span class="slot num" aria-hidden="true">${hora12(t.hora)}</span></label>`).join('')}</div>
+        <div class="slots stagger" id="slots">${slotsHtml(dia)}</div>
       </fieldset>
-      <div class="cta-bar"><button type="button" class="btn btn-primary btn-block" id="continuar" ${state.turno ? '' : 'aria-disabled="true"'}>
-        ${state.turno ? `Continuar · ${fmtDia(state.dia, { weekday: 'short', day: 'numeric' })}, ${hora12(state.turno.hora)}` : 'Elige una hora para continuar'}</button></div>`;
+      <div class="cta-bar"><button type="button" class="btn btn-primary btn-block" id="continuar" ${state.turno ? '' : 'aria-disabled="true"'}>${ctaText()}</button></div>`;
+  }
+  const slotsHtml = dia => dia.turnos.map((t, i) => `<label class="choice" style="--i:${i}"><input type="radio" name="turno" value="${t.id}" ${state.turno?.id === t.id ? 'checked' : ''} aria-label="${hora12(t.hora)}">
+    <span class="slot num" aria-hidden="true">${hora12(t.hora)}</span></label>`).join('');
+  const ctaText = () => state.turno ? `Continuar · ${fmtDia(state.dia, { weekday: 'short', day: 'numeric' })}, ${hora12(state.turno.hora)}` : 'Elige una hora para continuar';
+
+  // ---------- Formulario de reserva ----------
+  function totalActual() {
+    const s = state.data.servicios; const base = s.find(x => x.id === state.servicioId);
+    const ex = s.filter(x => state.extras.has(x.id));
+    return { precio: (base?.precio || 0) + ex.reduce((t, e) => t + e.precio, 0), dur: (base?.duracion || 0) + ex.reduce((t, e) => t + e.duracion, 0) };
+  }
+  function animarNumero(el, hasta) {
+    const desde = Number(el.dataset.v || 0); el.dataset.v = hasta;
+    if (reduced || desde === hasta) { el.textContent = fmtPrecio(hasta); return; }
+    const t0 = performance.now(); const D = 450;
+    const tick = t => { const k = Math.min(1, (t - t0) / D); const e = 1 - Math.pow(1 - k, 3); el.textContent = fmtPrecio(Math.round(desde + (hasta - desde) * e)); if (k < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+  function actualizarTotal() {
+    const t = totalActual(); animarNumero($('#totalPrecio'), t.precio); $('#totalDur').textContent = `Duración aprox. ${fmtDur(t.dur)}`;
   }
 
   function openBook() {
     const { servicios, ajustes: a } = state.data;
-    if (!state.servicioId) state.servicioId = (servicios.find(s => s.popular) || servicios[0])?.id;
+    const principales = servicios.filter(s => !s.extra); const extras = servicios.filter(s => s.extra);
+    if (!principales.some(s => s.id === state.servicioId)) state.servicioId = (principales.find(s => s.popular) || principales[0])?.id;
+    const recordado = store.get('clienta') || {};
     $('#bookDialogTitle').textContent = 'Tus datos';
     $('#bookBody').innerHTML = `
       <div class="summary"><span class="eyebrow">Tu turno</span>
@@ -396,47 +611,54 @@
       <form id="bookForm" novalidate class="sheet-body" style="padding:0">
         <div class="field"><label for="f-servicio">Servicio</label>
           <select class="input" id="f-servicio" name="servicio" aria-describedby="e-servicio">
-            ${state.data.categorias.map(c => {
-              const it = servicios.filter(s => s.categoria === c);
-              return it.length ? `<optgroup label="${esc(c)}">${it.map(s => `<option value="${s.id}" ${s.id === state.servicioId ? 'selected' : ''}>${esc(s.nombre)} · ${fmtPrecio(s.precio)}</option>`).join('')}</optgroup>` : '';
-            }).join('')}
+            ${state.data.categorias.map(c => { const it = principales.filter(s => s.categoria === c);
+              return it.length ? `<optgroup label="${esc(c)}">${it.map(s => `<option value="${s.id}" ${s.id === state.servicioId ? 'selected' : ''}>${esc(s.nombre)} · ${fmtPrecio(s.precio)}</option>`).join('')}</optgroup>` : ''; }).join('')}
           </select><span class="error-text" id="e-servicio"></span></div>
+        ${extras.length ? `<fieldset><legend class="label" style="font-size:var(--fs-sm)">Complementos <span class="muted" style="font-weight:400">(opcional)</span></legend>
+          <div class="extras">${extras.map(e => `<label class="extra"><input type="checkbox" name="extra" value="${e.id}" ${state.extras.has(e.id) ? 'checked' : ''}>
+            <span>${esc(e.nombre)}</span><span class="num muted">+${fmtPrecio(e.precio)}</span></label>`).join('')}</div></fieldset>` : ''}
+        <div class="total" aria-live="polite"><span class="muted" id="totalDur"></span><strong class="num" id="totalPrecio"></strong></div>
         <div class="field"><label for="f-nombre">Nombre</label>
-          <input class="input" id="f-nombre" name="nombre" autocomplete="name" required aria-describedby="e-nombre">
+          <input class="input" id="f-nombre" name="nombre" autocomplete="name" required aria-describedby="e-nombre" value="${esc(recordado.nombre || '')}">
           <span class="error-text" id="e-nombre"></span></div>
         <div class="field"><label for="f-telefono">Teléfono / WhatsApp</label>
-          <input class="input" id="f-telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="h-telefono e-telefono">
+          <input class="input" id="f-telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="h-telefono e-telefono" value="${esc(recordado.telefono || '')}">
           <span class="hint" id="h-telefono">Te escribimos aquí para confirmar.</span><span class="error-text" id="e-telefono"></span></div>
         <div class="field"><label for="f-notas">Notas <span class="muted" style="font-weight:400">(opcional)</span></label>
           <textarea class="input" id="f-notas" name="notas" maxlength="400" aria-describedby="h-notas">${esc(state.nota)}</textarea>
           <span class="hint" id="h-notas">Diseño que quieres, forma, largo o alergias.</span></div>
+        <label class="check-line"><input type="checkbox" id="f-recordar" ${recordado.nombre ? 'checked' : ''}> Recordar mi nombre y teléfono en este equipo</label>
         <p class="hint">${esc(a.sena)} ${esc(a.politica)}</p>
         <p class="error-text" id="e-general" role="alert"></p>
         <button class="btn btn-primary btn-block" type="submit" id="enviar">Solicitar turno</button>
       </form>`;
     $('#bookDialog').showModal();
-    $('#f-nombre').focus();
+    actualizarTotal();
+    (recordado.nombre ? $('#enviar') : $('#f-nombre')).focus();
   }
 
   async function submitBook(e) {
     e.preventDefault();
-    const f = e.target; const body = {
-      turno_id: state.turno.id, servicio_id: Number(f.servicio.value),
+    const f = e.target.elements; const body = {
+      turno_id: state.turno.id, servicio_id: Number(f.servicio.value), extras: [...state.extras],
       nombre: f.nombre.value.trim(), telefono: f.telefono.value.trim(), notas: f.notas.value.trim(),
     };
-    // Validación en cliente con mensajes junto al campo
     const errores = {};
     if (body.nombre.length < 2) errores.nombre = 'Escribe tu nombre.';
     if (body.telefono.replace(/\D/g, '').length < 8) errores.telefono = 'Escribe un teléfono de al menos 8 dígitos.';
     ['nombre', 'telefono', 'servicio'].forEach(k => { $('#e-' + k).textContent = errores[k] || ''; f[k].setAttribute('aria-invalid', errores[k] ? 'true' : 'false'); });
     $('#e-general').textContent = '';
     if (Object.keys(errores).length) { f[Object.keys(errores)[0]].focus(); return; }
+    if ($('#f-recordar').checked) store.set('clienta', { nombre: body.nombre, telefono: body.telefono }); else store.del('clienta');
 
     const btn = $('#enviar'); btn.disabled = true; btn.textContent = 'Enviando…';
     let res;
     try {
-      if (state.demo) { await new Promise(r => setTimeout(r, 600)); const s = state.data.servicios.find(x => x.id === body.servicio_id); res = { fecha: state.dia, hora: state.turno.hora, servicio: s.nombre, precio: s.precio }; }
-      else {
+      if (state.demo) {
+        await new Promise(r => setTimeout(r, 700));
+        const s = state.data.servicios.find(x => x.id === body.servicio_id); const t = totalActual();
+        res = { fecha: state.dia, hora: state.turno.hora, servicio: s.nombre, extras: state.data.servicios.filter(x => state.extras.has(x.id)).map(x => x.nombre), precio: t.precio, duracion: t.dur };
+      } else {
         const r = await fetch('/api/reservas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const j = await r.json();
         if (!r.ok) {
@@ -451,29 +673,40 @@
       $('#e-general').textContent = 'No hay conexión. Revisa tus datos móviles y vuelve a intentar.';
       btn.disabled = false; btn.textContent = 'Solicitar turno'; return;
     }
-    // Quitar el turno de la lista local
     const d = state.data.dias.find(x => x.fecha === res.fecha); if (d) d.turnos = d.turnos.filter(t => t.id !== body.turno_id);
-    state.turno = null; state.nota = '';
+    state.turno = null; state.nota = ''; state.extras.clear();
     showSuccess(res, body);
     renderBooking(); renderHero();
+  }
+
+  function calendarLink(res) {
+    const a = state.data.ajustes;
+    const ini = res.fecha.replace(/-/g, '') + 'T' + res.hora.replace(':', '') + '00';
+    const finD = new Date(`${res.fecha}T${res.hora}:00`); finD.setMinutes(finD.getMinutes() + (res.duracion || 60));
+    const p = n => String(n).padStart(2, '0');
+    const fin = `${finD.getFullYear()}${p(finD.getMonth() + 1)}${p(finD.getDate())}T${p(finD.getHours())}${p(finD.getMinutes())}00`;
+    const q = new URLSearchParams({ action: 'TEMPLATE', text: `${res.servicio} · ${a.nombre}`, dates: `${ini}/${fin}`, ctz: 'America/Havana', location: `${a.direccion}, ${a.ciudad}`, details: 'Turno pendiente de confirmación.' });
+    return 'https://calendar.google.com/calendar/render?' + q;
   }
 
   function showSuccess(res, body) {
     const a = state.data.ajustes;
     const cuando = `${fmtDia(res.fecha, { weekday: 'long', day: 'numeric', month: 'long' })} a las ${hora12(res.hora)}`;
-    const msg = `Hola ${a.nombre}, soy ${body.nombre}. Solicité turno para ${res.servicio} el ${cuando}.${body.notas ? ' Nota: ' + body.notas : ''}`;
-    const numero = (a.whatsapp || '').replace(/\D/g, '');
+    const extras = res.extras?.length ? ` + ${res.extras.join(', ')}` : '';
+    const msg = `Hola ${a.nombre}, soy ${body.nombre}. Solicité turno para ${res.servicio}${extras} el ${cuando} (total ${fmtPrecio(res.precio)}).${body.notas ? ' Nota: ' + body.notas : ''}`;
     $('#bookDialogTitle').textContent = 'Turno solicitado';
     $('#bookBody').innerHTML = `<div class="success">
-      <div class="check" aria-hidden="true">✓</div>
-      <p><strong>${esc(res.servicio)}</strong><br>${cuando}</p>
+      <svg class="tick" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" fill="none" stroke="var(--c-ok)" stroke-width="4"/><path d="M23 37l9 9 18-19" fill="none" stroke="var(--c-ok)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p><strong>${esc(res.servicio)}${esc(extras)}</strong><br>${cuando}<br><span class="num">${fmtPrecio(res.precio)}</span></p>
       <p class="muted">Queda <strong>pendiente</strong> hasta que ${esc(a.nombre)} lo confirme. ${esc(a.sena)}</p>
       <a class="btn btn-primary btn-block" href="${waLink(msg)}" rel="noopener">Avisar por WhatsApp</a>
-      <div class="copy-row"><span>WhatsApp: <strong class="num" id="waNum">+${esc(numero)}</strong></span>
-        <button type="button" class="btn btn-ghost" id="copyNum" style="min-height:36px">Copiar número</button></div>
+      <a class="btn btn-ghost btn-block" href="${calendarLink(res)}" rel="noopener" target="_blank">Agregar a mi calendario</a>
+      <div class="copy-row"><span>WhatsApp: <strong class="num" id="waNum">+${esc(numeroWA())}</strong></span>
+        <button type="button" class="btn btn-ghost btn-sm" data-copy="#waNum">Copiar número</button></div>
       <button type="button" class="btn btn-ghost btn-block" data-close>Listo</button></div>`;
     live('Turno solicitado para ' + cuando);
     $('#bookBody .btn-primary').focus();
+    confetti();
   }
 
   async function reloadSilently() {
@@ -481,74 +714,239 @@
     try { const r = await fetch('/api/publico'); if (r.ok) { state.data = await r.json(); renderBooking(); renderHero(); } } catch {}
   }
 
+  // ---------- Estudio: ubicación, horario, reseñas, sellos, preguntas ----------
+  function renderEstudio() {
+    const a = state.data.ajustes; const { dow } = state.data.ahora;
+    const tieneCoords = a.lat && a.lng;
+    const destino = tieneCoords ? `${a.lat},${a.lng}` : `${a.direccion}, ${a.ciudad}`;
+    const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destino)}`;
+    const osm = tieneCoords ? `https://www.openstreetmap.org/?mlat=${a.lat}&mlon=${a.lng}#map=18/${a.lat}/${a.lng}` : `https://www.openstreetmap.org/search?query=${encodeURIComponent(destino)}`;
+    const rr = state.data.resumenResenas; const res = state.data.resenas || [];
+    const st = estadoAbierto();
+    const H = a.horario || [];
+    const orden = [1, 2, 3, 4, 5, 6, 0];
+    const redes = [
+      a.instagram && `<a class="btn btn-ghost btn-sm" href="https://instagram.com/${esc(a.instagram)}" rel="noopener" target="_blank">Instagram @${esc(a.instagram)}</a>`,
+      a.facebook && `<a class="btn btn-ghost btn-sm" href="${/^https?:/.test(a.facebook) ? esc(a.facebook) : 'https://facebook.com/' + esc(a.facebook)}" rel="noopener" target="_blank">Facebook</a>`,
+    ].filter(Boolean).join('');
+
+    $('#estudio').innerHTML = `
+      <section class="section reveal" aria-labelledby="s-ubic"><h3 id="s-ubic">Dónde estamos</h3>
+        <div class="map" id="map" role="img" aria-label="Mapa de ubicación de ${esc(a.nombre)}">${mapSvg()}
+          ${tieneCoords && !state.demo ? '<button type="button" class="btn btn-ghost btn-sm map-load" id="loadMap" style="background:var(--c-surface)">Cargar mapa interactivo</button>' : ''}</div>
+        <div class="address"><strong id="addr">${esc(a.direccion)}</strong>${a.referencia ? `<span class="muted">${esc(a.referencia)}</span>` : ''}<span class="muted">${esc(a.ciudad)}</span></div>
+        <div class="row">
+          <a class="btn btn-primary btn-sm" href="${gmaps}" target="_blank" rel="noopener">Cómo llegar</a>
+          <a class="btn btn-ghost btn-sm" href="${osm}" target="_blank" rel="noopener">OpenStreetMap</a>
+          <button type="button" class="btn btn-ghost btn-sm" data-copy="#addr" data-copy-extra="${esc(', ' + a.ciudad)}">Copiar dirección</button>
+        </div>
+      </section>
+
+      <section class="section reveal" aria-labelledby="s-hor"><div class="panel-head"><h3 id="s-hor" style="font-size:var(--fs-lg);font-style:italic;font-weight:500">Horario</h3>
+        ${st ? `<span class="status"><span class="dot ${st.abierto ? 'on' : ''}" aria-hidden="true"></span>${st.texto}</span>` : ''}</div>
+        <div class="card hours">${orden.map(i => `<div class="${i === dow ? 'today' : ''}"${i === dow ? ' aria-current="date"' : ''}><span>${DIAS[i]}${i === dow ? ' (hoy)' : ''}</span>
+          <span class="num">${H[i]?.abierto ? `${hora12(H[i].abre)} – ${hora12(H[i].cierra)}` : 'Cerrado'}</span></div>`).join('')}</div>
+      </section>
+
+      <section class="section reveal" id="resenas" aria-labelledby="s-res"><h3 id="s-res">Lo que dicen las clientas</h3>
+        ${rr?.total ? `<div class="rating-big"><span class="score num">${String(rr.promedio).replace('.', ',')}</span>
+          <div><span class="stars" style="--pct:${(rr.promedio / 5) * 100}%" role="img" aria-label="${rr.promedio} de 5 estrellas"></span><div class="muted">${rr.total} ${rr.total === 1 ? 'opinión' : 'opiniones'}</div></div></div>
+          <div class="reviews" tabindex="0" aria-label="Opiniones, desliza para ver más">${res.map(r => `<article class="review"><span class="stars" style="--pct:${r.estrellas * 20}%" role="img" aria-label="${r.estrellas} de 5 estrellas"></span>
+            <p>${esc(r.texto)}</p><strong style="font-size:var(--fs-sm)">${esc(r.nombre)}</strong></article>`).join('')}</div>`
+          : '<p class="muted">Todavía no hay opiniones publicadas. ¡Sé la primera!</p>'}
+        <button type="button" class="btn btn-soft" id="openReview">Dejar mi opinión</button>
+      </section>
+
+      ${a.fidelidad_activa === '1' ? `<section class="loyalty reveal" aria-labelledby="s-fid">
+        <span class="eyebrow" style="color:var(--c-gloss)">Tarjeta de sellos</span>
+        <h3 id="s-fid">${esc(a.fidelidad_premio)}</h3>
+        <p class="muted">Cada visita completada suma un sello. Al llegar a ${esc(a.fidelidad_visitas)} sellos, el premio es tuyo.</p>
+        <form id="loyaltyForm" class="row" novalidate style="align-items:end">
+          <div class="field" style="flex:1;min-width:180px"><label for="l-tel">Tu teléfono</label>
+            <input class="input" id="l-tel" type="tel" inputmode="tel" autocomplete="tel" value="${esc(store.get('clienta')?.telefono || '')}" aria-describedby="l-err"></div>
+          <button class="btn btn-primary" type="submit">Ver mis sellos</button></form>
+        <p class="error-text" id="l-err" role="alert"></p>
+        <div id="stampsOut" aria-live="polite">${stampsHtml(0, Number(a.fidelidad_visitas) || 6, false)}</div>
+      </section>` : ''}
+
+      ${(a.faq || []).length ? `<section class="section reveal" aria-labelledby="s-faq"><h3 id="s-faq">Preguntas y cuidados</h3>
+        <div class="faq">${a.faq.map(q => `<details><summary>${esc(q.p)}</summary><p class="ans">${esc(q.r)}</p></details>`).join('')}</div></section>` : ''}
+
+      <section class="section reveal" aria-labelledby="s-cont"><h3 id="s-cont">Contacto</h3>
+        <div class="row"><a class="btn btn-primary btn-sm" href="${waLink('Hola, tengo una consulta.')}" rel="noopener">WhatsApp</a>${redes}</div>
+        <p class="muted">WhatsApp: <span class="num" id="waNum2">+${esc(numeroWA())}</span> <button type="button" class="btn btn-ghost btn-sm" data-copy="#waNum2">Copiar</button></p>
+      </section>`;
+  }
+
+  function stampsHtml(sellos, meta, animar) {
+    return `<div class="stamps">${Array.from({ length: meta }, (_, i) => `<span class="stamp ${i < sellos ? 'on' : ''}" style="--i:${i}" ${animar ? '' : 'data-static'}>${i < sellos ? nailIcon : ''}</span>`).join('')}</div>`;
+  }
+
+  async function consultarSellos(e) {
+    e.preventDefault();
+    const tel = $('#l-tel').value.trim(); $('#l-err').textContent = '';
+    if (tel.replace(/\D/g, '').length < 8) { $('#l-err').textContent = 'Escribe el teléfono con el que reservas (8 dígitos o más).'; $('#l-tel').setAttribute('aria-invalid', 'true'); return $('#l-tel').focus(); }
+    $('#l-tel').setAttribute('aria-invalid', 'false');
+    let r;
+    try {
+      if (state.demo) { await new Promise(x => setTimeout(x, 400)); r = { meta: 6, sellos: 4, premiosGanados: 0, premio: state.data.ajustes.fidelidad_premio }; }
+      else { const x = await fetch('/api/fidelidad?telefono=' + encodeURIComponent(tel)); r = await x.json(); if (!x.ok) throw new Error(r.error); }
+    } catch (er) { $('#l-err').textContent = er.message || 'No hay conexión. Intenta de nuevo.'; return; }
+    const faltan = r.meta - r.sellos;
+    $('#stampsOut').innerHTML = `${stampsHtml(r.sellos, r.meta, true)}
+      <p style="margin-top:var(--sp-3)">${r.sellos ? `Tienes <strong>${r.sellos}</strong> ${r.sellos === 1 ? 'sello' : 'sellos'}. ` : 'Aún no tienes sellos. '}${faltan === r.meta && r.premiosGanados ? '' : `Te ${faltan === 1 ? 'falta' : 'faltan'} ${faltan} para tu premio.`}
+      ${r.premiosGanados ? ` Ya ganaste ${r.premiosGanados} ${r.premiosGanados === 1 ? 'premio' : 'premios'}.` : ''}</p>`;
+    live(`Tienes ${r.sellos} de ${r.meta} sellos`);
+  }
+
+  function openReview() {
+    const rec = store.get('clienta') || {};
+    $('#reviewBody').innerHTML = `<form id="reviewForm" novalidate class="sheet-body" style="padding:0">
+      <fieldset><legend class="label" style="font-size:var(--fs-sm)">¿Cuántas estrellas?</legend>
+        <div class="star-input">${[5, 4, 3, 2, 1].map(n => `<input type="radio" name="estrellas" id="st${n}" value="${n}" ${n === 5 ? 'checked' : ''}><label for="st${n}" aria-label="${n} ${n === 1 ? 'estrella' : 'estrellas'}">★</label>`).join('')}</div>
+        <span class="error-text" id="r-e-estrellas"></span></fieldset>
+      <div class="field"><label for="r-nombre">Tu nombre</label><input class="input" id="r-nombre" name="nombre" autocomplete="given-name" value="${esc(rec.nombre || '')}" aria-describedby="r-e-nombre"><span class="error-text" id="r-e-nombre"></span></div>
+      <div class="field"><label for="r-texto">Tu opinión</label><textarea class="input" id="r-texto" name="texto" maxlength="500" aria-describedby="r-e-texto"></textarea><span class="error-text" id="r-e-texto"></span></div>
+      <p class="hint">Se publica después de que la manicurista la revise.</p>
+      <p class="error-text" id="r-e-general" role="alert"></p>
+      <button class="btn btn-primary btn-block" type="submit" id="r-enviar">Enviar opinión</button></form>`;
+    $('#reviewDialog').showModal(); $('#r-nombre').focus();
+  }
+
+  async function submitReview(e) {
+    e.preventDefault(); const f = e.target.elements;
+    const body = { nombre: f.nombre.value.trim(), texto: f.texto.value.trim(), estrellas: Number(f.estrellas.value) };
+    const errs = {};
+    if (body.nombre.length < 2) errs.nombre = 'Escribe tu nombre.';
+    if (body.texto.length < 5) errs.texto = 'Cuéntanos un poco más (mínimo 5 letras).';
+    ['nombre', 'texto'].forEach(k => { $('#r-e-' + k).textContent = errs[k] || ''; f[k].setAttribute('aria-invalid', errs[k] ? 'true' : 'false'); });
+    if (Object.keys(errs).length) return f[Object.keys(errs)[0]].focus();
+    const btn = $('#r-enviar'); btn.disabled = true; btn.textContent = 'Enviando…';
+    try {
+      if (!state.demo) {
+        const r = await fetch('/api/resenas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const j = await r.json(); if (!r.ok) throw new Error(j.error);
+      } else await new Promise(r => setTimeout(r, 500));
+      $('#reviewBody').innerHTML = `<div class="success"><svg class="tick" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="30" fill="none" stroke="var(--c-ok)" stroke-width="4"/><path d="M23 37l9 9 18-19" fill="none" stroke="var(--c-ok)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p><strong>¡Gracias, ${esc(body.nombre)}!</strong></p><p class="muted">Tu opinión aparecerá cuando la revisemos.</p><button type="button" class="btn btn-ghost btn-block" data-close>Cerrar</button></div>`;
+      live('Opinión enviada'); $('#reviewBody [data-close]').focus();
+    } catch (er) { $('#r-e-general').textContent = er.message || 'No hay conexión. Intenta de nuevo.'; btn.disabled = false; btn.textContent = 'Enviar opinión'; }
+  }
+
+  // ---------- Confeti de gotas de esmalte ----------
+  function confetti() {
+    if (reduced) return;
+    const cv = $('#confetti'); const ctx = cv.getContext('2d'); if (!ctx) return; cv.hidden = false;
+    const dpr = Math.min(devicePixelRatio || 1, 2); cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.scale(dpr, dpr);
+    const cs = getComputedStyle(document.documentElement);
+    const colores = ['--c-accent', '--c-gloss', '--c-accent-soft', '--c-ok'].map(v => cs.getPropertyValue(v).trim());
+    const P = Array.from({ length: 70 }, () => ({ x: innerWidth / 2 + (Math.random() - .5) * 80, y: innerHeight * .38, vx: (Math.random() - .5) * 9, vy: -Math.random() * 11 - 4, r: Math.random() * Math.PI, vr: (Math.random() - .5) * .3, w: 5 + Math.random() * 4, h: 9 + Math.random() * 7, c: colores[Math.floor(Math.random() * colores.length)] }));
+    const t0 = performance.now();
+    const frame = t => {
+      const k = (t - t0) / 1700; ctx.clearRect(0, 0, innerWidth, innerHeight);
+      for (const p of P) {
+        p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        ctx.save(); ctx.globalAlpha = Math.max(0, 1 - k); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c;
+        ctx.beginPath(); ctx.moveTo(-p.w / 2, p.h / 2); ctx.lineTo(-p.w / 2, -p.h / 6); ctx.quadraticCurveTo(0, -p.h, p.w / 2, -p.h / 6); ctx.lineTo(p.w / 2, p.h / 2); ctx.closePath(); ctx.fill(); ctx.restore();
+      }
+      if (k < 1) requestAnimationFrame(frame); else { ctx.clearRect(0, 0, innerWidth, innerHeight); cv.hidden = true; }
+    };
+    requestAnimationFrame(frame);
+  }
+
   // ---------- Pestañas ----------
+  function moveIndicator() {
+    const b = $(`[role="tab"][data-tab="${state.tab}"]`); const ind = $('#tabInd'); if (!b) return;
+    ind.style.width = b.offsetWidth + 'px'; ind.style.transform = `translateX(${b.offsetLeft}px)`;
+  }
   function setTab(tab, focus) {
+    const prev = TABS.indexOf(state.tab); const next = TABS.indexOf(tab);
     state.tab = tab;
-    document.querySelectorAll('[role="tab"]').forEach(b => {
-      const on = b.dataset.tab === tab;
-      b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1;
-      $('#' + b.getAttribute('aria-controls')).hidden = !on;
+    $$('[role="tab"]').forEach(b => {
+      const on = b.dataset.tab === tab; const p = $('#' + b.getAttribute('aria-controls'));
+      b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; p.hidden = !on;
+      p.classList.remove('enter-r', 'enter-l');
+      if (on && prev !== next) { void p.offsetWidth; p.classList.add(next > prev ? 'enter-r' : 'enter-l'); }
       if (on && focus) b.focus();
     });
+    moveIndicator();
     try { history.replaceState(null, '', '#' + tab); } catch {}
-    window.scrollTo({ top: 0 });
+    const hero = $('#hero'); const top = hero.offsetTop + hero.offsetHeight - 8;
+    if (scrollY > top) window.scrollTo({ top, behavior: reduced ? 'auto' : 'smooth' });
   }
 
   const live = t => { $('#live').textContent = ''; setTimeout(() => { $('#live').textContent = t; }, 50); };
-  function toast(t) { const el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 2600); }
+  function toast(t) { const el = $('#toast'); el.textContent = t; el.hidden = true; void el.offsetWidth; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 2800); }
 
   // ---------- Eventos ----------
   document.addEventListener('click', async e => {
     const t = e.target.closest('button, a'); if (!t) return;
+    if (t.hasAttribute('data-close')) { t.closest('dialog').close(); return; }
     if (t.dataset.tab) setTab(t.dataset.tab);
-    else if (t.dataset.goto) setTab(t.dataset.goto);
+    else if (t.dataset.goto) {
+      setTab(t.dataset.goto);
+      if (t.dataset.scroll) setTimeout(() => $('#' + t.dataset.scroll)?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }), 80);
+    }
     else if (t.dataset.filtro) { state.filtro = t.dataset.filtro; renderGallery(); live(`${$('#worksCount').textContent} en ${state.filtro}`); $(`[data-filtro="${CSS.escape(state.filtro)}"]`)?.focus(); }
-    else if (t.dataset.work) {
-      const w = state.data.trabajos.find(x => String(x.id) === t.dataset.work); state.work = w;
-      $('#workDialogTitle').textContent = w.titulo; $('#workDialogImg').innerHTML = workMedia(w, true); $('#workDialogCat').textContent = w.categoria;
-      $('#workDialog').showModal();
-    }
-    else if (t.id === 'wantThis') {
-      state.nota = `Quiero el diseño "${state.work.titulo}".`; $('#workDialog').close(); setTab('turnos');
-      toast('Elige día y hora. Tu diseño quedó anotado.');
-    }
+    else if (t.dataset.work) { showWork(Number(t.dataset.work)); $('#workDialog').showModal(); }
+    else if (t.id === 'prevWork') showWork(state.workIdx - 1, 'l');
+    else if (t.id === 'nextWork') showWork(state.workIdx + 1, 'r');
+    else if (t.id === 'wantThis') { state.nota = `Quiero el diseño "${state.lista[state.workIdx].titulo}".`; $('#workDialog').close(); setTab('turnos'); toast('Elige día y hora. Tu diseño quedó anotado.'); }
     else if (t.dataset.reservar) { state.servicioId = Number(t.dataset.reservar); setTab('turnos'); toast('Servicio elegido. Ahora el día y la hora.'); }
-    else if (t.id === 'continuar') {
-      if (!state.turno) { live('Primero elige una hora.'); $('input[name="turno"]')?.focus(); return; }
-      openBook();
+    else if (t.id === 'continuar') { if (!state.turno) { live('Primero elige una hora.'); $('input[name="turno"]')?.focus(); return; } openBook(); }
+    else if (t.id === 'openReview') openReview();
+    else if (t.id === 'loadMap') {
+      const a = state.data.ajustes; const la = Number(a.lat), lo = Number(a.lng), d = .004;
+      $('#map').innerHTML = `<iframe title="Mapa interactivo de ${esc(a.nombre)}" loading="lazy" referrerpolicy="no-referrer" src="https://www.openstreetmap.org/export/embed.html?bbox=${lo - d},${la - d * .6},${lo + d},${la + d * .6}&layer=mapnik&marker=${la},${lo}"></iframe>`;
     }
-    else if (t.id === 'copyNum') {
-      const txt = $('#waNum').textContent;
-      try { await navigator.clipboard.writeText(txt); toast('Número copiado'); }
-      catch { const r = document.createRange(); r.selectNodeContents($('#waNum')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Número seleccionado. Cópialo.'); }
+    else if (t.dataset.copy) {
+      const el = $(t.dataset.copy); const txt = el.textContent + (t.dataset.copyExtra || '');
+      try { await navigator.clipboard.writeText(txt); toast('Copiado'); }
+      catch { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Texto seleccionado. Cópialo.'); }
     }
-    if (t.hasAttribute('data-close')) t.closest('dialog').close();
   });
 
   document.addEventListener('change', e => {
-    if (e.target.name === 'dia') { state.dia = e.target.value; state.turno = null; renderBooking(); $(`input[name="dia"][value="${state.dia}"]`).focus(); }
-    if (e.target.name === 'turno') {
+    const n = e.target.name;
+    if (n === 'dia') {
+      state.dia = e.target.value; state.turno = null;
       const dia = state.data.dias.find(d => d.fecha === state.dia);
-      state.turno = dia.turnos.find(x => String(x.id) === e.target.value);
-      const btn = $('#continuar'); btn.removeAttribute('aria-disabled');
-      btn.textContent = `Continuar · ${fmtDia(state.dia, { weekday: 'short', day: 'numeric' })}, ${hora12(state.turno.hora)}`;
+      $('#slots').innerHTML = slotsHtml(dia); const s = $('#slots'); s.classList.remove('stagger'); void s.offsetWidth; s.classList.add('stagger');
+      $('legend span', $('#slots').closest('fieldset')).textContent = '· ' + fmtDia(state.dia, { weekday: 'long', day: 'numeric' });
+      const b = $('#continuar'); b.setAttribute('aria-disabled', 'true'); b.classList.remove('ready'); b.textContent = ctaText();
     }
-    if (e.target.id === 'f-servicio') state.servicioId = Number(e.target.value);
+    if (n === 'turno') {
+      state.turno = state.data.dias.find(d => d.fecha === state.dia).turnos.find(x => String(x.id) === e.target.value);
+      const b = $('#continuar'); b.removeAttribute('aria-disabled'); b.textContent = ctaText(); b.classList.remove('ready'); void b.offsetWidth; b.classList.add('ready');
+    }
+    if (e.target.id === 'f-servicio') { state.servicioId = Number(e.target.value); actualizarTotal(); }
+    if (n === 'extra') { const id = Number(e.target.value); e.target.checked ? state.extras.add(id) : state.extras.delete(id); actualizarTotal(); }
   });
-  document.addEventListener('submit', e => { if (e.target.id === 'bookForm') submitBook(e); });
+  document.addEventListener('submit', e => {
+    if (e.target.id === 'bookForm') submitBook(e);
+    if (e.target.id === 'loyaltyForm') consultarSellos(e);
+    if (e.target.id === 'reviewForm') submitReview(e);
+  });
 
-  // Flechas entre pestañas (patrón ARIA tabs)
-  $('#tablist').addEventListener('keydown', e => {
-    const tabs = [...document.querySelectorAll('[role="tab"]')]; const i = tabs.indexOf(document.activeElement);
-    if (i < 0) return;
-    let n = null;
-    if (e.key === 'ArrowRight') n = (i + 1) % tabs.length; else if (e.key === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length;
-    else if (e.key === 'Home') n = 0; else if (e.key === 'End') n = tabs.length - 1;
-    if (n !== null) { e.preventDefault(); setTab(tabs[n].dataset.tab, true); }
+  // Visor: flechas del teclado y deslizar con el dedo
+  $('#workDialog').addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); showWork(state.workIdx + 1, 'r'); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); showWork(state.workIdx - 1, 'l'); }
   });
+  let x0 = null;
+  $('#viewer').addEventListener('pointerdown', e => { x0 = e.clientX; });
+  $('#viewer').addEventListener('pointerup', e => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 40) showWork(state.workIdx + (dx < 0 ? 1 : -1), dx < 0 ? 'r' : 'l'); });
+
+  // Pestañas: flechas, Inicio y Fin (patrón ARIA)
+  $('#tablist').addEventListener('keydown', e => {
+    const tabs = $$('[role="tab"]'); const i = tabs.indexOf(document.activeElement); if (i < 0) return;
+    const n = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
+    if (n !== undefined) { e.preventDefault(); setTab(tabs[n].dataset.tab, true); }
+  });
+  addEventListener('resize', moveIndicator);
 
   const inicial = (location.hash || '').slice(1);
-  if (['trabajos', 'precios', 'turnos'].includes(inicial)) setTab(inicial);
+  if (TABS.includes(inicial)) setTab(inicial); else moveIndicator();
   load();
 })();
 </script>

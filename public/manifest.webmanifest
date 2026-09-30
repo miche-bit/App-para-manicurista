@@ -1,0 +1,11 @@
+{
+  "name": "Estudio de uñas",
+  "short_name": "Uñas",
+  "description": "Trabajos, precios y turnos disponibles",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBF7F8",
+  "theme_color": "#A3123F",
+  "lang": "es",
+  "icons": [{ "src": "/icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
